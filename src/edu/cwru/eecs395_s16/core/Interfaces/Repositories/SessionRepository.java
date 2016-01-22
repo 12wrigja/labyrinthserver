@@ -9,5 +9,6 @@ import java.util.UUID;
  */
 public interface SessionRepository {
     Player findPlayer(UUID token);
+
     void storePlayer(UUID token, Player player);
 }

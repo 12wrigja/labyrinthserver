@@ -5,12 +5,12 @@ package edu.cwru.eecs395_s16.core.Interfaces.Objects;
  */
 public interface Weapon {
 
-    public int getDamage();
+    int getDamage();
 
-    public String getImage();
+    String getImage();
 
-    public String getName();
+    String getName();
 
-    public String getDescription();
+    String getDescription();
 
 }

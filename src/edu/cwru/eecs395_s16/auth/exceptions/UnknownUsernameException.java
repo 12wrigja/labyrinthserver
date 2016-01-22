@@ -7,6 +7,6 @@ import edu.cwru.eecs395_s16.networking.StatusCode;
  */
 public class UnknownUsernameException extends JsonableException {
     public UnknownUsernameException(String username) {
-        super(StatusCode.UNPROCESSABLE_DATA, "The username '"+username+"' is invalid.");
+        super(StatusCode.UNPROCESSABLE_DATA, "The username '" + username + "' is invalid.");
     }
 }

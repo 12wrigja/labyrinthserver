@@ -18,17 +18,18 @@ public class GameEngine {
     public final SessionRepository sessionRepo;
 
     private SocketIOServer gameSocket;
-    private GameEngine(){
+
+    private GameEngine() {
         this.userRepo = new InMemoryPlayerRepository();
         this.sessionRepo = new InMemorySessionRepository();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         //This kicks off the game engine.
         GameEngine.instance.start();
     }
 
-    public void start(){
+    public void start() {
         Configuration config = new Configuration();
         config.setHostname("localhost");
         config.setContext("/StrategyGame");
@@ -40,7 +41,7 @@ public class GameEngine {
             System.out.println(client.getSessionId());
         });
         gameSocket.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down socket connection.");
             gameSocket.stop();
             System.out.println("Shut down complete.");

@@ -24,7 +24,7 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
     }
 
     public AuthenticationMiddlewareDataListener(NetworkingInterface instance, Method next, boolean needsAuthentication) {
-        this(instance,next);
+        this(instance, next);
         this.needsAuthentication = needsAuthentication;
     }
 
@@ -37,11 +37,11 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
         } else {
             Jsonable response;
             try {
-                response = (Jsonable) next.invoke(instance,data);
+                response = (Jsonable) next.invoke(instance, data);
             } catch (Exception e) {
                 e.printStackTrace();
-                if(e instanceof JsonableException){
-                    response = (JsonableException)e;
+                if (e instanceof JsonableException) {
+                    response = (JsonableException) e;
                 } else {
                     response = new Response();
                 }

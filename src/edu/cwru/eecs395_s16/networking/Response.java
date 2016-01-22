@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public class Response implements Jsonable {
 
-    private Map<String,Object> storage;
+    private Map<String, Object> storage;
 
-    public Response(){
+    public Response() {
         this.storage = new HashMap<>();
         storage.put("status", StatusCode.OK.code);
     }

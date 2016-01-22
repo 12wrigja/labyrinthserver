@@ -1,19 +1,5 @@
 package edu.cwru.eecs395_s16.networking;
 
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.listener.DataListener;
-import edu.cwru.eecs395_s16.auth.LoginRequestObject;
-import edu.cwru.eecs395_s16.auth.RegisterUserRequest;
-import edu.cwru.eecs395_s16.auth.InMemoryPlayerRepository;
-import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
-import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
-import edu.cwru.eecs395_s16.core.Player;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class TestServer {
 
 //    static Map<UUID, Player> sessionMap;

@@ -9,12 +9,12 @@ public class Player {
 
     private String password;
 
-    public Player(String username, String password){
+    public Player(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
-    public boolean checkPassword(String password){
+    public boolean checkPassword(String password) {
         return this.password.equals(password);
     }
 

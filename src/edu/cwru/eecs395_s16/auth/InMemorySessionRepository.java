@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 public class InMemorySessionRepository implements SessionRepository {
 
-    private Map<UUID,Player> sessionMap = new HashMap<>();
+    private Map<UUID, Player> sessionMap = new HashMap<>();
 
     @Override
     public Player findPlayer(UUID token) {
@@ -21,6 +21,6 @@ public class InMemorySessionRepository implements SessionRepository {
 
     @Override
     public void storePlayer(UUID token, Player player) {
-        sessionMap.put(token,player);
+        sessionMap.put(token, player);
     }
 }

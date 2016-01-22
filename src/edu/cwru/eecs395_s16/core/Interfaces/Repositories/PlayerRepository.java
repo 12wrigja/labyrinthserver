@@ -11,8 +11,11 @@ import edu.cwru.eecs395_s16.core.Player;
 public interface PlayerRepository {
 
     Player registerPlayer(String username, String password) throws DuplicateUsernameException;
+
     Player loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException;
+
     Player findPlayer(String username) throws UnknownUsernameException;
+
     void savePlayer(Player p);
 
 }

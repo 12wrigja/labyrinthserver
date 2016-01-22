@@ -10,11 +10,11 @@ public enum StatusCode {
     UNAUTHENTICATED(401, "You must be authenticated to perform this action."),
     UNAUTHORIZED(403, "You are forbidden from performing this action.");
 
+    public final String message;
+    public final Object code;
+
     StatusCode(int code, String message) {
         this.code = code;
         this.message = message;
     }
-
-    public final String message;
-    public final Object code;
 }

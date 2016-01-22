@@ -12,27 +12,27 @@ import java.util.Map;
 /**
  * Created by james on 1/19/16.
  */
-public class InMemoryPlayerRepository implements PlayerRepository{
+public class InMemoryPlayerRepository implements PlayerRepository {
 
     private Map<String, Player> playerMap = new HashMap<>();
 
     @Override
     public Player registerPlayer(String username, String password) throws DuplicateUsernameException {
-        if(playerMap.containsKey(username)){
+        if (playerMap.containsKey(username)) {
             throw new DuplicateUsernameException(username);
         } else {
-            Player p = new Player(username,password);
-            playerMap.put(username,p);
+            Player p = new Player(username, password);
+            playerMap.put(username, p);
             return p;
         }
     }
 
     public Player loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException {
-        if(!playerMap.containsKey(username)){
+        if (!playerMap.containsKey(username)) {
             throw new UnknownUsernameException(username);
         } else {
             Player p = playerMap.get(username);
-            if(p.checkPassword(password)){
+            if (p.checkPassword(password)) {
                 return p;
             } else {
                 throw new InvalidPasswordException();

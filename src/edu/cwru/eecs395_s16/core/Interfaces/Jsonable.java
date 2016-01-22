@@ -7,5 +7,5 @@ import java.util.Map;
  */
 public interface Jsonable {
 
-    Map<String,Object> getJsonableRepresentation();
+    Map<String, Object> getJsonableRepresentation();
 }
