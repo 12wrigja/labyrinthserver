@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.networking;
+package edu.cwru.eecs395_s16.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

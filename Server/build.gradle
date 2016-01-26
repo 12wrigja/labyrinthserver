@@ -1,0 +1,19 @@
+version '1.0-SNAPSHOT'
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile('com.corundumstudio.socketio:netty-socketio:1.7.8')
+    compile project(":Annotations")
+}
+
+task processAnnotations (type: JavaCompile, group: 'build', description: 'Processes custom Annotations.') {
+    source = sourceSets.main.java.srcDirs
+    classpath = configurations.compile
+    options.compilerArgs = [
+            "-proc:only",
+            "-processor","edu.cwru.eecs395_s16.annotations.NetworkEventAnnotationProcessor"
+    ]
+    destinationDir = project.getBuildDir()
+}
+
+build.dependsOn processAnnotations

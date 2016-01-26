@@ -1,0 +1,7 @@
+version '1.0-SNAPSHOT'
+
+compileJava {
+    options.compilerArgs = [
+            '-proc:none'
+    ]
+}

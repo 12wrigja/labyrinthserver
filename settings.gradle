@@ -1,2 +1,3 @@
 rootProject.name = 'GameServer'
-
+include 'Server'
+include 'Annotations'

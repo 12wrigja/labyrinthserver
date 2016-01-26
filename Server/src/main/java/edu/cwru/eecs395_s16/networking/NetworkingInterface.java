@@ -2,8 +2,10 @@ package edu.cwru.eecs395_s16.networking;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
+import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.LoginRequestObject;
 import edu.cwru.eecs395_s16.auth.RegisterUserRequest;
+import edu.cwru.eecs395_s16.core.Player;
 
 import java.lang.reflect.Method;
 
@@ -59,5 +61,9 @@ public class NetworkingInterface {
         return new Response();
     }
 
+    @NetworkEvent
+    public Object purchaseAbility(LoginRequestObject data, Player player) {
+        return new Response();
+    }
 
 }
