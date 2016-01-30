@@ -1,10 +1,15 @@
 version '1.0-SNAPSHOT'
 
+apply plugin: 'application'
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile ('io.socket:socket.io-client:0.6.3')
     compile('com.corundumstudio.socketio:netty-socketio:1.7.8')
     compile project(":Annotations")
 }
+
+mainClassName = 'edu.cwru.eecs395_s16.GameEngine'
 
 task processAnnotations (type: JavaCompile, group: 'build', description: 'Processes custom Annotations.') {
     source = sourceSets.main.java.srcDirs
@@ -16,4 +21,4 @@ task processAnnotations (type: JavaCompile, group: 'build', description: 'Proces
     destinationDir = project.getBuildDir()
 }
 
-build.dependsOn processAnnotations
+compileJava.dependsOn processAnnotations

@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.networking;
 
+import edu.cwru.eecs395_s16.auth.exceptions.JsonableException;
 import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
 
 import java.util.HashMap;
@@ -15,6 +16,18 @@ public class Response implements Jsonable {
     public Response() {
         this.storage = new HashMap<>();
         storage.put("status", StatusCode.OK.code);
+        storage.put("message",StatusCode.OK.message);
+    }
+
+    public Response(JsonableException e) {
+        this();
+        this.storage = e.getJsonableRepresentation();
+    }
+
+    public Response(StatusCode code) {
+        this();
+        storage.put("status", code.code);
+        storage.put("message",code.message);
     }
 
     @Override

@@ -1,17 +1,13 @@
 package edu.cwru.eecs395_s16.auth.exceptions;
 
+import edu.cwru.eecs395_s16.networking.StatusCode;
+
 /**
  * Created by james on 1/20/16.
  */
-public class DuplicateUsernameException extends Exception {
-    private final String username;
+public class DuplicateUsernameException extends JsonableException {
 
     public DuplicateUsernameException(String username) {
-        super();
-        this.username = username;
-    }
-
-    public String getUsername() {
-        return this.username;
+        super(StatusCode.UNPROCESSABLE_DATA,"The username "+username+" is not valid.");
     }
 }

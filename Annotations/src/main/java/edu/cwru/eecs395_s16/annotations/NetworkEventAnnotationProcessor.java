@@ -39,16 +39,22 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
         for(Element element : roundEnv.getElementsAnnotatedWith(NetworkEvent.class)){
             if(element.getKind() == ElementKind.METHOD){
                 NetworkEvent annotation = element.getAnnotation(NetworkEvent.class);
-                ExecutableElement exeEelement = (ExecutableElement)element;
+                ExecutableElement networkedMethod = (ExecutableElement)element;
+
+                //Check the method name follows the correct conventions
+                String methodName = networkedMethod.getSimpleName().toString();
+                if(!methodName.matches("[a-z][a-zA-Z]*")){
+                    error(networkedMethod,"The method %s needs to start with a lower-case letter, and follow cammelCase.",networkedMethod.getSimpleName());
+                }
 
                 //Check return type extends Response
                 TypeMirror expectedReturnType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.networking.Response").asType();
-                TypeMirror currentMirror = exeEelement.getReturnType();
+                TypeMirror currentMirror = networkedMethod.getReturnType();
                 while (true) {
                     //Get TypeKind and check for none - we have reached the top of the inheritance tree.
                     TypeKind kind = currentMirror.getKind();
                     if(kind == TypeKind.NONE){
-                        error(exeEelement,"The method %s should return a type that extends from Response.",exeEelement.getSimpleName());
+                        error(networkedMethod,"The method %s should return a type that extends from Response.",networkedMethod.getSimpleName());
                         //Move on to typechecking for parameters
                         break;
                     }
@@ -63,39 +69,45 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                 }
 
                 //Check Method Parameters
-                List<? extends VariableElement> methodParams = exeEelement.getParameters();
+                List<? extends VariableElement> methodParams = networkedMethod.getParameters();
                 TypeMirror playerType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.core.Player").asType();
+                TypeMirror clientType = elementUtils.getTypeElement("com.corundumstudio.socketio.SocketIOClient").asType();
                 if(annotation.mustAuthenticate()){
                     //Check for the second parameter to be the Player type
                     switch(methodParams.size()){
-                        case 0:
-                            error(exeEelement, "You must have a data object as the first parameter and a Player object for the second parameter of the method %s.", exeEelement.getSimpleName());
-                            break;
                         case 1:
-                            error(exeEelement, "You must have a Player object for the second parameter of the method %s.", exeEelement.getSimpleName());
+                            error(networkedMethod, "You must have a Player object for the second parameter of the method %s.", networkedMethod.getSimpleName());
                             break;
                         case 2:
                             //Check types here.
                              VariableElement playerParam = methodParams.get(1);
                             if(!typeUtils.isAssignable(playerParam.asType(),playerType)){
-                                error(exeEelement, "You must have a Player object for the second parameter of the method %s.", exeEelement.getSimpleName());
+                                error(networkedMethod, "You must have a Player object for the second parameter of the method %s.", networkedMethod.getSimpleName());
                                 break;
                             }
                             break;
                         default:
                             //Here is where checking for injectable types would occur. Probably.
-                            error(exeEelement, "There can only be one parameter for the method %s.", exeEelement.getSimpleName());
+                            error(networkedMethod, "You must have a data object as the first parameter and a Player object for the second parameter of the method %s.", networkedMethod.getSimpleName());
                             break;
                     }
                 } else {
                     switch(methodParams.size()){
                         case 0:
-                            error(exeEelement, "You must have a data object as the first parameter for the method %s.", exeEelement.getSimpleName());
+                            error(networkedMethod, "There must be a data object as the first parameter for the method %s.", networkedMethod.getSimpleName());
                             break;
                         case 1:
+                            //This is the case where we only have the data object as the first parameter. This is great, so just break.
+                            break;
+                        case 2:
+                            //This is the case where the first parameter is assumed to be the data object, and the second is supposed to be the socket.io client class. Check for that here.
+                            VariableElement clientParam = methodParams.get(1);
+                            if(!typeUtils.isAssignable(clientParam.asType(),clientType)){
+                                error(networkedMethod,"The second parameter for a non-authenticated network method must be SocketIOClient.");
+                            }
                             break;
                         default:
-                            error(exeEelement, "There can only be one parameter for the method %s.", exeEelement.getSimpleName());
+                            error(networkedMethod, "There are too many parameters for method %s.", networkedMethod.getSimpleName());
                             break;
                     }
                 }
