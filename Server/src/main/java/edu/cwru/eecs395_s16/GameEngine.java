@@ -1,21 +1,15 @@
 package edu.cwru.eecs395_s16;
 
-import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.auth.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.auth.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
-import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.Slf4JLoggerFactory;
-import org.apache.log4j.BasicConfigurator;
 
-import java.net.BindException;
-import java.util.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by james on 1/21/16.
@@ -28,30 +22,30 @@ public class GameEngine {
 
     private SocketIOServer gameSocket;
     private int serverPort = 4567;
+    private boolean isStarted = false;
 
     private GameEngine() {
         this.userRepo = new InMemoryPlayerRepository();
         this.sessionRepo = new InMemorySessionRepository();
 
-        InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+//        InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
-        int port = 4568;
+//        BasicConfigurator.configure();
+
         if(args.length > 0) {
             try {
-                port = Integer.parseInt(args[0]);
+                int port = Integer.parseInt(args[0]);
+                GameEngine.instance.setServerPort(port);
             } catch (NumberFormatException e) {
-                //Use the default port
+                //Use the default port as defined in the class
             }
         }
-        //This kicks off the game engine.
-        GameEngine.instance.start(port);
+        GameEngine.instance.start();
     }
 
-    public void start(int port) {
-        this.serverPort = port;
+    public void start(){
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down socket connection.");
             gameSocket.stop();
@@ -59,8 +53,8 @@ public class GameEngine {
         }));
 
         Configuration config = new Configuration();
-        config.setHostname("localhost");
-        config.setPort(port);
+        config.setHostname("0.0.0.0");
+        config.setPort(this.serverPort);
         gameSocket = new SocketIOServer(config);
         NetworkingInterface nF = new NetworkingInterface(gameSocket);
         gameSocket.addConnectListener(client -> {
@@ -69,9 +63,22 @@ public class GameEngine {
         gameSocket.addDisconnectListener(client -> {
             System.out.println("Client disconnected: "+client.getSessionId());
         });
+        Timer t = new Timer();
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if(isStarted){
+                    gameSocket.getRoomOperations("TestRoom").sendEvent("room_ping","Ping at time: "+System.currentTimeMillis());
+                }
+            }
+        },0,1000);
         gameSocket.start();
         System.out.println("Engine is now running.");
+        this.isStarted = true;
 
     }
 
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
+    }
 }

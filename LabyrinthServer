@@ -1,0 +1,2 @@
+gradle install
+./Server/build/install/Server/bin/Server
