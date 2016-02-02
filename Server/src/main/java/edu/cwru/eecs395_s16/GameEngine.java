@@ -8,52 +8,70 @@ import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * Created by james on 1/21/16.
  */
 public class GameEngine {
 
-    public static final GameEngine instance = new GameEngine();
     public final PlayerRepository userRepo;
     public final SessionRepository sessionRepo;
 
     private SocketIOServer gameSocket;
     private int serverPort = 4567;
+    private String serverInterface = "0.0.0.0";
     private boolean isStarted = false;
 
-    private GameEngine() {
-        this.userRepo = new InMemoryPlayerRepository();
-        this.sessionRepo = new InMemorySessionRepository();
+    private UUID instanceID;
 
-//        InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
-    }
-
-    public static void main(String[] args) {
-//        BasicConfigurator.configure();
-
-        if(args.length > 0) {
-            try {
-                int port = Integer.parseInt(args[0]);
-                GameEngine.instance.setServerPort(port);
-            } catch (NumberFormatException e) {
-                //Use the default port as defined in the class
-            }
+    private static InheritableThreadLocal<GameEngine> threadLocalGameEngine = new InheritableThreadLocal<GameEngine>(){
+        @Override
+        public GameEngine get() {
+            GameEngine temp = super.get();
+            System.out.println("Getting thread local instance with id: "+temp.instanceID);
+            return temp;
         }
-        GameEngine.instance.start();
+    };
+
+    public static GameEngine instance(){
+        return threadLocalGameEngine.get();
     }
 
-    public void start(){
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Shutting down socket connection.");
-            gameSocket.stop();
-            System.out.println("Shut down complete.");
-        }));
+    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo){
+        this.userRepo = pRepo;
+        this.sessionRepo = sRepo;
+        this.instanceID = UUID.randomUUID();
+    }
+
+    public void setServerInterface(String serverInterface){
+        if(!this.isStarted) {
+            this.serverInterface = serverInterface;
+        }
+    }
+
+    public void setServerPort(int port){
+        if(!this.isStarted) {
+            this.serverPort = port;
+        }
+    }
+
+    public int getServerPort(){
+        return this.serverPort;
+    }
+
+    public void start() throws IOException {
+        //Check here for port availability
+        Socket s = new Socket(serverInterface,serverPort);
+        //Port is available.
+        s.close();
 
         Configuration config = new Configuration();
-        config.setHostname("0.0.0.0");
+        config.setHostname(this.serverInterface);
         config.setPort(this.serverPort);
         gameSocket = new SocketIOServer(config);
         NetworkingInterface nF = new NetworkingInterface(gameSocket);
@@ -64,21 +82,26 @@ public class GameEngine {
             System.out.println("Client disconnected: "+client.getSessionId());
         });
         Timer t = new Timer();
-        t.scheduleAtFixedRate(new TimerTask() {
+        TimerTask pingTask = new TimerTask() {
             @Override
             public void run() {
                 if(isStarted){
                     gameSocket.getRoomOperations("TestRoom").sendEvent("room_ping","Ping at time: "+System.currentTimeMillis());
                 }
             }
-        },0,1000);
-        gameSocket.start();
-        System.out.println("Engine is now running.");
-        this.isStarted = true;
+        };
 
+        gameSocket.start();
+        System.out.println("Engine is now running, bound to interface "+this.serverInterface+" on port "+this.serverPort);
+        this.isStarted = true;
+        t.scheduleAtFixedRate(pingTask,0,1000);
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
+    public void stop(){
+        if(this.isStarted){
+            System.out.println("Shutting down socket connection on interface " + this.serverInterface + " on port "+this.serverPort);
+            gameSocket.stop();
+            System.out.println("Shut down complete.");
+        }
     }
 }

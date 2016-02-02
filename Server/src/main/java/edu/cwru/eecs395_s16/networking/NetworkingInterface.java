@@ -63,14 +63,14 @@ public class NetworkingInterface {
 
     @NetworkEvent(mustAuthenticate = false)
     public Response login(LoginRequestObject data, SocketIOClient client) throws UnknownUsernameException, InvalidPasswordException {
-        Player p = GameEngine.instance.userRepo.loginPlayer(data.getUsername(), data.getPassword());
-        GameEngine.instance.sessionRepo.storePlayer(client.getSessionId(), p);
+        Player p = GameEngine.instance().userRepo.loginPlayer(data.getUsername(), data.getPassword());
+        GameEngine.instance().sessionRepo.storePlayer(client.getSessionId(), p);
         return new Response();
     }
 
     @NetworkEvent(mustAuthenticate = false)
     public Response register(RegisterUserRequest data) throws DuplicateUsernameException, MismatchedPasswordException {
-        Player p = GameEngine.instance.userRepo.registerPlayer(data.getUsername(), data.getPassword());
+        Player p = GameEngine.instance().userRepo.registerPlayer(data.getUsername(), data.getPassword());
         return new Response();
     }
 

@@ -23,11 +23,14 @@ public class AuthorizationTesting extends TestCase {
 
     final Lock lock = new ReentrantLock();
     final Condition flag = lock.newCondition();
+    GameEngine engine;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        GameEngine.instance.start(4500);
+        engine = GameEngine.instance();
+        engine.setServerPort(4500);
+        engine.start();
         socket = IO.socket("http://localhost:4500/");
         socket.connect();
     }
@@ -46,5 +49,6 @@ public class AuthorizationTesting extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         socket.disconnect();
+        engine.stop();
     }
 }

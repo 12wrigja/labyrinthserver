@@ -9,7 +9,7 @@ dependencies {
     compile project(":Annotations")
 }
 
-mainClassName = 'edu.cwru.eecs395_s16.GameEngine'
+mainClassName = 'edu.cwru.eecs395_s16.ui.mainUI'
 
 task processAnnotations (type: JavaCompile, group: 'build', description: 'Processes custom Annotations.') {
     source = sourceSets.main.java.srcDirs

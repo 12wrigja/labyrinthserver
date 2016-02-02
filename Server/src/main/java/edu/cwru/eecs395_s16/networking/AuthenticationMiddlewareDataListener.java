@@ -39,7 +39,7 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();
-                Player p = GameEngine.instance.sessionRepo.findPlayer(token);
+                Player p = GameEngine.instance().sessionRepo.findPlayer(token);
                 if (p != null) {
                     p.setClient(client);
                     //We are all good. Invoke the next method.
