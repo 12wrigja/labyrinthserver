@@ -98,7 +98,7 @@ public class GameEngine {
         gameSocket.start();
         System.out.println("Engine is now running, bound to interface "+this.serverInterface+" on port "+this.serverPort);
         this.isStarted = true;
-//        t.scheduleAtFixedRate(pingTask,0,1000);
+        gameTimer.scheduleAtFixedRate(pingTask,0,1000);
     }
 
     public List<FunctionDescription> getAllFunctions(){
