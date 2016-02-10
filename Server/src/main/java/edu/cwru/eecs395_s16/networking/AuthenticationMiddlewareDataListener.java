@@ -6,6 +6,8 @@ import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.JsonableException;
 import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
+import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,14 +22,16 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
     private Method next;
     private boolean needsAuthentication = false;
     private NetworkingInterface instance;
+    private SessionRepository sessions;
 
-    public AuthenticationMiddlewareDataListener(NetworkingInterface instance, Method next) {
+    public AuthenticationMiddlewareDataListener(NetworkingInterface instance, SessionRepository sessions, Method next) {
         this.next = next;
         this.instance = instance;
+        this.sessions = sessions;
     }
 
-    public AuthenticationMiddlewareDataListener(NetworkingInterface instance, Method next, boolean needsAuthentication) {
-        this(instance, next);
+    public AuthenticationMiddlewareDataListener(NetworkingInterface instance,  SessionRepository sessions,Method next, boolean needsAuthentication) {
+        this(instance, sessions, next);
         this.needsAuthentication = needsAuthentication;
     }
 
@@ -39,7 +43,7 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();
-                Player p = GameEngine.instance().sessionRepo.findPlayer(token);
+                Player p = sessions.findPlayer(token);
                 if (p != null) {
                     p.setClient(client);
                     //We are all good. Invoke the next method.

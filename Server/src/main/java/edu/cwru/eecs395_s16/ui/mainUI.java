@@ -6,6 +6,7 @@ import edu.cwru.eecs395_s16.auth.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.*;
 
@@ -16,30 +17,25 @@ public class mainUI {
 
     private static GameEngine activeEngine;
 
-    public static void main(String[] args) {
+    private static Scanner scan;
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if(activeEngine != null){
-                activeEngine.stop();
-                activeEngine = null;
-            }
-        }));
+    public static void main(String[] args) {
 
         System.out.println("Welcome to Labyrinth Server UI");
         System.out.println("Please enter a command, or type 'help' for a list of all available commands.");
-        Scanner scan = new Scanner(System.in);
+        scan = new Scanner(System.in);
 
         List<Command> cmds = new ArrayList<>();
         Map<String, Command> cmdMap = new HashMap<>();
 
         //Create all commands
-        Command startCMD = new Command("start", "interface", "port", "persist" ,"trace") {
+        Command startCMD = new Command("start", "Starts the engine if it is stopped. Will report errors if there is something blocking the engine port.", "interface", "port", "persist", "trace") {
             @Override
             public void run() {
                 if (activeEngine == null) {
                     PlayerRepository playerRepo;
                     SessionRepository sessionRepo;
-                    String persistText = optMapping.get("persist");
+                    String persistText = commandOptionMapping.get("persist");
                     if (persistText == null || Boolean.parseBoolean(persistText)) {
                         //TODO update this so it uses persistent storage
                         playerRepo = new InMemoryPlayerRepository();
@@ -49,14 +45,14 @@ public class mainUI {
                         sessionRepo = new InMemorySessionRepository();
                     }
                     GameEngine engine = new GameEngine(playerRepo, sessionRepo);
-                    String serverInterface = optMapping.get("interface");
+                    String serverInterface = commandOptionMapping.get("interface");
                     if (serverInterface != null) {
                         engine.setServerInterface(serverInterface);
                     }
                     try {
-                        String portText = optMapping.get("port");
+                        String portText = commandOptionMapping.get("port");
                         if (portText != null) {
-                            int port = Integer.parseInt(optMapping.get("port"));
+                            int port = Integer.parseInt(commandOptionMapping.get("port"));
                             engine.setServerPort(port);
                         }
                     } catch (NumberFormatException e) {
@@ -68,7 +64,7 @@ public class mainUI {
                         activeEngine = engine;
                     } catch (IOException e) {
                         System.err.println("Unable to start engine - something is running on port " + engine.getServerPort() + ". Try using the linux commands netstat or lsof to determine the offending program and kill it.");
-                        if(Boolean.parseBoolean(optMapping.get("trace"))){
+                        if (Boolean.parseBoolean(commandOptionMapping.get("trace"))) {
                             e.printStackTrace();
                         }
                     }
@@ -78,7 +74,7 @@ public class mainUI {
             }
         };
 
-        Command stopCMD = new Command("stop") {
+        Command stopCMD = new Command("stop", "Stops the engine if it is running.") {
             @Override
             public void run() {
                 if (activeEngine != null) {
@@ -90,11 +86,12 @@ public class mainUI {
             }
         };
 
-        Command helpCommand = new Command("help", "cmd") {
+        Command helpCommand = new Command("help", "Gives information about a command. Run this with no arguments to get a full list of commands", "cmd") {
             @Override
             public void run() {
-                String cmd = optMapping.get("cmd");
+                String cmd = commandOptionMapping.get("cmd");
                 if (cmd != null) {
+                    //Requesting specific information on something.
                     Command specificCommand = cmdMap.get(cmd);
                     if (specificCommand != null) {
                         //Print specific command help here.
@@ -102,9 +99,37 @@ public class mainUI {
                         System.err.println("The specified command '" + cmd + "' could not be found. Run 'help' with no arguments for a full list of commands.");
                     }
                 } else {
-                    for(Command c : cmds){
-                        System.out.println(c.phrase);
+                    for (Command c : cmds) {
+                        System.out.println(c.phrase + ":\t" + c.description);
                     }
+                }
+            }
+        };
+
+        Command listAllFunctionsCommand = new Command("functions", "Lists all the socket functions that this game engine supports.") {
+            @Override
+            public void run() {
+                if (activeEngine != null) {
+                    List<FunctionDescription> fnList = activeEngine.getAllFunctions();
+                    Collections.sort(fnList, (o1, o2) -> o1.humanName.compareTo(o2.humanName));
+                    ConsoleTable t = new ConsoleTable();
+                    t.setRowHeaders("Function Name","Socket Event Name","Must Authenticate?");
+                    for (FunctionDescription fd : fnList) {
+                        t.addRow(fd.humanName,fd.name,fd.mustAuthenticate, Arrays.toString(fd.parameters));
+                    }
+                    System.out.println(t.toString());
+                } else {
+                    System.err.println("Engine not booted. You need to boot the machine in order to know what functions are available to you. This can be done with the start command.");
+                }
+            }
+        };
+
+        //Technically a stand-in for the actual exit command.
+        Command exitCommand = new Command("exit","Exits the engine. Terminates the engine if it running.") {
+            @Override
+            public void run() {
+                if (activeEngine != null) {
+                    terminateActiveEngine();
                 }
             }
         };
@@ -112,27 +137,36 @@ public class mainUI {
         cmds.add(startCMD);
         cmds.add(stopCMD);
         cmds.add(helpCommand);
+        cmds.add(exitCommand);
+        cmds.add(listAllFunctionsCommand);
 
         for (Command cmd : cmds) {
             cmdMap.put(cmd.phrase, cmd);
         }
         char escCode = 0x1B;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(exitCommand::run));
+
         while (true) {
             System.out.print(">");
-            System.out.print(String.format("%c[%dC",escCode,1));
+            System.out.print(String.format("%c[%dC", escCode, 1));
             String command = scan.nextLine();
             String[] parts = command.trim().split("\\s+");
             if (parts.length >= 1) {
-                if (parts[0].equals("exit")) {
-                    if(activeEngine != null){
-                        terminateActiveEngine();
-                    }
+                if(parts[0].equals("exit")){
+                    exitCommand.run();
                     break;
                 }
                 Command c = cmdMap.get(parts[0]);
                 if (c != null) {
                     String[] options = Arrays.copyOfRange(parts, 1, parts.length);
-                    c.execute(options);
+                    try {
+                        c.execute(options);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                        exitCommand.run();
+                        break;
+                    }
                 } else {
                     System.err.println("Unrecognized command: " + parts[0]);
                 }
@@ -142,8 +176,8 @@ public class mainUI {
         }
     }
 
-    private static void terminateActiveEngine(){
-        if(activeEngine != null){
+    private static void terminateActiveEngine() {
+        if (activeEngine != null) {
             activeEngine.stop();
             activeEngine = null;
         }
@@ -153,13 +187,15 @@ public class mainUI {
 abstract class Command implements Runnable {
 
     public final String phrase;
-    public Map<String, String> optMapping;
+    public Map<String, String> commandOptionMapping;
+    public final String description;
 
-    public Command(String phrase, String... opts) {
+    public Command(String phrase, String description, String... opts) {
         this.phrase = phrase;
-        this.optMapping = new HashMap<>();
+        this.commandOptionMapping = new HashMap<>();
+        this.description = description;
         for (String opt : opts) {
-            optMapping.put(opt, null);
+            commandOptionMapping.put(opt, null);
         }
     }
 
@@ -168,8 +204,8 @@ abstract class Command implements Runnable {
             String[] temp = optVal.split("=", 2);
             String key = "-" + temp[0];
             String val = temp[1];
-            if (optMapping.keySet().contains(key)) {
-                optMapping.put(key, val);
+            if (commandOptionMapping.keySet().contains(key)) {
+                commandOptionMapping.put(key, val);
             }
         }
         this.run();

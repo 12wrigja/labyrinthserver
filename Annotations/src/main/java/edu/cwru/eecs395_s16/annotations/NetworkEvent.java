@@ -13,4 +13,5 @@ import java.lang.annotation.Target;
 public @interface NetworkEvent {
 
     boolean mustAuthenticate() default true;
+    String description();
 }

@@ -1,2 +1,3 @@
 gradle install
+clear
 ./Server/build/install/Server/bin/Server "$@"

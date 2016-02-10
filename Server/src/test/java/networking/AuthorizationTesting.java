@@ -1,12 +1,15 @@
 package networking;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.auth.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.auth.InMemorySessionRepository;
 import io.socket.client.*;
 import junit.framework.TestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 
+import java.net.BindException;
 import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.locks.Condition;
@@ -28,17 +31,26 @@ public class AuthorizationTesting extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        engine = GameEngine.instance();
+        engine = new GameEngine(new InMemoryPlayerRepository(), new InMemorySessionRepository());
         engine.setServerPort(4500);
-        engine.start();
+        while (true) {
+            try {
+                engine.start();
+                break;
+            } catch (BindException e) {
+                System.err.println("Retrying binding. Port not available.");
+                Thread.sleep(1000);
+            }
+        }
+
         socket = IO.socket("http://localhost:4500/");
         socket.connect();
     }
 
     public void testCanEstablishConnection() throws JSONException, InterruptedException {
         JSONObject j = new JSONObject();
-        while(true){
-            if(socket.connected()){
+        while (true) {
+            if (socket.connected()) {
                 break;
             }
             Thread.sleep(1000);
