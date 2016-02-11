@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.networking;
+package edu.cwru.eecs395_s16.networking.responses;
 
 /**
  * Created by james on 1/20/16.

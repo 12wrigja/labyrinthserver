@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.auth.exceptions;
 
-import edu.cwru.eecs395_s16.networking.StatusCode;
+import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 
 /**
  * Created by james on 1/20/16.

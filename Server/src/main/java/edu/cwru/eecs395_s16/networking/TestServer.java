@@ -17,7 +17,7 @@ public class TestServer {
 //        sessionMap = new HashMap<>();
 //
 //        final SocketIOServer server = new SocketIOServer(config);
-//        DataListener<LoginRequestObject> userManagement = (client, data, ackSender) -> {
+//        DataListener<LoginUserRequest> userManagement = (client, data, ackSender) -> {
 //            System.out.println("Attempting to Auth player connection.");
 //            Player p;
 //            p = userRepo.loginPlayer(data.getUsername(), data.getPassword());
@@ -36,7 +36,7 @@ public class TestServer {
 //            }
 //            ackSender.sendAckData(mp);
 //        };
-//        server.addEventListener("login", LoginRequestObject.class, NetworkingInterface.getLoginHandler(userRepo,sessionMap));
+//        server.addEventListener("login", LoginUserRequest.class, NetworkingInterface.getLoginHandler(userRepo,sessionMap));
 //        server.addEventListener("register",RegisterUserRequest.class,(client,data,ackSender) -> {
 //            try{
 //                Player p = userRepo.registerUser(data.getUsername(), data.getPassword(), data.getPasswordConfirm());

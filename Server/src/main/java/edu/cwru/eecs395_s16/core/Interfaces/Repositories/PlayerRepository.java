@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.core.Interfaces.Repositories;
 
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
+import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.Player;
 
@@ -10,12 +11,14 @@ import edu.cwru.eecs395_s16.core.Player;
  */
 public interface PlayerRepository {
 
-    Player registerPlayer(String username, String password) throws DuplicateUsernameException;
+    Player registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException;
 
     Player loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException;
 
     Player findPlayer(String username) throws UnknownUsernameException;
 
-    void savePlayer(Player p);
+    boolean savePlayer(Player p);
+
+    boolean deletePlayer(Player p);
 
 }

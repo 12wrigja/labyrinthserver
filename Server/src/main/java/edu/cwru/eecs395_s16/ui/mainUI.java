@@ -162,7 +162,12 @@ public class mainUI {
         ConsoleCommand describeSpecificFunction = new ConsoleCommand("function", "Describes the function given by the fn parameter", "*fn") {
             @Override
             public void run() {
-
+                String fn = getOption("fn");
+                FunctionDescription fd = activeEngine.getFunctionDescription(fn);
+                System.out.println("Function: "+fd.humanName);
+                System.out.println("Socket Event: "+fd.name);
+                System.out.println("Description: "+fd.description);
+                System.out.println("Parameters: "+ Arrays.toString(fd.parameters));
             }
         };
 

@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.auth;
 
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
+import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
@@ -17,7 +18,10 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     private Map<String, Player> playerMap = new HashMap<>();
 
     @Override
-    public Player registerPlayer(String username, String password) throws DuplicateUsernameException {
+    public Player registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException {
+        if(!password.equals(passwordConfirm)){
+            throw new MismatchedPasswordException();
+        }
         if (playerMap.containsKey(username)) {
             throw new DuplicateUsernameException(username);
         } else {
@@ -46,8 +50,20 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     }
 
     @Override
-    public void savePlayer(Player p) {
+    public boolean savePlayer(Player p) {
         //Do nothing as a player is already saved in memory. This method is for persisting to some sort of permanent storage
+        return true;
+    }
+
+    @Override
+    public boolean deletePlayer(Player p) {
+        if(playerMap.containsKey(p.getUsername())) {
+            playerMap.remove(p.getUsername());
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
 }

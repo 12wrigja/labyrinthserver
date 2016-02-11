@@ -3,12 +3,12 @@ package edu.cwru.eecs395_s16.networking;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.JsonableException;
-import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.networking.requests.RequestData;
+import edu.cwru.eecs395_s16.networking.responses.Response;
+import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Created by james on 1/21/16.
  */
-public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> {
+public class AuthenticationMiddlewareDataListener<T extends RequestData> implements DataListener<T> {
 
     private Method next;
     private boolean needsAuthentication = false;
@@ -40,6 +40,7 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
         System.out.println("Processing method " + next.getName() + " for client with SessionID  " + client.getSessionId());
         Response response;
         try {
+            data.validate();
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();

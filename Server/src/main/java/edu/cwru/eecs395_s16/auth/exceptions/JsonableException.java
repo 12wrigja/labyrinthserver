@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.auth.exceptions;
 
 import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
-import edu.cwru.eecs395_s16.networking.StatusCode;
+import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 
 import java.util.HashMap;
 import java.util.Map;

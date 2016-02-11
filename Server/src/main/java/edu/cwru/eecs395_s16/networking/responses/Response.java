@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.networking;
+package edu.cwru.eecs395_s16.networking.responses;
 
 import edu.cwru.eecs395_s16.auth.exceptions.JsonableException;
 import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
