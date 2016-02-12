@@ -128,10 +128,8 @@ public class AuthorizationTesting {
         //Test to make sure that registration fails if you try to register without matching passwords
         JSONObject result = emitEventAndWaitForResult("register",registerData);
         assertEquals(200,result.getInt("status"));
-        Player p = new Player(testUsername, testPassword);
-        if(!engine.playerRepository.deletePlayer(p)) {
-            fail("Unable to delete player from repo");
-        }
+
+        cleanupPlayer();
     }
 
     @Test
@@ -147,6 +145,8 @@ public class AuthorizationTesting {
 
         JSONObject result2 = emitEventAndWaitForResult("register",registerData);
         assertEquals(422,result2.getInt("status"));
+
+        cleanupPlayer();
     }
 
     @AfterClass
@@ -154,6 +154,13 @@ public class AuthorizationTesting {
         System.out.println("Tearing down game engine.");
         socket.disconnect();
         engine.stop();
+    }
+
+    private void cleanupPlayer(){
+        Player p = new Player(testUsername, testPassword);
+        if(!engine.playerRepository.deletePlayer(p)) {
+            fail("Unable to delete player from repo");
+        }
     }
 
     private JSONObject emitEventAndWaitForResult(String event, JSONObject data) throws InterruptedException{

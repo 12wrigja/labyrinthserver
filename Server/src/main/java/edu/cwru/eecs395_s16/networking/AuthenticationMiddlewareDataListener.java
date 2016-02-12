@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Created by james on 1/21/16.
  */
-public class AuthenticationMiddlewareDataListener<T extends RequestData> implements DataListener<T> {
+public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> {
 
     private Method next;
     private boolean needsAuthentication = false;
@@ -40,7 +40,7 @@ public class AuthenticationMiddlewareDataListener<T extends RequestData> impleme
         System.out.println("Processing method " + next.getName() + " for client with SessionID  " + client.getSessionId());
         Response response;
         try {
-            data.validate();
+            ((RequestData)data).validate();
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();

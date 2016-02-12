@@ -128,7 +128,7 @@ public class GameEngine {
                 System.out.println("Registering a network socket method '" + functionSocketEventName + "'");
                 Class dataType = m.getParameterTypes()[0];
                 NetworkEvent at = m.getAnnotation(NetworkEvent.class);
-                server.addEventListener(m.getName(), dataType, iface.createTypecastMiddleware(dataType, m, at.mustAuthenticate()));
+                server.addEventListener(m.getName(), dataType, iface.createTypecastMiddleware(m, at.mustAuthenticate()));
                 FunctionDescription d = new FunctionDescription(functionSocketEventName, m.getName(), at.description(), new String[]{}, at.mustAuthenticate());
                 functionDescriptions.put(d.humanName,d);
             }

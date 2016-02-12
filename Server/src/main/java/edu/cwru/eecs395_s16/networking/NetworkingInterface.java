@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
  */
 public class NetworkingInterface {
 
-    public <T extends RequestData> DataListener<T> createTypecastMiddleware(@SuppressWarnings("UnusedParameters") Class<T> data, Method next, boolean needsAuth) {
+    public <T> DataListener<T> createTypecastMiddleware(Method next, boolean needsAuth) {
         return new AuthenticationMiddlewareDataListener<>(this, GameEngine.instance().sessionRepository, next, needsAuth);
     }
 
