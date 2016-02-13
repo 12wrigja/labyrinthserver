@@ -30,6 +30,12 @@ public class Response implements Jsonable {
         storage.put("message",code.message);
     }
 
+    public void setKey(String key, Object value){
+        if(!key.equals("status")){
+            storage.put(key,value);
+        }
+    }
+
     @Override
     public Map<String, Object> getJsonableRepresentation() {
         return this.storage;

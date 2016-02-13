@@ -4,15 +4,13 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
-import edu.cwru.eecs395_s16.networking.requests.LoginUserRequest;
-import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
-import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
+import edu.cwru.eecs395_s16.core.Objects.RandomlyGeneratedGameMap;
+import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.networking.requests.RequestData;
 import edu.cwru.eecs395_s16.networking.responses.Response;
 
 import java.lang.reflect.Method;
@@ -55,5 +53,12 @@ public class NetworkingInterface {
             c.leaveRoom("TestRoom");
         }
         return new Response();
+    }
+
+    @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns a random map generated using random walk.")
+    public Response map(NewMapRequest obj){
+        Response r = new Response();
+        r.setKey("map",new RandomlyGeneratedGameMap(obj.getX(), obj.getY()));
+        return r;
     }
 }

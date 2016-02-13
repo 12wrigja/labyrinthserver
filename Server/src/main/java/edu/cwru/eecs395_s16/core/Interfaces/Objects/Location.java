@@ -9,6 +9,4 @@ public interface Location {
 
     public int getY();
 
-    public GameObject getObject();
-
 }
