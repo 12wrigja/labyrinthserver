@@ -61,4 +61,18 @@ public class NetworkingInterface {
         r.setKey("map",new RandomlyGeneratedGameMap(obj.getX(), obj.getY()));
         return r;
     }
+
+    @NetworkEvent(description = "DEV ONLY: Returns the game engine ID.")
+    public Response engine(NoInputRequest obj, Player p){
+        Response r = new Response();
+        r.setKey("engine-id",GameEngine.instance().getEngineID());
+        return r;
+    }
+
+    @NetworkEvent(description = "A complex event.", mustAuthenticate = false)
+    public Response complexEvent(NoInputRequest obj){
+        Response r = new Response();
+        r.setKey("isComplex",true);
+        return r;
+    }
 }

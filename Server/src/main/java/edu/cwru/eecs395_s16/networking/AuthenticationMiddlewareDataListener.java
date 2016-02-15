@@ -66,13 +66,12 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
             } else {
                 actualCause = e;
             }
-            actualCause.printStackTrace();
             if (actualCause instanceof JsonableException) {
                 response = new Response((JsonableException) actualCause);
             } else {
                 //Generic error response here.
                 //TODO PRODUCTION-IFY
-                response = new Response();
+                response = new Response(StatusCode.SERVER_ERROR);
             }
         }
         System.out.println("Sent response for method " + next.getName() + " to client " + client.getSessionId());

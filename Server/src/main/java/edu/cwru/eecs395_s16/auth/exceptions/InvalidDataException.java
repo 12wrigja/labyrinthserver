@@ -14,10 +14,10 @@ public class InvalidDataException extends JsonableException {
     }
 
     public InvalidDataException(String... variableNames) {
-        super(StatusCode.UNPROCESSABLE_DATA, "The data attributes " + Arrays.toString(variableNames).replaceAll("\\[\\]", "") + " are invalid.");
+        super(StatusCode.UNPROCESSABLE_DATA, "The data attributes " + Arrays.toString(variableNames).replaceAll("[\\[\\]]", "") + " are invalid.");
     }
 
     public InvalidDataException(List<String> variableNames) {
-        this(new String[variableNames.size()]);
+        this(variableNames.toArray(new String[variableNames.size()]));
     }
 }

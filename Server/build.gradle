@@ -28,4 +28,16 @@ compileJava {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
+run {
+    standardInput = System.in
+    standardOutput = System.out
+}
+
+task(runDebug, dependsOn: 'classes', type: JavaExec) {
+    main = mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ["-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"]
+    standardInput = System.in
+}
+
 compileJava.dependsOn processAnnotations

@@ -9,7 +9,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = "12wrigja/LabyrinthServer"
 
   config.vm.network "forwarded_port", guest: 4567, host: 4567
-
+  config.vm.network "forwarded_port", guest: 5005, host: 5005
   config.vm.network "private_network", ip: "192.168.60.10"
 
   config.vm.synced_folder ".", "/home/vagrant/LabyrinthServer"

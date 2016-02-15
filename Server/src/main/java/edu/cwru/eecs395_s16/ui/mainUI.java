@@ -65,6 +65,7 @@ public class mainUI {
                         engine.start();
                         activeEngine = engine;
                     } catch (BindException e) {
+                        engine.stop();
                         System.err.println("Unable to start engine - something is running on port " + engine.getServerPort() + ". Try using the linux commands netstat or lsof to determine the offending program and kill it.");
                         if (Boolean.parseBoolean(getOption("trace"))) {
                             e.printStackTrace();

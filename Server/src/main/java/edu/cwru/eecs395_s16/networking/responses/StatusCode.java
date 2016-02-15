@@ -8,7 +8,8 @@ public enum StatusCode {
     OK(200, null),
     UNPROCESSABLE_DATA(422, "Unable to process request. Invalid Entity."),
     UNAUTHENTICATED(401, "You must be authenticated to perform this action."),
-    UNAUTHORIZED(403, "You are forbidden from performing this action.");
+    UNAUTHORIZED(403, "You are forbidden from performing this action."),
+    SERVER_ERROR(500,"An internal error has occured on the server.");
 
     public final String message;
     public final Object code;

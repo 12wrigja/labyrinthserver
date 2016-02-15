@@ -109,6 +109,10 @@ public class GameEngine {
         return functionDescriptions.get(humanName);
     }
 
+    public String getEngineID(){
+        return this.instanceID.toString();
+    }
+
     public void stop(){
         gameTimer.cancel();
         if(this.isStarted){
@@ -128,7 +132,7 @@ public class GameEngine {
                 System.out.println("Registering a network socket method '" + functionSocketEventName + "'");
                 Class dataType = m.getParameterTypes()[0];
                 NetworkEvent at = m.getAnnotation(NetworkEvent.class);
-                server.addEventListener(m.getName(), dataType, iface.createTypecastMiddleware(m, at.mustAuthenticate()));
+                server.addEventListener(functionSocketEventName, dataType, iface.createTypecastMiddleware(m, at.mustAuthenticate()));
                 FunctionDescription d = new FunctionDescription(functionSocketEventName, m.getName(), at.description(), new String[]{}, at.mustAuthenticate());
                 functionDescriptions.put(d.humanName,d);
             }
