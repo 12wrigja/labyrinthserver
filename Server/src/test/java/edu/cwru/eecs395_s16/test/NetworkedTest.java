@@ -4,17 +4,16 @@ package edu.cwru.eecs395_s16.test;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.auth.InMemorySessionRepository;
+import edu.cwru.eecs395_s16.networking.interfaces.MatchmakingService;
+import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.net.BindException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,7 +32,7 @@ public abstract class NetworkedTest {
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(new InMemoryPlayerRepository(), new InMemorySessionRepository());
+        engine = new GameEngine(new InMemoryPlayerRepository(), new InMemorySessionRepository(), new BasicMatchmakingService());
         engine.setServerPort(PORT);
         int try_count = 0;
         while (true) {
@@ -46,7 +45,7 @@ public abstract class NetworkedTest {
                 if(try_count > MAX_TRY_COUNT){
                     fail("Unable to setup game server.");
                 }
-                Thread.sleep(1000);
+                Thread.sleep(30000);
             }
         }
         socket = IO.socket("http://localhost:"+PORT);
