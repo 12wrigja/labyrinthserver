@@ -19,7 +19,7 @@ if [ $DEBUG = "y" ]; then
 echo "Starting in debug."
 gradle runDebug
 else
-gradle install
+gradle installDist
 clear
 ./Server/build/install/Server/bin/Server
 fi

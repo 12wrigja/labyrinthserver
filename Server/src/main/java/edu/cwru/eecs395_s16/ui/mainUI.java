@@ -44,11 +44,11 @@ public class mainUI {
                     MatchmakingService matchmakingService = new BasicMatchmakingService();
                     CacheService cacheService;
                     String persistText = getOption("persist");
-                    if (persistText == null || Boolean.parseBoolean(persistText)) {
+                    if (persistText != null && Boolean.parseBoolean(persistText)) {
                         //TODO update this so it uses persistent storage
                         Connection dbConnection;
                         try {
-                            dbConnection = DriverManager.getConnection("jdbc:postgresql:labyrinth","vagrant","");
+                            dbConnection = DriverManager.getConnection("jdbc:postgresql:labyrinth","vagrant","vagrant");
                         } catch (SQLException e) {
                             System.err.println("Unable to create connection to Postgres Database.");
                             if(Boolean.parseBoolean(getOption("trace"))){
