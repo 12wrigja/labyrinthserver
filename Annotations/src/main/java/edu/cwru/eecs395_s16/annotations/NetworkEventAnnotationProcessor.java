@@ -48,7 +48,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                 }
 
                 //Check return type extends Response
-                TypeMirror expectedReturnType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.networking.responses.Response").asType();
+                TypeMirror expectedReturnType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.Response").asType();
                 TypeMirror currentMirror = networkedMethod.getReturnType();
                 while (true) {
                     //Get TypeKind and check for none - we have reached the top of the inheritance tree.
@@ -70,7 +70,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
 
                 //Check Method Parameters
                 List<? extends VariableElement> methodParams = networkedMethod.getParameters();
-                TypeMirror expectedDataType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.networking.requests.RequestData").asType();
+                TypeMirror expectedDataType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.RequestData").asType();
                 TypeMirror playerType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.core.Player").asType();
                 TypeMirror clientType = elementUtils.getTypeElement("com.corundumstudio.socketio.SocketIOClient").asType();
                 if(annotation.mustAuthenticate()){

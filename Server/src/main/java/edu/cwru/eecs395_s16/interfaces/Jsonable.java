@@ -1,6 +1,7 @@
-package edu.cwru.eecs395_s16.core.Interfaces;
+package edu.cwru.eecs395_s16.interfaces;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import edu.cwru.eecs395_s16.core.JsonableSerializer;
 
 import java.util.Map;
 

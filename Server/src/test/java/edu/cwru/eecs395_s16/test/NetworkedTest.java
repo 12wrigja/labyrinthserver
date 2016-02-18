@@ -2,9 +2,9 @@ package edu.cwru.eecs395_s16.test;
 
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.InMemoryPlayerRepository;
-import edu.cwru.eecs395_s16.auth.InMemorySessionRepository;
-import edu.cwru.eecs395_s16.networking.interfaces.MatchmakingService;
+import edu.cwru.eecs395_s16.services.InMemoryCacheService;
+import edu.cwru.eecs395_s16.services.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import io.socket.client.Ack;
 import io.socket.client.IO;
@@ -32,7 +32,7 @@ public abstract class NetworkedTest {
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(new InMemoryPlayerRepository(), new InMemorySessionRepository(), new BasicMatchmakingService());
+        engine = new GameEngine(new InMemoryPlayerRepository(), new InMemorySessionRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
         engine.setServerPort(PORT);
         int try_count = 0;
         while (true) {

@@ -1,15 +1,19 @@
 package edu.cwru.eecs395_s16.ui;
 
-import com.google.common.collect.ImmutableList;
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.InMemoryPlayerRepository;
-import edu.cwru.eecs395_s16.auth.InMemorySessionRepository;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
+import edu.cwru.eecs395_s16.services.*;
+import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
+import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -37,16 +41,31 @@ public class mainUI {
                 if (activeEngine == null) {
                     PlayerRepository playerRepo;
                     SessionRepository sessionRepo;
+                    MatchmakingService matchmakingService = new BasicMatchmakingService();
+                    CacheService cacheService;
                     String persistText = getOption("persist");
                     if (persistText == null || Boolean.parseBoolean(persistText)) {
                         //TODO update this so it uses persistent storage
-                        playerRepo = new InMemoryPlayerRepository();
+                        Connection dbConnection;
+                        try {
+                            dbConnection = DriverManager.getConnection("jdbc:postgresql:labyrinth","vagrant","");
+                        } catch (SQLException e) {
+                            System.err.println("Unable to create connection to Postgres Database.");
+                            if(Boolean.parseBoolean(getOption("trace"))){
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
+                        playerRepo = new PostgresPlayerRepository(dbConnection);
                         sessionRepo = new InMemorySessionRepository();
+                        cacheService = new RedisCacheService();
+
                     } else {
                         playerRepo = new InMemoryPlayerRepository();
                         sessionRepo = new InMemorySessionRepository();
+                        cacheService = new InMemoryCacheService();
                     }
-                    GameEngine engine = new GameEngine(playerRepo, sessionRepo);
+                    GameEngine engine = new GameEngine(playerRepo, sessionRepo, matchmakingService,cacheService);
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {
                         engine.setServerInterface(serverInterface);
@@ -240,90 +259,4 @@ public class mainUI {
     }
 }
 
-abstract class ConsoleCommand implements Runnable {
 
-    public final String phrase;
-    private Map<String, String> commandOptionMapping;
-    public final String description;
-    public final List<String> requiredParameters;
-    public final List<String> optionalParameters;
-    private final String[] orderedParams;
-
-    public ConsoleCommand(String phrase, String description, String... opts) {
-        this.phrase = phrase;
-        this.commandOptionMapping = new HashMap<>();
-        this.description = description;
-        List<String> reqParams = new ArrayList<>();
-        List<String> optParams = new ArrayList<>();
-        this.orderedParams = new String[opts.length];
-        for (int i=0; i<opts.length; i++) {
-            String opt = opts[i];
-            if (opt.charAt(0) == '*') {
-                opt = opt.substring(1);
-                reqParams.add(opt);
-            } else {
-                optParams.add(opt);
-            }
-            orderedParams[i] = opt;
-        }
-        setInitialCommandOpts();
-        requiredParameters = ImmutableList.copyOf(reqParams);
-        optionalParameters = ImmutableList.copyOf(optParams);
-    }
-
-    public final void execute(String... optVals) {
-        setInitialCommandOpts();
-        Set<String> specifiedParams = new HashSet<>();
-        List<String> unspecifiedParamStrings = new ArrayList<>();
-        for(String optVal : optVals){
-            if(optVal.contains("=")){
-                String[] temp = optVal.split("=", 2);
-                storeOption(temp[0],temp[1]);
-                specifiedParams.add(temp[0]);
-            } else {
-                unspecifiedParamStrings.add(optVal);
-            }
-        }
-        int insertIndex = 0;
-        for (String optVal : unspecifiedParamStrings) {
-            while(true){
-                if(insertIndex >= orderedParams.length){
-                    System.err.println("Unable to insert parameter '"+optVal+"'");
-                    break;
-                }
-                String key = orderedParams[insertIndex];
-                if(specifiedParams.contains(key)) {
-                    insertIndex++;
-                } else {
-                    storeOption(key,optVal);
-                    insertIndex++;
-                    break;
-                }
-            }
-        }
-        for (String requiredOpt : requiredParameters) {
-            if (getOption(requiredOpt) == null) {
-                System.err.println("Missing required parameter: " + requiredOpt);
-                return;
-            }
-        }
-        this.run();
-    }
-
-    private void storeOption(String key, String value){
-        if (commandOptionMapping.keySet().contains(key)) {
-            commandOptionMapping.put(key, value);
-        }
-    }
-
-    private void setInitialCommandOpts(){
-        commandOptionMapping = new HashMap<>();
-        for(String key: orderedParams){
-            commandOptionMapping.put(key,null);
-        }
-    }
-
-    final String getOption(String key) {
-        return commandOptionMapping.get(key);
-    }
-}

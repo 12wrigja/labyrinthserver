@@ -1,14 +1,15 @@
-package edu.cwru.eecs395_s16.auth;
+package edu.cwru.eecs395_s16.services;
 
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by james on 1/19/16.
@@ -18,7 +19,7 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     private Map<String, Player> playerMap = new HashMap<>();
 
     @Override
-    public Player registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException {
+    public Optional<Player> registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException {
         if(!password.equals(passwordConfirm)){
             throw new MismatchedPasswordException();
         }
@@ -27,17 +28,17 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         } else {
             Player p = new Player(username, password);
             playerMap.put(username, p);
-            return p;
+            return Optional.of(p);
         }
     }
 
-    public Player loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException {
+    public Optional<Player> loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException {
         if (!playerMap.containsKey(username)) {
             throw new UnknownUsernameException(username);
         } else {
             Player p = playerMap.get(username);
             if (p.checkPassword(password)) {
-                return p;
+                return Optional.of(p);
             } else {
                 throw new InvalidPasswordException();
             }
@@ -45,8 +46,8 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     }
 
     @Override
-    public Player findPlayer(String username) throws UnknownUsernameException {
-        return playerMap.get(username);
+    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
+        return Optional.ofNullable(playerMap.get(username));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.networking.requests;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
+import edu.cwru.eecs395_s16.interfaces.RequestData;
 
 /**
  * Created by james on 2/10/16.

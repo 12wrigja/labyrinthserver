@@ -1,10 +1,13 @@
 package edu.cwru.eecs395_s16;
 
+import com.corundumstudio.socketio.BroadcastOperations;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 
@@ -35,16 +38,48 @@ public class GameEngine {
         return threadLocalGameEngine.get();
     }
 
-    public final PlayerRepository playerRepository;
-    public final SessionRepository sessionRepository;
+    private final PlayerRepository playerRepository;
+    private final SessionRepository sessionRepository;
+    private final MatchmakingService matchService;
+    private final CacheService cacheService;
+
+    public PlayerRepository getPlayerRepository() {
+        return playerRepository;
+    }
+
+    public SessionRepository getSessionRepository() {
+        return sessionRepository;
+    }
+
+    public MatchmakingService getMatchService() {
+        return matchService;
+    }
+
+    public BroadcastOperations getGlobalBroadcastService() {
+        return gameSocket.getBroadcastOperations();
+    }
+
+    public BroadcastOperations getBroadcastServiceForRoom(String roomName){
+        return gameSocket.getRoomOperations(roomName);
+    }
+
+    public CacheService getCacheService(){
+        return this.cacheService;
+    }
+
+    public Timer getGameTimer() {
+        return gameTimer;
+    }
 
     private Timer gameTimer;
 
-    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo){
+    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, MatchmakingService matchService, CacheService cache){
         this.instanceID = UUID.randomUUID();
         threadLocalGameEngine.set(this);
         this.playerRepository = pRepo;
         this.sessionRepository = sRepo;
+        this.matchService = matchService;
+        this.cacheService = cache;
         System.out.println("GameEngine created with ID: "+instanceID.toString());
         gameTimer = new Timer();
     }
@@ -96,6 +131,7 @@ public class GameEngine {
         };
 
         gameSocket.start();
+        matchService.start();
         System.out.println("Engine is now running, bound to interface "+this.serverInterface+" on port "+this.serverPort);
         this.isStarted = true;
         gameTimer.scheduleAtFixedRate(pingTask,0,1000);
@@ -115,8 +151,10 @@ public class GameEngine {
 
     public void stop(){
         gameTimer.cancel();
+        this.cacheService.stop();
         if(this.isStarted){
             System.out.println("Shutting down socket connection on interface " + this.serverInterface + " on port "+this.serverPort);
+            matchService.stop();
             gameSocket.stop();
             System.out.println("Shut down complete.");
         }

@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.auth.exceptions;
 
+import edu.cwru.eecs395_s16.core.JsonableException;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 
 /**

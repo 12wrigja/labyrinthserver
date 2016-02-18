@@ -1,6 +1,6 @@
-package edu.cwru.eecs395_s16.core.Objects;
+package edu.cwru.eecs395_s16.core.objects;
 
-import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
+import edu.cwru.eecs395_s16.interfaces.Jsonable;
 
 import java.util.HashMap;
 import java.util.Map;

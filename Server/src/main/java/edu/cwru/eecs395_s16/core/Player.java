@@ -38,4 +38,20 @@ public class Player {
     public void setClient(SocketIOClient client){
         this.client = client;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Player player = (Player) o;
+
+        return getUsername().equals(player.getUsername());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getUsername().hashCode();
+    }
 }

@@ -1,6 +1,6 @@
-package edu.cwru.eecs395_s16.core.Objects;
+package edu.cwru.eecs395_s16.core.objects;
 
-import edu.cwru.eecs395_s16.core.Interfaces.Objects.Location;
+import edu.cwru.eecs395_s16.interfaces.objects.Location;
 
 /**
  * Created by james on 2/12/16.

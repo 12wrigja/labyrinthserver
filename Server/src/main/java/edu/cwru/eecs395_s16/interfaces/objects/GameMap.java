@@ -1,8 +1,8 @@
-package edu.cwru.eecs395_s16.core.Interfaces.Objects;
+package edu.cwru.eecs395_s16.interfaces.objects;
 
-import edu.cwru.eecs395_s16.core.Interfaces.Jsonable;
-import edu.cwru.eecs395_s16.core.Objects.BasicLocation;
-import edu.cwru.eecs395_s16.core.Objects.MapTile;
+import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import edu.cwru.eecs395_s16.core.objects.BasicLocation;
+import edu.cwru.eecs395_s16.core.objects.MapTile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

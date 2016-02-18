@@ -1,8 +1,9 @@
-package edu.cwru.eecs395_s16.core.Interfaces;
+package edu.cwru.eecs395_s16.core;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import edu.cwru.eecs395_s16.interfaces.Jsonable;
 
 import java.io.IOException;
 

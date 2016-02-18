@@ -1,10 +1,11 @@
-package edu.cwru.eecs395_s16.auth;
+package edu.cwru.eecs395_s16.services;
 
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -15,8 +16,8 @@ public class InMemorySessionRepository implements SessionRepository {
     private Map<UUID, Player> sessionMap = new HashMap<>();
 
     @Override
-    public Player findPlayer(UUID token) {
-        return sessionMap.get(token);
+    public Optional<Player> findPlayer(UUID token) {
+        return Optional.ofNullable(sessionMap.get(token));
     }
 
     @Override

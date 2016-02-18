@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.core.Interfaces.Objects;
+package edu.cwru.eecs395_s16.interfaces.objects;
 
 import java.util.List;
 

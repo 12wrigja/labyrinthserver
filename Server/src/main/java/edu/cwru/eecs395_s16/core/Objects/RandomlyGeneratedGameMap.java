@@ -1,7 +1,6 @@
-package edu.cwru.eecs395_s16.core.Objects;
+package edu.cwru.eecs395_s16.core.objects;
 
-import edu.cwru.eecs395_s16.core.Interfaces.Objects.GameMap;
-import edu.cwru.eecs395_s16.core.Interfaces.Objects.Location;
+import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 
 import java.util.*;
 
@@ -21,7 +20,7 @@ public class RandomlyGeneratedGameMap implements GameMap {
         this.y=y;
 
         //Assign a random type to each tile from a list
-        String[] tileTypes = new String[]{"wall","dirt","sand","water","rock"};
+        String[] tileTypes = new String[]{"wall","dirt","sand","water","rock","empty","default"};
         Random rand = new Random();
         for(int i=0; i<x; i++){
             for(int j=0; j<y; j++){

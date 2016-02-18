@@ -1,17 +1,19 @@
-package edu.cwru.eecs395_s16.networking;
+package edu.cwru.eecs395_s16.auth;
 
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
-import edu.cwru.eecs395_s16.auth.exceptions.JsonableException;
-import edu.cwru.eecs395_s16.core.Interfaces.Repositories.SessionRepository;
+import edu.cwru.eecs395_s16.core.JsonableException;
+import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.networking.requests.RequestData;
-import edu.cwru.eecs395_s16.networking.responses.Response;
+import edu.cwru.eecs395_s16.networking.NetworkingInterface;
+import edu.cwru.eecs395_s16.interfaces.RequestData;
+import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -19,10 +21,10 @@ import java.util.UUID;
  */
 public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> {
 
-    private Method next;
+    private final Method next;
     private boolean needsAuthentication = false;
-    private NetworkingInterface instance;
-    private SessionRepository sessions;
+    private final NetworkingInterface instance;
+    private final SessionRepository sessions;
 
     public AuthenticationMiddlewareDataListener(NetworkingInterface instance, SessionRepository sessions, Method next) {
         this.next = next;
@@ -44,9 +46,9 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();
-                Player p = sessions.findPlayer(token);
-                if (p != null) {
-                    p.setClient(client);
+                Optional<Player> p = sessions.findPlayer(token);
+                if (p.isPresent()) {
+                    p.get().setClient(client);
                     //We are all good. Invoke the next method.
                     response = (Response) next.invoke(instance, data, p);
                 } else {
