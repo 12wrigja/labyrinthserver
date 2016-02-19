@@ -50,7 +50,7 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
                 if (p.isPresent()) {
                     p.get().setClient(client);
                     //We are all good. Invoke the next method.
-                    response = (Response) next.invoke(instance, data, p);
+                    response = (Response) next.invoke(instance, data, p.get());
                 } else {
                     response = new Response(StatusCode.UNAUTHENTICATED);
                 }
