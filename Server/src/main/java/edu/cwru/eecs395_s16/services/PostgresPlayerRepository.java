@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.services;
 
+import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
@@ -16,10 +17,11 @@ import java.util.Optional;
 public class PostgresPlayerRepository implements PlayerRepository {
 
     private static final String GET_PLAYER_QUERY = "select * from players where username = ?";
-    private static final String INSERT_PLAYER_QUERY = "insert into players VALUES (?,?,?,false)";
+    private static final String INSERT_PLAYER_QUERY = "insert into players (username, password, currency, isdev) VALUES (?,?,?,false)";
     private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from players where username = ?";
-    private static final String VALID_LOGIN_QUERY = "select count(*) as total from players where username = ? AND password = ?";
+    private static final String VALID_LOGIN_QUERY = "select * from players where username = ? AND password = ?";
     private static final String DELETE_PLAYER_QUERY = "delete from players where user_id = ?";
+    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level) (select id as hero_id,? as player_id, 1 as level from heroes)";
 
     Connection conn;
 
@@ -43,15 +45,28 @@ public class PostgresPlayerRepository implements PlayerRepository {
             if (count >= 1) {
                 throw new DuplicateUsernameException(username);
             } else {
-                stmt = conn.prepareStatement(INSERT_PLAYER_QUERY);
+                stmt = conn.prepareStatement(INSERT_PLAYER_QUERY, Statement.RETURN_GENERATED_KEYS);
                 stmt.setString(1, username);
                 stmt.setString(2, password);
                 stmt.setInt(3, 0);
                 stmt.executeUpdate();
-                Player p = new Player(username, password);
+                ResultSet newKeys = stmt.getGeneratedKeys();
+                int playerDBID = -1;
+                while(newKeys.next()){
+                    playerDBID = newKeys.getInt(1);
+                }
+                Player p = new Player(playerDBID,username, password);
+
+                //Set up hero data links here
+                stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
+                stmt.setInt(1,playerDBID);
+                stmt.executeUpdate();
                 return Optional.of(p);
             }
         } catch (SQLException e) {
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
             return Optional.empty();
         }
     }
@@ -71,12 +86,12 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 stmt.setString(1, username);
                 stmt.setString(2, password);
                 ResultSet rst2 = stmt.executeQuery();
-                int validCount = 0;
+                int id = -1;
                 while (rst2.next()) {
-                    validCount = rst2.getInt("total");
+                    id = rst2.getInt("id");
                 }
-                if (validCount >= 1) {
-                    Player p = new Player(username, password);
+                if (id >= 0) {
+                    Player p = new Player(id,username, password);
                     return Optional.of(p);
                 } else {
                     throw new InvalidPasswordException();
@@ -85,6 +100,9 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 throw new UnknownUsernameException(username);
             }
         } catch (SQLException e) {
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
             return Optional.empty();
         }
     }
@@ -105,13 +123,17 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 ResultSet rst2 = stmt.executeQuery();
                 //TODO convert player row to player object
                 rst2.next();
+                int id = rst2.getInt("id");
                 String password = rst2.getString("password");
-                Player p = new Player(username, password);
+                Player p = new Player(id,username, password);
                 return Optional.of(p);
             } else {
                 throw new UnknownUsernameException(username);
             }
         } catch (SQLException e) {
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
             return Optional.empty();
         }
     }

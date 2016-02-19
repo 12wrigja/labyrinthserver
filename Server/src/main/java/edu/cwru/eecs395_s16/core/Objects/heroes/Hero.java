@@ -4,10 +4,7 @@ import edu.cwru.eecs395_s16.core.objects.BasicLocation;
 import edu.cwru.eecs395_s16.interfaces.objects.*;
 import edu.cwru.eecs395_s16.interfaces.objects.Character;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by james on 2/18/16.
@@ -26,8 +23,9 @@ public class Hero implements Character, DatabaseObject {
     private final UUID objectID;
     private int level = 1;
     private int databaseIdentifier = -1;
+    private final HeroType type;
 
-    Hero(Weapon weapon, int attack, int defense, int health, int movement, int vision, List<Ability> abilities, Location location, Optional<String> ownerID, UUID objectID, int level, int databaseIdentifier) {
+    Hero(Weapon weapon, int attack, int defense, int health, int movement, int vision, List<Ability> abilities, Location location, Optional<String> ownerID, UUID objectID, int level, int databaseIdentifier, HeroType type) {
         this.weapon = weapon;
         this.attack = attack;
         this.defense = defense;
@@ -40,6 +38,7 @@ public class Hero implements Character, DatabaseObject {
         this.objectID = objectID;
         this.level = level;
         this.databaseIdentifier = databaseIdentifier;
+        this.type = type;
     }
 
     @Override
@@ -117,5 +116,46 @@ public class Hero implements Character, DatabaseObject {
         return this.databaseIdentifier;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Hero hero = (Hero) o;
+
+        return objectID.equals(hero.objectID);
+
+    }
+
+
+    public HeroType getHeroType() {
+        return type;
+    }
+
+    @Override
+    public int hashCode() {
+        return objectID.hashCode();
+    }
+
+    @Override
+    public Map<String, Object> getJsonableRepresentation() {
+        //Setup json representation
+        Map<String,Object> representation = new HashMap<>();
+        representation.put("id",getGameObjectID());
+        representation.put("x",location.getX());
+        representation.put("y",location.getY());
+        representation.put("type","hero");
+        representation.put("attack",getAttack());
+        representation.put("defense",getDefense());
+        representation.put("health",getHealth());
+        representation.put("movement",getMovement());
+        representation.put("vision",getVision());
+        representation.put("abilities",getAbilities());
+        representation.put("statuses",new ArrayList<String>());
+        representation.put("owner",getOwnerID().isPresent()?getOwnerID().get():null);
+        representation.put("controller",getOwnerID().isPresent()?getOwnerID().get():null);
+        representation.put("hero_type",getHeroType().toString().toLowerCase());
+        return representation;
+    }
 
 }

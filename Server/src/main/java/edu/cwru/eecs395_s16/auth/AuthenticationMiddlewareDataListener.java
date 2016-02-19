@@ -3,7 +3,9 @@ package edu.cwru.eecs395_s16.auth;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.listener.DataListener;
+import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.JsonableException;
+import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
@@ -71,6 +73,9 @@ public class AuthenticationMiddlewareDataListener<T> implements DataListener<T> 
             if (actualCause instanceof JsonableException) {
                 response = new Response((JsonableException) actualCause);
             } else {
+                if(GameEngine.instance().IS_DEBUG_MODE){
+                    e.printStackTrace();
+                }
                 //Generic error response here.
                 //TODO PRODUCTION-IFY
                 response = new Response(StatusCode.SERVER_ERROR);

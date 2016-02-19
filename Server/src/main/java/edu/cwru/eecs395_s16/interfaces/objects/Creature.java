@@ -7,18 +7,18 @@ import java.util.List;
  */
 public interface Creature extends GameObject {
 
-    public int getStrength();
+    int getAttack();
 
-    public int getConstitution();
+    int getDefense();
 
-    public int getWisdom();
+    int getHealth();
 
-    public int getMobility();
+    int getMovement();
 
-    public int getVision();
+    int getVision();
 
-    public int getDexterity();
+    List<Ability> getAbilities();
 
-    public List<Ability> getAbilities();
+    void triggerPassive(GameMap map, List<GameObject> boardObjects);
 
 }

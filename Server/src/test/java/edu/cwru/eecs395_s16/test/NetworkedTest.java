@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.test;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.services.InMemoryCacheService;
+import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
 import edu.cwru.eecs395_s16.services.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.services.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
@@ -32,7 +33,7 @@ public abstract class NetworkedTest {
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(new InMemoryPlayerRepository(), new InMemorySessionRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
+        engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
         engine.setServerPort(PORT);
         int try_count = 0;
         while (true) {

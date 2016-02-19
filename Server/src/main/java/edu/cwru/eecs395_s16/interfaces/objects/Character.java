@@ -5,6 +5,11 @@ package edu.cwru.eecs395_s16.interfaces.objects;
  */
 public interface Character extends Creature {
 
-    public Weapon getWeapon();
+    Weapon getWeapon();
 
+    void setWeapon();
+
+    int getLevel();
+
+    void grantXP(int xp);
 }

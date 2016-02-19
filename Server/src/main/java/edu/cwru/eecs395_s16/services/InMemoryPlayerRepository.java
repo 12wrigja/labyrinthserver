@@ -26,7 +26,7 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         if (playerMap.containsKey(username)) {
             throw new DuplicateUsernameException(username);
         } else {
-            Player p = new Player(username, password);
+            Player p = new Player(-1,username, password);
             playerMap.put(username, p);
             return Optional.of(p);
         }

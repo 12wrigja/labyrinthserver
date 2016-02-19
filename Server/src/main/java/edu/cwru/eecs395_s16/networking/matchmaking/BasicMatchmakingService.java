@@ -1,7 +1,9 @@
 package edu.cwru.eecs395_s16.networking.matchmaking;
 
+import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 
 import java.util.*;
@@ -105,10 +107,10 @@ public class BasicMatchmakingService implements MatchmakingService {
     }
 
     private void createMatch(Player heroPlayer, Player architectPlayer){
-        //Generate a match identifier
-        UUID randID = UUID.randomUUID();
-        Match m = new Match(heroPlayer, architectPlayer, randID);
+        //TODO setup the match with the correct parameters
+        Match m = Match.InitNewMatch(heroPlayer, architectPlayer, new RandomlyGeneratedGameMap(4,4));
         //TODO store player-match link somehow
+
     }
 }
 

@@ -23,6 +23,7 @@ public class HeroBuilder {
     private UUID objectID = UUID.randomUUID();
     private int level = 1;
     private int databaseIdentifier = -1;
+    private HeroType type;
 
     public HeroBuilder setWeapon(Weapon weapon) {
         this.weapon = weapon;
@@ -84,7 +85,12 @@ public class HeroBuilder {
         return this;
     }
 
+    public HeroBuilder setHeroType(HeroType type){
+        this.type = type;
+        return this;
+    }
+
     public Hero createHero() {
-        return new Hero(weapon, attack, defense, health, mobility, vision, abilities, location, ownerID, objectID, level, databaseIdentifier);
+        return new Hero(weapon, attack, defense, health, mobility, vision, abilities, location, ownerID, objectID, level, databaseIdentifier, type);
     }
 }

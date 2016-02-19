@@ -9,7 +9,7 @@ import java.util.UUID;
  * Created by james on 1/21/16.
  */
 public interface SessionRepository {
-    Optional<Player> findPlayer(UUID token);
+    Optional<Player> findPlayer(UUID clientID);
 
-    void storePlayer(UUID token, Player player);
+    void storePlayer(UUID clientID, Player player);
 }

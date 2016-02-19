@@ -21,6 +21,7 @@ public class RedisCacheService implements CacheService {
     @Override
     public void storeString(String key, String str) {
         try (Jedis jedis = pool.getResource()){
+            System.out.println("Redis Cache: Storing key "+ key);
             jedis.set(key,str);
         }
     }
@@ -28,11 +29,20 @@ public class RedisCacheService implements CacheService {
     @Override
     public Optional<String> getString(String key) {
         try (Jedis jedis = pool.getResource()){
+            System.out.println("Redis Cache: Retrieving key "+ key);
             if(jedis.exists(key)){
                 return Optional.of(jedis.get(key));
             } else {
                 return Optional.empty();
             }
+        }
+    }
+
+    @Override
+    public void removeString(String key) {
+        try(Jedis jedis = pool.getResource()){
+            System.out.println("Redis Cache: Removing key "+ key);
+            jedis.del(key);
         }
     }
 

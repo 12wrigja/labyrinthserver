@@ -28,6 +28,11 @@ public class InMemoryCacheService implements CacheService {
     }
 
     @Override
+    public void removeString(String key) {
+        stringStorage.remove(key);
+    }
+
+    @Override
     public void stop() {
         //Do nothing here. This is used to do cleanup if the engine is stopping.
     }

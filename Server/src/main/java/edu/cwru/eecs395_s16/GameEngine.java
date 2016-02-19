@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
@@ -26,7 +27,6 @@ public class GameEngine {
     private int serverPort = 4567;
     private String serverInterface = "0.0.0.0";
     private boolean isStarted = false;
-    private NetworkingInterface networkingInterface;
 
     private Map<String,FunctionDescription> functionDescriptions;
 
@@ -38,10 +38,14 @@ public class GameEngine {
         return threadLocalGameEngine.get();
     }
 
+    public final boolean IS_DEBUG_MODE;
+
     private final PlayerRepository playerRepository;
     private final SessionRepository sessionRepository;
     private final MatchmakingService matchService;
     private final CacheService cacheService;
+    private final HeroRepository heroRepository;
+    private Timer gameTimer;
 
     public PlayerRepository getPlayerRepository() {
         return playerRepository;
@@ -63,6 +67,10 @@ public class GameEngine {
         return gameSocket.getRoomOperations(roomName);
     }
 
+    public HeroRepository getHeroRepository(){
+        return this.heroRepository;
+    }
+
     public CacheService getCacheService(){
         return this.cacheService;
     }
@@ -71,15 +79,20 @@ public class GameEngine {
         return gameTimer;
     }
 
-    private Timer gameTimer;
+    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache){
+        this(false, pRepo,sRepo, heroRepository, matchService, cache);
+    };
 
-    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, MatchmakingService matchService, CacheService cache){
+
+    public GameEngine(boolean debugMode, PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache){
         this.instanceID = UUID.randomUUID();
+        this.IS_DEBUG_MODE = debugMode;
         threadLocalGameEngine.set(this);
         this.playerRepository = pRepo;
         this.sessionRepository = sRepo;
         this.matchService = matchService;
         this.cacheService = cache;
+        this.heroRepository = heroRepository;
         System.out.println("GameEngine created with ID: "+instanceID.toString());
         gameTimer = new Timer();
     }
@@ -112,8 +125,8 @@ public class GameEngine {
         gameSocket = new SocketIOServer(config);
 
         //Link all created methods to socket server.
-        networkingInterface = new NetworkingInterface();
-        linkAllNetworkMethods(gameSocket,networkingInterface);
+        NetworkingInterface networkingInterface = new NetworkingInterface();
+        linkAllNetworkMethods(gameSocket, networkingInterface);
 
         gameSocket.addConnectListener(client -> {
             System.out.println("Client connected: "+client.getSessionId());
@@ -168,7 +181,7 @@ public class GameEngine {
             if (m.isAnnotationPresent(NetworkEvent.class)) {
                 String functionSocketEventName = convertMethodNameToEventName(m.getName());
                 System.out.println("Registering a network socket method '" + functionSocketEventName + "'");
-                Class dataType = m.getParameterTypes()[0];
+                Class<?> dataType = m.getParameterTypes()[0];
                 NetworkEvent at = m.getAnnotation(NetworkEvent.class);
                 server.addEventListener(functionSocketEventName, dataType, iface.createTypecastMiddleware(m, at.mustAuthenticate()));
                 FunctionDescription d = new FunctionDescription(functionSocketEventName, m.getName(), at.description(), new String[]{}, at.mustAuthenticate());

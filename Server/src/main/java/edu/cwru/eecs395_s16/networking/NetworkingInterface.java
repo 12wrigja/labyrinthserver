@@ -6,6 +6,8 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddlewareDataListener;
 import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
+import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
+import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
@@ -13,8 +15,10 @@ import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.Response;
+import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -96,8 +100,20 @@ public class NetworkingInterface {
         return r;
     }
 
-    @NetworkEvent(description = "TESTING: returns some semi-persisted user data")
-    public Response persistantPlayer(NoInputRequest obj, Player p){
-        return new Response();
+    @NetworkEvent(description="Removes the player from any matchmaking queue they are in.")
+    public Response dequeue(NoInputRequest obj, Player p){
+        boolean isDequeued = GameEngine.instance().getMatchService().removeFromQueue(p);
+        Response r = new Response();
+        r.setKey("queued",!isDequeued);
+        return r;
+    }
+
+    @NetworkEvent(description = "TESTING: returns a list of heroes.")
+    public Response getHeroes(NoInputRequest obj, Player p){
+        HeroRepository heroRepo = GameEngine.instance().getHeroRepository();
+        List<Hero> myHeroes = heroRepo.getPlayerHeroes(p);
+        Response r = new Response();
+        r.setKey("heroes",myHeroes);
+        return r;
     }
 }

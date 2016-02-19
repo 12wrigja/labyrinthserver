@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.ui;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.services.*;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
@@ -43,15 +44,17 @@ public class mainUI {
                     SessionRepository sessionRepo;
                     MatchmakingService matchmakingService = new BasicMatchmakingService();
                     CacheService cacheService;
+                    HeroRepository heroRepository;
                     String persistText = getOption("persist");
+                    boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
                         //TODO update this so it uses persistent storage
                         Connection dbConnection;
                         try {
-                            dbConnection = DriverManager.getConnection("jdbc:postgresql:labyrinth","vagrant","vagrant");
+                            dbConnection = DriverManager.getConnection("jdbc:postgresql:vagrant","vagrant","vagrant");
                         } catch (SQLException e) {
                             System.err.println("Unable to create connection to Postgres Database.");
-                            if(Boolean.parseBoolean(getOption("trace"))){
+                            if(enableTrace){
                                 e.printStackTrace();
                             }
                             return;
@@ -59,13 +62,15 @@ public class mainUI {
                         playerRepo = new PostgresPlayerRepository(dbConnection);
                         sessionRepo = new InMemorySessionRepository();
                         cacheService = new RedisCacheService();
+                        heroRepository = new PostgresHeroRepository(dbConnection);
 
                     } else {
                         playerRepo = new InMemoryPlayerRepository();
                         sessionRepo = new InMemorySessionRepository();
                         cacheService = new InMemoryCacheService();
+                        heroRepository = new InMemoryHeroRepository();
                     }
-                    GameEngine engine = new GameEngine(playerRepo, sessionRepo, matchmakingService,cacheService);
+                    GameEngine engine = new GameEngine(enableTrace, playerRepo, sessionRepo, heroRepository, matchmakingService, cacheService);
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {
                         engine.setServerInterface(serverInterface);
@@ -86,17 +91,17 @@ public class mainUI {
                     } catch (BindException e) {
                         engine.stop();
                         System.err.println("Unable to start engine - something is running on port " + engine.getServerPort() + ". Try using the linux commands netstat or lsof to determine the offending program and kill it.");
-                        if (Boolean.parseBoolean(getOption("trace"))) {
+                        if (enableTrace) {
                             e.printStackTrace();
                         }
                     } catch (UnknownHostException e){
                         System.err.println("Unable to start engine - the provided host '"+ serverInterface + "' is not valid.");
-                        if (Boolean.parseBoolean(getOption("trace"))) {
+                        if (enableTrace) {
                             e.printStackTrace();
                         }
                     } catch (IOException e) {
                         System.err.println("An unknown error occurred.");
-                        if(Boolean.parseBoolean(getOption("trace"))) {
+                        if(enableTrace) {
                             e.printStackTrace();
                         } else {
                             System.err.println(" Run this command again with the trace option set to true to print a stacktrace.");
