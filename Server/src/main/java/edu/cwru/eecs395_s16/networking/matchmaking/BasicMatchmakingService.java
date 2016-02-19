@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.networking.matchmaking;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
@@ -21,45 +22,48 @@ public class BasicMatchmakingService implements MatchmakingService {
 
     private ReentrantReadWriteLock mutex = new ReentrantReadWriteLock(true);
 
-    private static final String MATCH_FOUND_EVENT_ID = "match_found";
-
     private boolean started = false;
 
     public BasicMatchmakingService(){
         this.heroesQueue = new ArrayDeque<>(100);
-        this.architectQueue = new ArrayDeque<Player>(100);
+        this.architectQueue = new ArrayDeque<>(100);
         queuedPlayers = new HashSet<>();
     }
 
     @Override
-    public boolean queueAsHeroes(Player p){
-        boolean isQueued = false;
+    public boolean queueAsHeroes(Player p) throws InvalidGameStateException {
         mutex.writeLock().lock();
-        if(!queuedPlayers.contains(p)){
-            heroesQueue.add(p);
-            queuedPlayers.add(p);
-            isQueued = true;
+        try {
+            if (!queuedPlayers.contains(p)) {
+                heroesQueue.add(p);
+                queuedPlayers.add(p);
+            } else {
+                throw new InvalidGameStateException("You are already in the heroes queue");
+            }
+        } finally {
+            mutex.writeLock().unlock();
         }
-        mutex.writeLock().unlock();
-        return isQueued;
+        return true;
     }
 
     @Override
-    public boolean queueAsArchitect(Player p){
-        boolean isQueued = false;
+    public boolean queueAsArchitect(Player p) throws InvalidGameStateException {
         mutex.writeLock().lock();
-        if(!queuedPlayers.contains(p)){
-            architectQueue.add(p);
-            queuedPlayers.add(p);
-            isQueued = true;
+        try {
+            if (!queuedPlayers.contains(p)) {
+                architectQueue.add(p);
+                queuedPlayers.add(p);
+            } else {
+                throw new InvalidGameStateException("You are already queued in the architect queue");
+            }
+        } finally {
+            mutex.writeLock().unlock();
         }
-        mutex.writeLock().unlock();
-        return isQueued;
+        return true;
     }
 
     @Override
-    public boolean removeFromQueue(Player p) {
-        boolean isDequeued = false;
+    public boolean removeFromQueue(Player p) throws InvalidGameStateException {
         mutex.writeLock().lock();
         if(queuedPlayers.contains(p)){
             queuedPlayers.remove(p);
@@ -69,12 +73,11 @@ public class BasicMatchmakingService implements MatchmakingService {
             if(architectQueue.contains(p)){
                 architectQueue.remove(p);
             }
-            isDequeued = true;
         } else {
-            isDequeued = false;
+            throw new InvalidGameStateException("You aren't in a queue.");
         }
         mutex.writeLock().unlock();
-        return isDequeued;
+        return true;
     }
 
     @Override

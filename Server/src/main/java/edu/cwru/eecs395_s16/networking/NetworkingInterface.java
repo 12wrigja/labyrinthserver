@@ -5,17 +5,20 @@ import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddlewareDataListener;
-import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
-import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
-import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
+import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
+import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.interfaces.Response;
-import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.networking.requests.LoginUserRequest;
+import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
+import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
+import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -33,7 +36,7 @@ public class NetworkingInterface {
     @NetworkEvent(mustAuthenticate = false, description = "Used to log a player in. This must be called once to allow the user to the call all methods that are marked as needing authentication.")
     public Response login(LoginUserRequest data, SocketIOClient client) throws UnknownUsernameException, InvalidPasswordException {
         Optional<Player> p = GameEngine.instance().getPlayerRepository().loginPlayer(data.getUsername(), data.getPassword());
-        if(p.isPresent()) {
+        if (p.isPresent()) {
             GameEngine.instance().getSessionRepository().storePlayer(client.getSessionId(), p.get());
         }
         return new Response();
@@ -64,56 +67,57 @@ public class NetworkingInterface {
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns a random map generated using random walk.")
-    public Response map(NewMapRequest obj){
+    public Response map(NewMapRequest obj) {
         Response r = new Response();
-        r.setKey("map",new RandomlyGeneratedGameMap(obj.getX(), obj.getY()));
+        r.setKey("map", new RandomlyGeneratedGameMap(obj.getX(), obj.getY()));
         return r;
     }
 
     @NetworkEvent(description = "DEV ONLY: Returns the game engine ID.")
-    public Response engine(NoInputRequest obj, Player p){
+    public Response engine(NoInputRequest obj, Player p) {
         Response r = new Response();
-        r.setKey("engine-id",GameEngine.instance().getEngineID());
+        r.setKey("engine-id", GameEngine.instance().getEngineID());
         return r;
     }
 
     @NetworkEvent(description = "A complex event.", mustAuthenticate = false)
-    public Response complexEvent(NoInputRequest obj){
+    public Response complexEvent(NoInputRequest obj) {
         Response r = new Response();
-        r.setKey("isComplex",true);
+        r.setKey("isComplex", true);
         return r;
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
-    public Response queueUpHeroes(NoInputRequest obj, Player p){
+    public Response queueUpHeroes(NoInputRequest obj, Player p) throws InvalidGameStateException {
         boolean isQueued = GameEngine.instance().getMatchService().queueAsHeroes(p);
         Response r = new Response();
-        r.setKey("queued",isQueued);
+        r.setKey("queued", isQueued);
         return r;
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
-    public Response queueUpArchitect(NoInputRequest obj, Player p){
+    public Response queueUpArchitect(NoInputRequest obj, Player p) throws InvalidGameStateException {
         boolean isQueued = GameEngine.instance().getMatchService().queueAsArchitect(p);
         Response r = new Response();
-        r.setKey("queued",isQueued);
+        r.setKey("queued", isQueued);
         return r;
     }
 
-    @NetworkEvent(description="Removes the player from any matchmaking queue they are in.")
-    public Response dequeue(NoInputRequest obj, Player p){
+    @NetworkEvent(description = "Removes the player from any matchmaking queue they are in.")
+    public Response dequeue(NoInputRequest obj, Player p) throws InvalidGameStateException {
         boolean isDequeued = GameEngine.instance().getMatchService().removeFromQueue(p);
         Response r = new Response();
-        r.setKey("queued",!isDequeued);
+        r.setKey("queued", !isDequeued);
         return r;
     }
 
     @NetworkEvent(description = "TESTING: returns a list of heroes.")
-    public Response getHeroes(NoInputRequest obj, Player p){
+    public Response getHeroes(NoInputRequest obj, Player p) {
         HeroRepository heroRepo = GameEngine.instance().getHeroRepository();
         List<Hero> myHeroes = heroRepo.getPlayerHeroes(p);
         Response r = new Response();
-        r.setKey("heroes",myHeroes);
+        r.setKey("heroes", myHeroes);
         return r;
     }
+
 }

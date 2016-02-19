@@ -7,11 +7,10 @@ import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
+import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.objects.*;
-import edu.cwru.eecs395_s16.interfaces.objects.Character;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 
-import java.security.cert.PKIXRevocationChecker;
 import java.util.*;
 
 /**
@@ -114,6 +113,12 @@ public class Match {
         this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
         this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
         this.gameState = GameState.GAME_START;
+
+        Response r = new Response();
+        r.setKey("match-id",this.matchIdentifier.toString());
+        r.setDeepKey(this.heroPlayer.getUsername(),"players","heroes");
+        r.setDeepKey(this.architectPlayer.getUsername(),"players","architect");
+        broadcastToAllParties("match_found",r);
     }
 
     //TODO figure out what inputs go here
