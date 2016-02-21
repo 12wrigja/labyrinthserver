@@ -155,6 +155,7 @@ public class Hero implements Character, DatabaseObject {
         representation.put("owner",getOwnerID().isPresent()?getOwnerID().get():null);
         representation.put("controller",getOwnerID().isPresent()?getOwnerID().get():null);
         representation.put("hero_type",getHeroType().toString().toLowerCase());
+        representation.put("level",getLevel());
         return representation;
     }
 

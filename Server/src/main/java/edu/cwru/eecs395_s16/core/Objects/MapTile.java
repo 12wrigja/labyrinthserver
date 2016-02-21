@@ -30,20 +30,4 @@ public class MapTile extends BasicLocation implements Jsonable {
         json.put("rotation",rotation);
         return json;
     }
-
-    public int getRotation() {
-        return rotation;
-    }
-
-    public void setRotation(int rotation) {
-        this.rotation = rotation;
-    }
-
-    public String getTileType() {
-        return tileType;
-    }
-
-    public void setTileType(String tileType) {
-        this.tileType = tileType;
-    }
 }

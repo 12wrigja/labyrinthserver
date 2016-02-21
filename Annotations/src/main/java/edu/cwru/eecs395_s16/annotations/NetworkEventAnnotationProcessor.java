@@ -71,6 +71,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                 //Check Method Parameters
                 List<? extends VariableElement> methodParams = networkedMethod.getParameters();
                 TypeMirror expectedDataType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.RequestData").asType();
+                TypeMirror jsonObjectDataType = elementUtils.getTypeElement("org.json.JSONObject").asType();
                 TypeMirror playerType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.core.Player").asType();
                 TypeMirror clientType = elementUtils.getTypeElement("com.corundumstudio.socketio.SocketIOClient").asType();
                 if(annotation.mustAuthenticate()){
@@ -82,8 +83,8 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                         case 2:
                             //Check types here.
                             VariableElement dataParam = methodParams.get(0);
-                            if(!typeUtils.isAssignable(dataParam.asType(),expectedDataType)){
-                                error(networkedMethod, "The method %s must have a data object that implements the RequestData interface for its first parameter.",networkedMethod.getSimpleName());
+                            if(!typeUtils.isAssignable(dataParam.asType(),expectedDataType) && !typeUtils.isAssignable(dataParam.asType(),jsonObjectDataType)){
+                                error(networkedMethod, "The method %s must have a data object that either implements the RequestData interface or is of type JSONObject for its first parameter.",networkedMethod.getSimpleName());
                             }
 
                              VariableElement playerParam = methodParams.get(1);
@@ -93,7 +94,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                             break;
                         default:
                             //Here is where checking for injectable types would occur. Probably.
-                            error(networkedMethod, "You must have an object that implements the RequestData interface as the first parameter and a Player object for the second parameter of the method %s.", networkedMethod.getSimpleName());
+                            error(networkedMethod, "You must have an object that implements the RequestData interface or is of type JSONObject as the first parameter and a Player object for the second parameter of the method %s.", networkedMethod.getSimpleName());
                             break;
                     }
                 } else {
@@ -104,15 +105,15 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                         case 1:
                             //This is the case where we only have the data object as the first parameter.
                             VariableElement dataParam = methodParams.get(0);
-                            if(!typeUtils.isAssignable(dataParam.asType(),expectedDataType)){
-                                error(networkedMethod, "The method %s must have a data object that implements the RequestData interface for its first parameter.",networkedMethod.getSimpleName());
+                            if(!typeUtils.isAssignable(dataParam.asType(),expectedDataType) && !typeUtils.isAssignable(dataParam.asType(),jsonObjectDataType)){
+                                error(networkedMethod, "The method %s must have a data object that implements the RequestData interface or is of type JSONObject for its first parameter.",networkedMethod.getSimpleName());
                             }
                             break;
                         case 2:
                             //This is the case where the first parameter should be a requestdata object, and the second can be the socket.io client class. Check for that here.
                             VariableElement dataParam1 = methodParams.get(0);
-                            if(!typeUtils.isAssignable(dataParam1.asType(),expectedDataType)){
-                                error(networkedMethod, "The method %s must have a data object that implements the RequestData interface for its first parameter.",networkedMethod.getSimpleName());
+                            if(!typeUtils.isAssignable(dataParam1.asType(),expectedDataType) && !typeUtils.isAssignable(dataParam1.asType(),jsonObjectDataType)){
+                                error(networkedMethod, "The method %s must have a data object that implements the RequestData interface of is of type JSONObject for its first parameter.",networkedMethod.getSimpleName());
                             }
                             //Check for the client type as the second parameter
                             if(methodParams.size() > 1) {

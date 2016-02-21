@@ -33,7 +33,7 @@ public class Match {
 
     private GameState gameState;
 
-    private List<GameObject> boardObjects;
+    private final List<GameObject> boardObjects;
 
     public static Match InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
         //TODO check and see if either specified player is already in a match
@@ -43,7 +43,7 @@ public class Match {
         return m;
     }
 
-    public static Optional<Match> fromCacheWithMatchIdentifier(UUID id) throws UnknownUsernameException {
+    public static Optional<Match> fromCacheWithMatchIdentifier(UUID id) {
         //This method is used to retrieve the match from a cache
         CacheService cache = GameEngine.instance().getCacheService();
 
@@ -55,7 +55,15 @@ public class Match {
         Player architectPlayer;
 
         if (heroPlayerIdentifier.isPresent()) {
-            Optional<Player> hOpt = GameEngine.instance().getPlayerRepository().findPlayer(heroPlayerIdentifier.get());
+            Optional<Player> hOpt;
+            try {
+                hOpt = GameEngine.instance().getPlayerRepository().findPlayer(heroPlayerIdentifier.get());
+            } catch (UnknownUsernameException e) {
+                if(GameEngine.instance().IS_DEBUG_MODE) {
+                    e.printStackTrace();
+                }
+                return Optional.empty();
+            }
             if (hOpt.isPresent()) {
                 heroPlayer = hOpt.get();
             } else {
@@ -66,7 +74,15 @@ public class Match {
         }
 
         if (architectPlayerIdentifier.isPresent()) {
-            Optional<Player> aOpt = GameEngine.instance().getPlayerRepository().findPlayer(architectPlayerIdentifier.get());
+            Optional<Player> aOpt;
+            try {
+                aOpt = GameEngine.instance().getPlayerRepository().findPlayer(architectPlayerIdentifier.get());
+            } catch (UnknownUsernameException e) {
+                if(GameEngine.instance().IS_DEBUG_MODE) {
+                    e.printStackTrace();
+                }
+                return Optional.empty();
+            }
             if (aOpt.isPresent()) {
                 architectPlayer = aOpt.get();
             } else {
@@ -85,7 +101,7 @@ public class Match {
         return Optional.of(m);
     }
 
-    public static Optional<Match> fromMatchIdentifier(String id) throws UnknownUsernameException {
+    public static Optional<Match> fromCacheWithMatchIdentifier(String id) {
         UUID uuidID = UUID.fromString(id);
         return fromCacheWithMatchIdentifier(uuidID);
     }
@@ -95,6 +111,7 @@ public class Match {
         this.architectPlayer = architectPlayer;
         this.matchIdentifier = matchIdentifier;
         this.gameMap = gameMap;
+        this.boardObjects = new ArrayList<>();
 
         pingTask = new TimerTask() {
             @Override
@@ -114,26 +131,37 @@ public class Match {
         this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
         this.gameState = GameState.GAME_START;
 
+        //TODO update to add all the base game objects to the board.
+        this.boardObjects.addAll(GameEngine.instance().getHeroRepository().getPlayerHeroes(this.heroPlayer));
+        this.boardObjects.addAll(GameEngine.instance().getHeroRepository().getPlayerHeroes(this.architectPlayer));
+
         Response r = new Response();
         r.setKey("match-id",this.matchIdentifier.toString());
         r.setDeepKey(this.heroPlayer.getUsername(),"players","heroes");
         r.setDeepKey(this.architectPlayer.getUsername(),"players","architect");
+        r.setKey("map",this.gameMap.getJsonableRepresentation());
+        r.setKey("board_objects",this.boardObjects);
         broadcastToAllParties("match_found",r);
     }
 
     //TODO figure out what inputs go here
     //Maybe some sort of action class?
-    public synchronized <T extends RequestData> void  updateGameState(Player p, GameAction<T> action, T data) throws UnauthorizedActionException {
+    public synchronized <T extends RequestData> boolean  updateGameState(Player p, GameAction action) throws UnauthorizedActionException {
         //First check and see if it is your turn
         if (isPlayerTurn(p)){
             //Assemble the required lists of stuff.
-            if(action.canDoAction(this.gameMap, this.boardObjects, data)){
-                action.doGameAction(this.gameMap, this.boardObjects, data);
+            if(action.canDoAction(this.gameMap, this.boardObjects)){
+                action.doGameAction(this.gameMap, this.boardObjects);
+                //TODO persist new game state here
+                //TODO Send results out to all players and spectators
+                return true;
+            } else {
+                return false;
             }
         } else {
             throw new UnauthorizedActionException(p);
         }
-        //Send results out to all players and spectators
+
     }
 
     private boolean isPlayerTurn(Player p) {
@@ -151,6 +179,7 @@ public class Match {
         synchronized (this.spectators) {
             if (!this.spectators.contains(spectator)) {
                 this.spectators.add(spectator);
+                spectator.setCurrentMatch(Optional.of(this.matchIdentifier));
             }
         }
     }
@@ -158,6 +187,13 @@ public class Match {
     public void removeSpectator(Player spectator) {
         synchronized (this.spectators) {
             this.spectators.remove(spectator);
+            spectator.setCurrentMatch(Optional.empty());
+        }
+    }
+
+    public boolean isSpectatorOfMatch(Player spectator){
+        synchronized (this.spectators){
+            return this.spectators.contains(spectator);
         }
     }
 

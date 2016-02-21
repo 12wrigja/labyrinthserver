@@ -5,32 +5,30 @@ import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddlewareDataListener;
-import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
-import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
+import edu.cwru.eecs395_s16.auth.exceptions.*;
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
+import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
-import edu.cwru.eecs395_s16.networking.requests.LoginUserRequest;
-import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
-import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
-import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
+import edu.cwru.eecs395_s16.networking.requests.*;
+import edu.cwru.eecs395_s16.networking.responses.StatusCode;
+import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by james on 1/20/16.
  */
 public class NetworkingInterface {
 
-    public <T> DataListener<T> createTypecastMiddleware(Method next, boolean needsAuth) {
-        return new AuthenticationMiddlewareDataListener<>(this, GameEngine.instance().getSessionRepository(), next, needsAuth);
+    public DataListener<JSONObject> createTypecastMiddleware(Method next, boolean needsAuth) {
+        return new AuthenticationMiddlewareDataListener(this, GameEngine.instance().getSessionRepository(), next, needsAuth);
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "Used to log a player in. This must be called once to allow the user to the call all methods that are marked as needing authentication.")
@@ -48,42 +46,10 @@ public class NetworkingInterface {
         return new Response();
     }
 
-    @NetworkEvent(description = "TESTING ONLY: allows the user to join the socket.io test room.")
-    public Response join(NoInputRequest obj, Player player) {
-        SocketIOClient c = player.getClient();
-        if (!c.getAllRooms().contains("TestRoom")) {
-            c.joinRoom("TestRoom");
-        }
-        return new Response();
-    }
-
-    @NetworkEvent(description = "TESTING ONLY: allows the user to leave the socket.io test room.")
-    public Response leave(NoInputRequest obj, Player player) {
-        SocketIOClient c = player.getClient();
-        if (c.getAllRooms().contains("TestRoom")) {
-            c.leaveRoom("TestRoom");
-        }
-        return new Response();
-    }
-
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns a random map generated using random walk.")
     public Response map(NewMapRequest obj) {
         Response r = new Response();
         r.setKey("map", new RandomlyGeneratedGameMap(obj.getX(), obj.getY()));
-        return r;
-    }
-
-    @NetworkEvent(description = "DEV ONLY: Returns the game engine ID.")
-    public Response engine(NoInputRequest obj, Player p) {
-        Response r = new Response();
-        r.setKey("engine-id", GameEngine.instance().getEngineID());
-        return r;
-    }
-
-    @NetworkEvent(description = "A complex event.", mustAuthenticate = false)
-    public Response complexEvent(NoInputRequest obj) {
-        Response r = new Response();
-        r.setKey("isComplex", true);
         return r;
     }
 
@@ -117,6 +83,91 @@ public class NetworkingInterface {
         List<Hero> myHeroes = heroRepo.getPlayerHeroes(p);
         Response r = new Response();
         r.setKey("heroes", myHeroes);
+        return r;
+    }
+
+    @NetworkEvent(description = "Allows a player to spectate a match between other players.")
+    public Response spectate(SpectateMatchRequest obj, Player p) {
+        Optional<Match> m = Match.fromCacheWithMatchIdentifier(obj.getMatchID());
+        if(m.isPresent()){
+            Match match = m.get();
+            match.addSpectator(p);
+            return new Response();
+        } else {
+            Response r = new Response(StatusCode.UNPROCESSABLE_DATA);
+            r.setKey("message","Unable to spectate match with id: "+obj.getMatchID());
+            return r;
+        }
+    }
+
+    @NetworkEvent(description = "Allows a spectating player to stop spectating a match")
+    public Response stopSpectating(NoInputRequest obj, Player p) {
+        Optional<UUID> matchIdentifier = p.getCurrentMatchID();
+        if(matchIdentifier.isPresent()){
+            Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchIdentifier.get());
+            if(m.isPresent()){
+                if(m.get().isSpectatorOfMatch(p)){
+                    m.get().removeSpectator(p);
+                    return new Response();
+                } else {
+                    Response r = new Response(StatusCode.UNPROCESSABLE_DATA);
+                    r.setKey("message","You are currently not spectating a match right now");
+                    return r;
+                }
+            } else {
+                return new Response(StatusCode.SERVER_ERROR);
+            }
+        } else {
+            Response r = new Response(StatusCode.UNPROCESSABLE_DATA);
+            r.setKey("message","You are currently not spectating a match right now");
+            return r;
+        }
+    }
+
+//    @NetworkEvent(description = "Allows a player playing a game to submit a game action")
+//    public Response gameAction(GameActionBaseRequest obj, Player p) throws InvalidDataException, UnauthorizedActionException {
+//        Optional<UUID> matchID = p.getCurrentMatchID();
+//        if(matchID.isPresent()) {
+//            Optional<GameAction> action = Optional.empty();
+//            switch (obj.getType()) {
+//                case MOVE_ACTION: {
+//                    MoveGameActionData moveData = new MoveGameActionData();
+//                    moveData.fillFromJSON(obj.getOriginalData());
+//                    action = Optional.of(new MoveGameAction(moveData));
+//                    break;
+//                }
+//                case BASIC_ATTACK_ACTION: {
+////                RequestData action = new MoveGameAction();
+////                action.fillFromJSON(obj.getOriginalData());
+////                actualAction = Optional.of(action);
+//                    break;
+//                }
+//                case PASS_ACTION: {
+//                    return new Response(StatusCode.SERVER_ERROR);
+//                }
+//                case ABILITY_ACTION: {
+//                    return new Response(StatusCode.SERVER_ERROR);
+//                }
+//            }
+//            if (action.isPresent()) {
+//                Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
+//                if(m.isPresent()){
+//                    m.get().updateGameState(p,action.get());
+//                }
+//            } else {
+//                return new Response(StatusCode.UNPROCESSABLE_DATA);
+//            }
+//        }
+//        Response r = new Response(StatusCode.SERVER_ERROR);
+//        r.setKey("message","Unable to find match.");
+//        return r;
+//    }
+
+    @NetworkEvent(description = "TESTS JSON PARSING", mustAuthenticate = false)
+    public Response testJson(JSONObject obj) {
+        System.out.println(obj.toString());
+        Response r = new Response();
+        r.setKey("input",obj);
         return r;
     }
 

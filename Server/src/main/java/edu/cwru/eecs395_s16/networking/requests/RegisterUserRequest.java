@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.networking.requests;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,40 +20,18 @@ public class RegisterUserRequest implements RequestData {
         return password_confirm;
     }
 
-    public void setPassword_confirm(String password_confirm) {
-        this.password_confirm = password_confirm;
-    }
-
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     @Override
-    public void validate() throws InvalidDataException {
-        List<String> invalidParams = new ArrayList<>();
-        if(getPassword() == null){
-            invalidParams.add("password");
-        }
-        if(getPasswordConfirm() == null){
-            invalidParams.add("password_confirm");
-        }
-        if(getUsername() == null){
-            invalidParams.add("username");
-        }
-        if(invalidParams.size() > 0){
-            throw new InvalidDataException(invalidParams);
-        }
+    public void fillFromJSON(JSONObject obj) throws InvalidDataException {
+        this.username = RequestData.getString(obj,"username");
+        this.password = RequestData.getString(obj,"password");
+        this.password_confirm = RequestData.getString(obj,"password_confirm");
     }
 }

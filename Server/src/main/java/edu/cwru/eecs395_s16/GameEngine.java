@@ -3,6 +3,8 @@ package edu.cwru.eecs395_s16;
 import com.corundumstudio.socketio.BroadcastOperations;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.protocol.JacksonJsonSupport;
+import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
@@ -11,6 +13,7 @@ import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -122,6 +125,9 @@ public class GameEngine {
         Configuration config = new Configuration();
         config.setHostname(this.serverInterface);
         config.setPort(this.serverPort);
+
+        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport(new JsonOrgModule());
+        config.setJsonSupport(jacksonJsonSupport);
         gameSocket = new SocketIOServer(config);
 
         //Link all created methods to socket server.
@@ -181,9 +187,8 @@ public class GameEngine {
             if (m.isAnnotationPresent(NetworkEvent.class)) {
                 String functionSocketEventName = convertMethodNameToEventName(m.getName());
                 System.out.println("Registering a network socket method '" + functionSocketEventName + "'");
-                Class<?> dataType = m.getParameterTypes()[0];
                 NetworkEvent at = m.getAnnotation(NetworkEvent.class);
-                server.addEventListener(functionSocketEventName, dataType, iface.createTypecastMiddleware(m, at.mustAuthenticate()));
+                server.addEventListener(functionSocketEventName, JSONObject.class, iface.createTypecastMiddleware(m, at.mustAuthenticate()));
                 FunctionDescription d = new FunctionDescription(functionSocketEventName, m.getName(), at.description(), new String[]{}, at.mustAuthenticate());
                 functionDescriptions.put(d.humanName,d);
             }

@@ -53,7 +53,9 @@ public class Response implements Jsonable {
                 } else {
                     //Theres already something there...
                     if (currentObj instanceof Map<?, ?>) {
-                        currentMap = (Map<String, Object>) currentObj;
+                        @SuppressWarnings("unchecked")
+                        Map<String,Object> nextMap = (Map<String, Object>) currentObj;
+                        currentMap = nextMap;
                     } else if (currentObj instanceof List<?>) {
                         //TODO add in support for lists
                     } else {
