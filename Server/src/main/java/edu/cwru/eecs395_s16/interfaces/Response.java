@@ -5,9 +5,7 @@ import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by james on 1/21/16.
@@ -28,7 +26,7 @@ public class Response implements Jsonable {
 
     public Response(JsonableException e) {
         this();
-        this.storage = e.getJsonableRepresentation();
+        this.storage = e.getJSONRepresentation();
     }
 
     public Response(StatusCode code) {
@@ -109,7 +107,7 @@ public class Response implements Jsonable {
     }
 
     @Override
-    public JSONObject getJsonableRepresentation() {
+    public JSONObject getJSONRepresentation() {
         return this.storage;
     }
 }

@@ -10,13 +10,16 @@ import edu.cwru.eecs395_s16.interfaces.RequestData;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.objects.*;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.*;
 
 /**
  * Created by james on 1/19/16.
  */
-public class Match {
+public class Match implements Jsonable {
 
     private final TimerTask pingTask;
 
@@ -139,7 +142,7 @@ public class Match {
         r.setKey("match-id",this.matchIdentifier.toString());
         r.setDeepKey(this.heroPlayer.getUsername(),"players","heroes");
         r.setDeepKey(this.architectPlayer.getUsername(),"players","architect");
-        r.setKey("map",this.gameMap.getJsonableRepresentation());
+        r.setKey("map",this.gameMap.getJSONRepresentation());
         r.setKey("board_objects",this.boardObjects);
         broadcastToAllParties("match_found",r);
     }
@@ -172,7 +175,7 @@ public class Match {
 
     public void broadcastToAllParties(String event, Jsonable object) {
         BroadcastOperations roomBroadcast = GameEngine.instance().getBroadcastServiceForRoom(this.matchIdentifier.toString());
-        roomBroadcast.sendEvent(event, object.getJsonableRepresentation());
+        roomBroadcast.sendEvent(event, object.getJSONRepresentation());
     }
 
     public void addSpectator(Player spectator) {
@@ -203,4 +206,35 @@ public class Match {
         pingTask.cancel();
     }
 
+    @Override
+    public JSONObject getJSONRepresentation() {
+        JSONObject obj = new JSONObject();
+        try{
+            //Match ID
+            obj.put("match-id",this.matchIdentifier.toString());
+
+            //Players involved
+            JSONObject playerObj = new JSONObject();
+            playerObj.put("heroes",this.heroPlayer.getUsername());
+            playerObj.put("architect",this.architectPlayer.getUsername());
+            obj.put("players",playerObj);
+
+            //Map
+            obj.put("map",this.gameMap.getJSONRepresentation());
+
+            //Board objects
+            JSONArray boardObjectArray = new JSONArray();
+            for(GameObject gObj : this.boardObjects){
+                boardObjectArray.put(gObj.getJSONRepresentation());
+            }
+            obj.put("board_objects",boardObjectArray);
+
+            //Current game state
+            obj.put("game_state",this.gameState.toString());
+
+        }catch (JSONException e){
+            //Never will be thrown as the keys are never null
+        }
+        return obj;
+    }
 }

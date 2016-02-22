@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.interfaces.objects;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -62,20 +63,20 @@ public interface GameMap extends Jsonable {
     }
 
     @Override
-    default JSONObject getJsonableRepresentation(){
+    default JSONObject getJSONRepresentation(){
         JSONObject mapObj = new JSONObject();
         JSONObject sizeObj = new JSONObject();
         try {
             sizeObj.put("x", getSizeX());
             sizeObj.put("y", getSizeY());
             mapObj.put("size", sizeObj);
-            Object[] allTiles = new Object[getSizeY() * getSizeX()];
+            JSONArray tileArray = new JSONArray();
             for (int i = 0; i < getSizeX(); i++) {
                 for (int j = 0; j < getSizeY(); j++) {
-                    allTiles[i * getSizeY() + j] = getTile(i, j);
+                    tileArray.put(getTile(i,j));
                 }
             }
-            mapObj.put("tiles", allTiles);
+            mapObj.put("tiles", tileArray);
         }catch(JSONException e){
             //Never will occur - all keys are not null
         }

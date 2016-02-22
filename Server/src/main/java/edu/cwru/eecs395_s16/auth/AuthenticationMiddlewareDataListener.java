@@ -98,6 +98,6 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
             }
         }
         System.out.println("Sent response for method " + next.getName() + " to client " + client.getSessionId());
-        ackSender.sendAckData(response.getJsonableRepresentation());
+        ackSender.sendAckData(response.getJSONRepresentation());
     }
 }

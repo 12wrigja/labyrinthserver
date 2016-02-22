@@ -22,7 +22,7 @@ public class MapTile extends Location implements Jsonable {
     }
 
     @Override
-    public JSONObject getJsonableRepresentation() {
+    public JSONObject getJSONRepresentation() {
         JSONObject json = new JSONObject();
         int[] posArray = new int[2];
         posArray[0] = getX();

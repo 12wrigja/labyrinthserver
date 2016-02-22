@@ -148,7 +148,7 @@ public class Hero implements Character, DatabaseObject {
     }
 
     @Override
-    public JSONObject getJsonableRepresentation(){
+    public JSONObject getJSONRepresentation(){
         //Setup json representation
         JSONObject representation = new JSONObject();
         try {

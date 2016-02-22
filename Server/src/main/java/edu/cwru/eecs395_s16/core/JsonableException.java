@@ -21,7 +21,7 @@ public class JsonableException extends Exception implements Jsonable {
         this.message = message;
     }
 
-    public JSONObject getJsonableRepresentation() {
+    public JSONObject getJSONRepresentation() {
         JSONObject mp = new JSONObject();
         try {
             mp.put("status", this.errorCode.code);
