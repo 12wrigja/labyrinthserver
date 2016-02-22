@@ -1,6 +1,8 @@
 package edu.cwru.eecs395_s16.core.objects;
 
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +10,7 @@ import java.util.Map;
 /**
  * Created by james on 2/12/16.
  */
-public class MapTile extends BasicLocation implements Jsonable {
+public class MapTile extends Location implements Jsonable {
 
     private String tileType;
     private int rotation;
@@ -20,14 +22,22 @@ public class MapTile extends BasicLocation implements Jsonable {
     }
 
     @Override
-    public Map<String, Object> getJsonableRepresentation() {
-        Map<String,Object> json = new HashMap<>();
+    public JSONObject getJsonableRepresentation() {
+        JSONObject json = new JSONObject();
         int[] posArray = new int[2];
         posArray[0] = getX();
         posArray[1] = getY();
-        json.put("position",posArray);
-        json.put("terrain",tileType);
-        json.put("rotation",rotation);
+        try {
+            json.put("position", posArray);
+            json.put("terrain", tileType);
+            json.put("rotation", rotation);
+        } catch (JSONException e) {
+            //Never will happen - all keys are not null
+        }
         return json;
+    }
+
+    public boolean isObstructionTileType() {
+        return this.tileType.equals("water") || this.tileType.equals("wall") || this.tileType.equals("empty");
     }
 }

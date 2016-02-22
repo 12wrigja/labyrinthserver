@@ -2,9 +2,8 @@ package edu.cwru.eecs395_s16.networking.requests.gameactions;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
-import edu.cwru.eecs395_s16.core.objects.BasicLocation;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
-import edu.cwru.eecs395_s16.interfaces.objects.Location;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +29,7 @@ public class MoveGameActionData implements RequestData {
                 JSONObject location = pathArr.getJSONObject(i);
                 int x = location.getInt("x");
                 int y = location.getInt("y");
-                Location l = new BasicLocation(x,y);
+                Location l = new Location(x,y);
                 path.add(l);
             }
         } catch (JSONException e) {

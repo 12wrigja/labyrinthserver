@@ -1,10 +1,15 @@
 package edu.cwru.eecs395_s16.core.objects.heroes;
 
-import edu.cwru.eecs395_s16.core.objects.BasicLocation;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.*;
 import edu.cwru.eecs395_s16.interfaces.objects.Character;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by james on 2/18/16.
@@ -18,7 +23,7 @@ public class Hero implements Character, DatabaseObject {
     private int movement = 3;
     private int vision = 5;
     private List<Ability> abilities = new ArrayList<>();
-    private Location location = new BasicLocation(0,0);
+    private Location location = new Location(0,0);
     private final Optional<String> ownerID;
     private final UUID objectID;
     private int level = 1;
@@ -102,6 +107,11 @@ public class Hero implements Character, DatabaseObject {
     }
 
     @Override
+    public void setLocation(Location loc) {
+        this.location = loc;
+    }
+
+    @Override
     public Optional<String> getOwnerID() {
         return this.ownerID;
     }
@@ -138,24 +148,28 @@ public class Hero implements Character, DatabaseObject {
     }
 
     @Override
-    public Map<String, Object> getJsonableRepresentation() {
+    public JSONObject getJsonableRepresentation(){
         //Setup json representation
-        Map<String,Object> representation = new HashMap<>();
-        representation.put("id",getGameObjectID());
-        representation.put("x",location.getX());
-        representation.put("y",location.getY());
-        representation.put("type","hero");
-        representation.put("attack",getAttack());
-        representation.put("defense",getDefense());
-        representation.put("health",getHealth());
-        representation.put("movement",getMovement());
-        representation.put("vision",getVision());
-        representation.put("abilities",getAbilities());
-        representation.put("statuses",new ArrayList<String>());
-        representation.put("owner",getOwnerID().isPresent()?getOwnerID().get():null);
-        representation.put("controller",getOwnerID().isPresent()?getOwnerID().get():null);
-        representation.put("hero_type",getHeroType().toString().toLowerCase());
-        representation.put("level",getLevel());
+        JSONObject representation = new JSONObject();
+        try {
+            representation.put("id", getGameObjectID());
+            representation.put("x", location.getX());
+            representation.put("y", location.getY());
+            representation.put("type", "hero");
+            representation.put("attack", getAttack());
+            representation.put("defense", getDefense());
+            representation.put("health", getHealth());
+            representation.put("movement", getMovement());
+            representation.put("vision", getVision());
+            representation.put("abilities", getAbilities());
+            representation.put("statuses", new ArrayList<String>());
+            representation.put("owner", getOwnerID().isPresent() ? getOwnerID().get() : null);
+            representation.put("controller", getOwnerID().isPresent() ? getOwnerID().get() : null);
+            representation.put("hero_type", getHeroType().toString().toLowerCase());
+            representation.put("level", getLevel());
+        } catch (JSONException e) {
+            //Never will occur - all keys are non-null
+        }
         return representation;
     }
 

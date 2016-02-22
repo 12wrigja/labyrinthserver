@@ -2,6 +2,8 @@ package edu.cwru.eecs395_s16.core;
 
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +21,14 @@ public class JsonableException extends Exception implements Jsonable {
         this.message = message;
     }
 
-    public Map<String, Object> getJsonableRepresentation() {
-        Map<String, Object> mp = new HashMap<>();
-        mp.put("status", this.errorCode.code);
-        mp.put("message", this.message);
+    public JSONObject getJsonableRepresentation() {
+        JSONObject mp = new JSONObject();
+        try {
+            mp.put("status", this.errorCode.code);
+            mp.put("message", this.message);
+        }catch(JSONException e){
+            //Not going to happen - both keys are not null;
+        }
         return mp;
     }
 }

@@ -1,8 +1,7 @@
 package edu.cwru.eecs395_s16.core.objects.heroes;
 
-import edu.cwru.eecs395_s16.core.objects.BasicLocation;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.Ability;
-import edu.cwru.eecs395_s16.interfaces.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.Weapon;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class HeroBuilder {
     private int mobility = 0;
     private int vision = 0;
     private List<Ability> abilities = new ArrayList<>();
-    private Location location = new BasicLocation(0,0);
+    private Location location = new Location(0,0);
     private Optional<String> ownerID = Optional.empty();
     private UUID objectID = UUID.randomUUID();
     private int level = 1;

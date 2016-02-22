@@ -1,5 +1,7 @@
 package edu.cwru.eecs395_s16.interfaces.objects;
 
+import edu.cwru.eecs395_s16.core.objects.Location;
+
 import java.util.List;
 
 /**
@@ -7,13 +9,13 @@ import java.util.List;
  */
 public interface Ability {
 
-    public String getName();
+    String getName();
 
-    public String getAbility();
+    String getAbility();
 
-    public String getImage();
+    String getImage();
 
-    public int getDamage();
+    int getDamage();
 
-    public List<Location> getTargetTiles();
+    List<Location> getTargetTiles();
 }

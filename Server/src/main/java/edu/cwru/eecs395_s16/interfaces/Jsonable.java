@@ -2,6 +2,8 @@ package edu.cwru.eecs395_s16.interfaces;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.cwru.eecs395_s16.core.JsonableSerializer;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Map;
 
@@ -10,5 +12,5 @@ import java.util.Map;
  */
 @JsonSerialize(using = JsonableSerializer.class)
 public interface Jsonable {
-    Map<String, Object> getJsonableRepresentation();
+    JSONObject getJsonableRepresentation();
 }

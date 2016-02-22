@@ -1,8 +1,10 @@
 package edu.cwru.eecs395_s16.interfaces.objects;
 
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
-import edu.cwru.eecs395_s16.core.objects.BasicLocation;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,10 @@ import java.util.Map;
 public interface GameMap extends Jsonable {
 
     MapTile getTile(int x, int y);
+
+    default MapTile getTile(Location loc){
+        return getTile(loc.getX(),loc.getY());
+    };
 
     int getSizeX();
 
@@ -29,46 +35,50 @@ public interface GameMap extends Jsonable {
         int mapY = getSizeY();
 
         if( x-1 >= 0){
-            neighbours.add(new BasicLocation(x-1,y));
+            neighbours.add(new Location(x-1,y));
             if(y-1 >= 0){
-                neighbours.add(new BasicLocation(x-1,y-1));
+                neighbours.add(new Location(x-1,y-1));
             }
             if(y+1 < mapY){
-                neighbours.add(new BasicLocation(x-1,y+1));
+                neighbours.add(new Location(x-1,y+1));
             }
         }
         if(x+1 < mapX){
-            neighbours.add(new BasicLocation(x+1,y));
+            neighbours.add(new Location(x+1,y));
             if(y-1 >= 0){
-                neighbours.add(new BasicLocation(x+1,y-1));
+                neighbours.add(new Location(x+1,y-1));
             }
             if(y+1 < mapY){
-                neighbours.add(new BasicLocation(x+1,y+1));
+                neighbours.add(new Location(x+1,y+1));
             }
         }
         if(y-1 >= 0){
-            neighbours.add(new BasicLocation(x,y-1));
+            neighbours.add(new Location(x,y-1));
         }
         if(y+1 < mapY){
-            neighbours.add(new BasicLocation(x,y+1));
+            neighbours.add(new Location(x,y+1));
         }
         return neighbours;
     }
 
     @Override
-    default Map<String, Object> getJsonableRepresentation(){
-        Map<String,Object> mapObj = new HashMap<>();
-        Map<String,Integer> sizeMap = new HashMap<>();
-        sizeMap.put("x",getSizeX());
-        sizeMap.put("y",getSizeY());
-        mapObj.put("size",sizeMap);
-        Object[] allTiles = new Object[getSizeY()*getSizeX()];
-        for(int i=0; i<getSizeX(); i++){
-            for(int j=0; j<getSizeY(); j++){
-                allTiles[i*getSizeY()+j] = getTile(i,j);
+    default JSONObject getJsonableRepresentation(){
+        JSONObject mapObj = new JSONObject();
+        JSONObject sizeObj = new JSONObject();
+        try {
+            sizeObj.put("x", getSizeX());
+            sizeObj.put("y", getSizeY());
+            mapObj.put("size", sizeObj);
+            Object[] allTiles = new Object[getSizeY() * getSizeX()];
+            for (int i = 0; i < getSizeX(); i++) {
+                for (int j = 0; j < getSizeY(); j++) {
+                    allTiles[i * getSizeY() + j] = getTile(i, j);
+                }
             }
+            mapObj.put("tiles", allTiles);
+        }catch(JSONException e){
+            //Never will occur - all keys are not null
         }
-        mapObj.put("tiles",allTiles);
         return mapObj;
     }
 }

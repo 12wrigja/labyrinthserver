@@ -2,6 +2,8 @@ package edu.cwru.eecs395_s16.interfaces;
 
 import edu.cwru.eecs395_s16.core.JsonableException;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +14,16 @@ import java.util.Map;
  */
 public class Response implements Jsonable {
 
-    private Map<String, Object> storage;
+    private JSONObject storage;
 
     public Response() {
-        this.storage = new HashMap<>();
-        storage.put("status", StatusCode.OK.code);
-        storage.put("message",StatusCode.OK.message);
+        this.storage = new JSONObject();
+        try {
+            storage.put("status", StatusCode.OK.code);
+            storage.put("message", StatusCode.OK.message);
+        } catch (JSONException e) {
+            //Not going to happen - all keys are not null;
+        }
     }
 
     public Response(JsonableException e) {
@@ -27,56 +33,83 @@ public class Response implements Jsonable {
 
     public Response(StatusCode code) {
         this();
-        storage.put("status", code.code);
-        storage.put("message",code.message);
-    }
-
-    public void setKey(String key, Object value){
-        //We can't override the status key.
-        if(!key.equals("status")){
-            storage.put(key, value);
+        try {
+            storage.put("status", code.code);
+            storage.put("message", code.message);
+        } catch (JSONException e) {
+            //Not going to happen - both keys are not null;
         }
     }
 
-    public void setDeepKey(Object value, String... keypath){
+    public void setKey(String key, Object value) {
+        //We can't override the status key.
+        if (key == null) {
+            return;
+        }
+        if (!key.equals("status")) {
+            try {
+                storage.put(key, value);
+            } catch (JSONException e) {
+                //Not going to happen - key is null
+            }
+        }
+    }
+
+    public void setDeepKey(Object value, String... keypath) {
         //Split up the key and store the value
-        Map<String,Object> currentMap = storage;
-        for(int i = 0; i<keypath.length; i++){
+        JSONObject currentMap = storage;
+        for (int i = 0; i < keypath.length; i++) {
             //Get whatever is there in the current object or array
             String part = keypath[i];
-            Object currentObj = currentMap.get(part);
-            //Check to see if there is already something there
-            if(currentObj != null){
-                if( i == keypath.length - 1){
-                    //There is something in the space we designated.
-                    break;
-                } else {
-                    //Theres already something there...
-                    if (currentObj instanceof Map<?, ?>) {
-                        @SuppressWarnings("unchecked")
-                        Map<String,Object> nextMap = (Map<String, Object>) currentObj;
-                        currentMap = nextMap;
-                    } else if (currentObj instanceof List<?>) {
-                        //TODO add in support for lists
-                    } else {
+            if (!part.isEmpty()) {
+                Object currentObj = null;
+                try {
+                    currentObj = currentMap.get(part);
+                } catch (JSONException e) {
+                    //Do nothing - this will trigger the overwrite case
+                }
+                //Check to see if there is already something there
+                if (currentObj != null) {
+                    if (i == keypath.length - 1) {
+                        //There is something in the space we designated.
                         break;
+                    } else {
+                        //Theres already something there...
+                        if (currentObj instanceof JSONObject) {
+                            currentMap = (JSONObject) currentObj;
+                        } else if (currentObj instanceof List<?>) {
+                            //TODO add in support for lists
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    if (i == keypath.length - 1) {
+                        try {
+                            currentMap.put(part, value);
+                        } catch (JSONException e) {
+                            //Never will occur - if the key section was empty we would have exited by now.
+                        }
+                    } else {
+                        //This is not the last part of the
+                        JSONObject newMap = new JSONObject();
+                        try {
+                            currentMap.put(part, newMap);
+                        } catch (JSONException e) {
+                            //Never will occur - if the key section was empty we would have exited by now.
+                        }
+                        currentMap = newMap;
                     }
                 }
             } else {
-                if(i == keypath.length - 1){
-                    currentMap.put(part,value);
-                } else {
-                    //This is not the last part of the
-                    Map<String, Object> newMap = new HashMap<>();
-                    currentMap.put(part,newMap);
-                    currentMap = newMap;
-                }
+                //There is an empty part in the key - ignore this command
+                return;
             }
         }
     }
 
     @Override
-    public Map<String, Object> getJsonableRepresentation() {
+    public JSONObject getJsonableRepresentation() {
         return this.storage;
     }
 }
