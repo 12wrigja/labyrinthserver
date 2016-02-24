@@ -28,7 +28,6 @@ public class MapSerializationTesting extends NetworkedTest {
         assertEquals(MAP_Y,map.getJSONObject("size").getInt("y"));
     }
 
-
     @Test
     public void testTileSpecification() throws JSONException {
 

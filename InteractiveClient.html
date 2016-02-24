@@ -1,0 +1,135 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+</head>
+
+
+<body>
+
+<div id="testarea" style="width: 100%; height:100%; display: flex; flex-direction: column-reverse;">
+    <h3>Server Status: {{connected?'Connected':'Disconnected'}}, {{authenticated?'Authenticated as '+username:'Not Authenticated'}}</h3>
+    <div v-if="connected && !authenticated" style:"margin:auto">
+        <input class="from-control" type="text" v-model="username">
+        <input type="password" v-model="password">
+        <input type="button" @click="register" value="register">
+        <input type="button" @click="login" value="Login">
+    </div>
+    <div v-if="authenticated">
+        <input type=text v-model="command" @keyup.enter="submitCommand">
+    </div>
+    <div style="display:flex; flex-direction:column; overflow: scroll;" v-el:console-container>
+        <div v-for="c in consoleDisp">
+            <p>{{c.event_name}}</p>
+            <pre>{{c.input_data | json}}</pre>
+            <p>Response</p>
+            <pre>{{c.response | json}}</pre>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.16/vue.min.js"></script>
+
+<script>
+    var socket = io("http://localhost:4567");
+
+    new Vue({
+        el: "#testarea",
+
+        data: {
+            username: '',
+            password: '',
+            command: '',
+            returnData: {},
+            authenticated: false,
+            consoleDisp: [],
+            connected: false,
+            slowCount: 0,
+            fastCount: 0,
+            avgTime: 0
+        },
+        methods: {
+            login: function () {
+                console.log("Logging in.");
+                var data = {username: this.username, password: this.password};
+                var that = this;
+                socket.emit('login', data, function (data) {
+                    if (data.status == 200) {
+                        that.authenticated = true;
+                    } else {
+  			console.log(data);
+		    }
+                });
+            },
+            register: function () {
+                console.log("Registering.");
+                var data = {username: this.username, password: this.password, password_confirm: this.password};
+                var that = this;
+                socket.emit('register', data,function(data){
+			if(!data.status == 200){
+				console.log(data);
+			}
+		});
+            },
+            submitCommand: function () {
+                var that = this;
+                socket.emit(this.command, {}, function (data) {
+                    var inputCommand = that.command;
+                    var command = {event_name: that.command, input_data: {}, response: data};
+                    that.consoleDisp.push(command);
+                    that.command = '';
+                });
+            }
+        },
+        ready: function () {
+            var that = this;
+            socket.on('connect', function (socket) {
+                that.connected = true;
+            });
+            socket.on('disconnect', function () {
+                that.connected = false;
+		that.authenticated = false;
+            });
+
+            socket.on('match_found', function (data) {
+                var command = {event_name: 'match_found', input_data: {}, response: data};
+                that.consoleDisp.push(command);
+            });
+            this.$watch('consoleDisp',function(newVal, oldVal){
+                 var sc = this.$els.consoleContainer;
+		 sc.scrollTop = sc.scrollHeight;
+	    });
+	    socket.on('game_update',function(data){
+                var command = {event_name: 'game_update', input_data: {}, response: data};
+                that.consoleDisp.push(command);
+});
+            /* setInterval(function () {
+                var dt = new Date();
+                var n = dt.getTime();
+                socket.emit('map', {x: 7, y: 7}, function (data) {
+                    if (data.status == 200) {
+                        //that.consoleDisp.push({event_name:'map',input_data:{x:5,y:6},response:data});
+                        var dt1 = new Date();
+                        var tm = (dt1.getTime() - n) / 1000;
+                        that.avgTime = (that.avgTime + tm) / 2;
+                        if (tm >= 1) {
+                            that.slowCount++;
+                        } else {
+                            that.fastCount++;
+                        }
+                    }
+
+                });
+            }, 1000); */
+
+
+        }
+    });
+
+
+</script>
+
+
+</body>
+</html>

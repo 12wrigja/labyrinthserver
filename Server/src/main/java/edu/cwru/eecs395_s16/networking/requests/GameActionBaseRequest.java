@@ -35,7 +35,7 @@ public class GameActionBaseRequest implements RequestData {
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         this.originalData = obj;
         try {
-            type = ACTION_TYPE.valueOf(obj.getString("type")+ENUM_APPEND);
+            type = ACTION_TYPE.valueOf(obj.getString("type").toUpperCase()+ENUM_APPEND);
         } catch (JSONException e) {
             type = ACTION_TYPE.PASS_ACTION;
         }

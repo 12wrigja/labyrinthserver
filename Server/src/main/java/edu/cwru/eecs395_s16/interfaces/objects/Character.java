@@ -5,9 +5,13 @@ package edu.cwru.eecs395_s16.interfaces.objects;
  */
 public interface Character extends Creature {
 
+    String WEAPON_ID_KEY = "weapon_id";
+
     Weapon getWeapon();
 
     void setWeapon();
+
+    String LEVEL_KEY = "level";
 
     int getLevel();
 

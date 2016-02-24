@@ -1,13 +1,15 @@
 package edu.cwru.eecs395_s16.networking.matchmaking;
 
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -16,6 +18,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BasicMatchmakingService implements MatchmakingService {
 
     private Queue<Player> heroesQueue;
+
     private Queue<Player> architectQueue;
 
     private Set<Player> queuedPlayers;
@@ -104,6 +107,8 @@ public class BasicMatchmakingService implements MatchmakingService {
         t.start();
     }
 
+    //TODO remove players from queue if they disconnect prematurely
+
     @Override
     public void stop(){
         this.started = false;
@@ -112,7 +117,6 @@ public class BasicMatchmakingService implements MatchmakingService {
     private void createMatch(Player heroPlayer, Player architectPlayer){
         //TODO setup the match with the correct parameters
         Match m = Match.InitNewMatch(heroPlayer, architectPlayer, new RandomlyGeneratedGameMap(4,4));
-        //TODO store player-match link somehow
 
     }
 }

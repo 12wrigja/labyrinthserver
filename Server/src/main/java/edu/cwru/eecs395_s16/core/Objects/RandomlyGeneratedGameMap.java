@@ -2,7 +2,8 @@ package edu.cwru.eecs395_s16.core.objects;
 
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Random;
 
 /**
  * Created by james on 2/12/16.
@@ -31,11 +32,11 @@ public class RandomlyGeneratedGameMap implements GameMap {
     }
 
     @Override
-    public MapTile getTile(int x, int y) {
+    public Optional<MapTile> getTile(int x, int y) {
         if(x >= 0 && x < this.x && y >= 0 && y < this.y){
-            return tiles[x][y];
+            return Optional.of(tiles[x][y]);
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 

@@ -7,17 +7,31 @@ import java.util.List;
  */
 public interface Creature extends GameObject {
 
+    String ATTACK_KEY = "attack";
     int getAttack();
 
+    String DEFENSE_KEY = "defense";
     int getDefense();
 
+    String HEALTH_KEY = "health";
     int getHealth();
 
+    String MOVEMENT_KEY = "movement";
     int getMovement();
 
+    String VISION_KEY = "vision";
     int getVision();
 
+    String ABILITIES_KEY = "abilities";
     List<Ability> getAbilities();
+
+    String STATUSES_KEY = "statuses";
+    List<String> getStatuses();
+
+//    int getActionPoints();
+//
+//    void useActionPoint();
+//    void resetActionPoints():
 
     void triggerPassive(GameMap map, List<GameObject> boardObjects);
 

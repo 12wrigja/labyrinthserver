@@ -83,6 +83,7 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
             Exception actualCause;
             if (e instanceof InvocationTargetException) {
                 actualCause = (Exception) e.getCause();
+                System.err.println("Method: "+next.getName());
             } else {
                 actualCause = e;
             }

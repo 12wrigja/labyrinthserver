@@ -5,6 +5,9 @@ package edu.cwru.eecs395_s16.core.objects;
  */
 public class Location {
 
+    public static final String X_KEY = "x";
+    public static final String Y_KEY = "y";
+
     private int x;
     private int y;
 

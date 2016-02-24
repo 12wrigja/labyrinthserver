@@ -40,7 +40,7 @@ public class MoveGameActionData implements RequestData {
         }
     }
 
-    public String getCharacter() {
+    public String getCharacterID() {
         return character;
     }
 

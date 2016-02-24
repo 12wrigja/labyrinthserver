@@ -48,6 +48,7 @@ public class GameEngine {
     private final MatchmakingService matchService;
     private final CacheService cacheService;
     private final HeroRepository heroRepository;
+    private final NetworkingInterface networkingInterface;
     private Timer gameTimer;
 
     public PlayerRepository getPlayerRepository() {
@@ -82,6 +83,10 @@ public class GameEngine {
         return gameTimer;
     }
 
+    public NetworkingInterface getNetworkingInterface() {
+        return networkingInterface;
+    }
+
     public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache){
         this(false, pRepo,sRepo, heroRepository, matchService, cache);
     };
@@ -96,6 +101,7 @@ public class GameEngine {
         this.matchService = matchService;
         this.cacheService = cache;
         this.heroRepository = heroRepository;
+        this.networkingInterface = new NetworkingInterface();
         System.out.println("GameEngine created with ID: "+instanceID.toString());
         gameTimer = new Timer();
     }
@@ -131,7 +137,6 @@ public class GameEngine {
         gameSocket = new SocketIOServer(config);
 
         //Link all created methods to socket server.
-        NetworkingInterface networkingInterface = new NetworkingInterface();
         linkAllNetworkMethods(gameSocket, networkingInterface);
 
         gameSocket.addConnectListener(client -> {

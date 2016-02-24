@@ -28,9 +28,12 @@ public class Hero implements Character, DatabaseObject {
     private final UUID objectID;
     private int level = 1;
     private int databaseIdentifier = -1;
+    public static final String HERO_TYPE_KEY = "hero_type";
     private final HeroType type;
+    private final Optional<String> controllerID;
 
-    Hero(Weapon weapon, int attack, int defense, int health, int movement, int vision, List<Ability> abilities, Location location, Optional<String> ownerID, UUID objectID, int level, int databaseIdentifier, HeroType type) {
+    Hero(UUID objectID, int databaseIdentifier, Optional<String> ownerID, Optional<String> controllerID, HeroType type, int level, Location location, int attack, int defense, int health, int movement, int vision, Weapon weapon, List<Ability> abilities, List<String> statuses) {
+        this.controllerID = controllerID;
         this.weapon = weapon;
         this.attack = attack;
         this.defense = defense;
@@ -97,8 +100,18 @@ public class Hero implements Character, DatabaseObject {
     }
 
     @Override
+    public List<String> getStatuses() {
+        return new ArrayList<>();
+    }
+
+    @Override
     public void triggerPassive(GameMap map, List<GameObject> boardObjects) {
 
+    }
+
+    @Override
+    public TYPE getGameObjectType() {
+        return TYPE.HERO;
     }
 
     @Override
@@ -119,6 +132,11 @@ public class Hero implements Character, DatabaseObject {
     @Override
     public UUID getGameObjectID() {
         return this.objectID;
+    }
+
+    @Override
+    public Optional<String> getControllerID() {
+        return this.controllerID;
     }
 
     @Override
@@ -152,21 +170,22 @@ public class Hero implements Character, DatabaseObject {
         //Setup json representation
         JSONObject representation = new JSONObject();
         try {
-            representation.put("id", getGameObjectID());
-            representation.put("x", location.getX());
-            representation.put("y", location.getY());
-            representation.put("type", "hero");
-            representation.put("attack", getAttack());
-            representation.put("defense", getDefense());
-            representation.put("health", getHealth());
-            representation.put("movement", getMovement());
-            representation.put("vision", getVision());
-            representation.put("abilities", getAbilities());
-            representation.put("statuses", new ArrayList<String>());
-            representation.put("owner", getOwnerID().isPresent() ? getOwnerID().get() : null);
-            representation.put("controller", getOwnerID().isPresent() ? getOwnerID().get() : null);
-            representation.put("hero_type", getHeroType().toString().toLowerCase());
-            representation.put("level", getLevel());
+            representation.put(GAMEOBJECT_ID_KEY, getGameObjectID());
+            representation.put(Location.X_KEY, location.getX());
+            representation.put(Location.Y_KEY, location.getY());
+            representation.put(GAMEOBJECT_TYPE_KEY, "hero");
+            representation.put(ATTACK_KEY, getAttack());
+            representation.put(DEFENSE_KEY, getDefense());
+            representation.put(HEALTH_KEY, getHealth());
+            representation.put(MOVEMENT_KEY, getMovement());
+            representation.put(VISION_KEY, getVision());
+            representation.put(ABILITIES_KEY, getAbilities());
+            representation.put(STATUSES_KEY, new ArrayList<String>());
+            representation.put(OWNER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
+            representation.put("controller_id", getOwnerID().isPresent() ? getOwnerID().get() : null);
+            representation.put(HERO_TYPE_KEY, getHeroType().toString().toLowerCase());
+            representation.put(LEVEL_KEY, getLevel());
+            //TODO add in weapons
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }

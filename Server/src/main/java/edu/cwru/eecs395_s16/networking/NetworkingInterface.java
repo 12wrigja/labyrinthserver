@@ -9,11 +9,14 @@ import edu.cwru.eecs395_s16.auth.exceptions.*;
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
 import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.interfaces.Response;
+import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.networking.requests.*;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 import org.json.JSONObject;
 
@@ -124,44 +127,45 @@ public class NetworkingInterface {
         }
     }
 
-//    @NetworkEvent(description = "Allows a player playing a game to submit a game action")
-//    public Response gameAction(GameActionBaseRequest obj, Player p) throws InvalidDataException, UnauthorizedActionException {
-//        Optional<UUID> matchID = p.getCurrentMatchID();
-//        if(matchID.isPresent()) {
-//            Optional<GameAction> action = Optional.empty();
-//            switch (obj.getType()) {
-//                case MOVE_ACTION: {
-//                    MoveGameActionData moveData = new MoveGameActionData();
-//                    moveData.fillFromJSON(obj.getOriginalData());
-//                    action = Optional.of(new MoveGameAction(moveData));
-//                    break;
-//                }
-//                case BASIC_ATTACK_ACTION: {
-////                RequestData action = new MoveGameAction();
-////                action.fillFromJSON(obj.getOriginalData());
-////                actualAction = Optional.of(action);
-//                    break;
-//                }
-//                case PASS_ACTION: {
-//                    return new Response(StatusCode.SERVER_ERROR);
-//                }
-//                case ABILITY_ACTION: {
-//                    return new Response(StatusCode.SERVER_ERROR);
-//                }
-//            }
-//            if (action.isPresent()) {
-//                Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
-//                if(m.isPresent()){
-//                    m.get().updateGameState(p,action.get());
-//                }
-//            } else {
-//                return new Response(StatusCode.UNPROCESSABLE_DATA);
-//            }
-//        }
-//        Response r = new Response(StatusCode.SERVER_ERROR);
-//        r.setKey("message","Unable to find match.");
-//        return r;
-//    }
+    @NetworkEvent(description = "Allows a player playing a game to submit a game action")
+    public Response gameAction(GameActionBaseRequest obj, Player p) throws InvalidDataException, UnauthorizedActionException, InvalidGameStateException {
+        Optional<UUID> matchID = p.getCurrentMatchID();
+        if(matchID.isPresent()) {
+            Optional<GameAction> action = Optional.empty();
+            switch (obj.getType()) {
+                case MOVE_ACTION: {
+                    MoveGameActionData moveData = new MoveGameActionData();
+                    moveData.fillFromJSON(obj.getOriginalData());
+                    action = Optional.of(new MoveGameAction(moveData));
+                    break;
+                }
+                case BASIC_ATTACK_ACTION: {
+//                RequestData action = new MoveGameAction();
+//                action.fillFromJSON(obj.getOriginalData());
+//                actualAction = Optional.of(action);
+                    break;
+                }
+                case PASS_ACTION: {
+                    return new Response(StatusCode.SERVER_ERROR);
+                }
+                case ABILITY_ACTION: {
+                    return new Response(StatusCode.SERVER_ERROR);
+                }
+            }
+            if (action.isPresent()) {
+                Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
+                if(m.isPresent()){
+                    if(m.get().updateGameState(p,action.get())) {
+                        return new Response();
+                    }
+                }
+            }
+            return new Response(StatusCode.UNPROCESSABLE_DATA);
+        }
+        Response r = new Response(StatusCode.SERVER_ERROR);
+        r.setKey("message","Unable to find match.");
+        return r;
+    }
 
     @NetworkEvent(description = "TESTS JSON PARSING", mustAuthenticate = false)
     public Response testJson(JSONObject obj) {
@@ -171,4 +175,22 @@ public class NetworkingInterface {
         return r;
     }
 
+    @NetworkEvent(description = "Returns the latest state of a match if you are in one")
+    public Response matchState(NoInputRequest obj, Player p){
+        Optional<UUID> matchID = p.getCurrentMatchID();
+        if(matchID.isPresent()){
+            Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
+            if(m.isPresent()){
+                Response r = new Response();
+                r.setKey("game_state",m.get().getJSONRepresentation());
+                return r;
+            } else {
+                return new Response(StatusCode.SERVER_ERROR);
+            }
+        } else {
+            Response r = new Response(StatusCode.UNPROCESSABLE_DATA);
+            r.setKey("message","You currently aren't in a match!");
+            return r;
+        }
+    }
 }

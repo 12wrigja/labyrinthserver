@@ -10,6 +10,6 @@ import java.util.UUID;
  */
 public interface SessionRepository {
     Optional<Player> findPlayer(UUID clientID);
-
+    Optional<Player> findPlayer(String username);
     void storePlayer(UUID clientID, Player player);
 }

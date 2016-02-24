@@ -7,19 +7,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by james on 2/12/16.
  */
 public interface GameMap extends Jsonable {
 
-    MapTile getTile(int x, int y);
+    Optional<MapTile> getTile(int x, int y);
 
-    default MapTile getTile(Location loc){
+    default Optional<MapTile> getTile(Location loc){
         return getTile(loc.getX(),loc.getY());
     };
 
@@ -73,7 +70,7 @@ public interface GameMap extends Jsonable {
             JSONArray tileArray = new JSONArray();
             for (int i = 0; i < getSizeX(); i++) {
                 for (int j = 0; j < getSizeY(); j++) {
-                    tileArray.put(getTile(i,j));
+                    tileArray.put(getTile(i,j).get());
                 }
             }
             mapObj.put("tiles", tileArray);

@@ -53,59 +53,6 @@ public class Response implements Jsonable {
         }
     }
 
-    public void setDeepKey(Object value, String... keypath) {
-        //Split up the key and store the value
-        JSONObject currentMap = storage;
-        for (int i = 0; i < keypath.length; i++) {
-            //Get whatever is there in the current object or array
-            String part = keypath[i];
-            if (!part.isEmpty()) {
-                Object currentObj = null;
-                try {
-                    currentObj = currentMap.get(part);
-                } catch (JSONException e) {
-                    //Do nothing - this will trigger the overwrite case
-                }
-                //Check to see if there is already something there
-                if (currentObj != null) {
-                    if (i == keypath.length - 1) {
-                        //There is something in the space we designated.
-                        break;
-                    } else {
-                        //Theres already something there...
-                        if (currentObj instanceof JSONObject) {
-                            currentMap = (JSONObject) currentObj;
-                        } else if (currentObj instanceof List<?>) {
-                            //TODO add in support for lists
-                        } else {
-                            break;
-                        }
-                    }
-                } else {
-                    if (i == keypath.length - 1) {
-                        try {
-                            currentMap.put(part, value);
-                        } catch (JSONException e) {
-                            //Never will occur - if the key section was empty we would have exited by now.
-                        }
-                    } else {
-                        //This is not the last part of the
-                        JSONObject newMap = new JSONObject();
-                        try {
-                            currentMap.put(part, newMap);
-                        } catch (JSONException e) {
-                            //Never will occur - if the key section was empty we would have exited by now.
-                        }
-                        currentMap = newMap;
-                    }
-                }
-            } else {
-                //There is an empty part in the key - ignore this command
-                return;
-            }
-        }
-    }
-
     @Override
     public JSONObject getJSONRepresentation() {
         return this.storage;
