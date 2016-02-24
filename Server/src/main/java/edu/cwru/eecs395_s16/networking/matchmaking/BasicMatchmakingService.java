@@ -3,7 +3,7 @@ package edu.cwru.eecs395_s16.networking.matchmaking;
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
+import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 
 import java.util.ArrayDeque;
@@ -116,7 +116,7 @@ public class BasicMatchmakingService implements MatchmakingService {
 
     private void createMatch(Player heroPlayer, Player architectPlayer){
         //TODO setup the match with the correct parameters
-        Match m = Match.InitNewMatch(heroPlayer, architectPlayer, new RandomlyGeneratedGameMap(4,4));
+        Match m = Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10));
 
     }
 }

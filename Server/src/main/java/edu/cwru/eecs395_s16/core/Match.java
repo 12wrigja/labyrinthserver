@@ -4,8 +4,8 @@ import com.corundumstudio.socketio.BroadcastOperations;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.UnauthorizedActionException;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
-import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
@@ -91,11 +91,12 @@ public class Match implements Jsonable {
                 Optional<Player> architectPlayer = GameEngine.instance().getSessionRepository().findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
 
                 //Retrieve Map
+                GameMap mp = new FromJSONGameMap((JSONObject) matchData.get("map"));
 
                 //Build match as we have all the basics we need
                 Match m;
                 if (heroPlayer.isPresent() && architectPlayer.isPresent()) {
-                    m = new Match(heroPlayer.get(), architectPlayer.get(), id, new RandomlyGeneratedGameMap(5, 5));
+                    m = new Match(heroPlayer.get(), architectPlayer.get(), id, mp);
                 } else {
                     return Optional.empty();
                 }

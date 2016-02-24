@@ -10,8 +10,8 @@ import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
-import edu.cwru.eecs395_s16.core.objects.RandomlyGeneratedGameMap;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
@@ -52,7 +52,7 @@ public class NetworkingInterface {
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns a random map generated using random walk.")
     public Response map(NewMapRequest obj) {
         Response r = new Response();
-        r.setKey("map", new RandomlyGeneratedGameMap(obj.getX(), obj.getY()));
+        r.setKey("map", new AlmostBlankMap(obj.getX(), obj.getY()));
         return r;
     }
 

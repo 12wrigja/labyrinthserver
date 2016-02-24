@@ -63,16 +63,20 @@ public class MoveGameAction implements GameAction {
                                 MapTile nextTile = tileOpt.get();
                                 //TODO update this check so that traps do NOT trigger this.
                                 List<GameObject> objsAtTile = boardObjects.getForLocation(nextTile);
-                                if (previousTile.isObstructionTileType() || objsAtTile.size() > 0) {
+                                if (objsAtTile.size() > 0) {
                                     String response = "Tile at index "+count+" is an obstructed tile. Obstructed by: ";
                                     for(GameObject obstruction : objsAtTile){
                                         response += obstruction.getGameObjectID().toString()+" ";
                                     }
                                     throw new InvalidGameStateException(response);
                                 }
+                                if(nextTile.isObstructionTileType()){
+                                    throw new InvalidGameStateException("The character specified cannot move across this tile type.");
+                                }
                                 if (!previousTile.isNeighbourOf(nextTile, false)) {
                                     throw new InvalidGameStateException("Path jump detected! Tile at index "+count+" is not a neighbour of a previous tile.");
                                 }
+                                previousTile = nextTile;
                             } else {
                                 throw new InvalidGameStateException("Tile at index "+ count+" in the path is invalid.");
                             }

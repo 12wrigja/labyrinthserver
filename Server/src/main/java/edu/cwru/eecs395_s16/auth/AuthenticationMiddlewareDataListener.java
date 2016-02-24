@@ -83,7 +83,6 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
             Exception actualCause;
             if (e instanceof InvocationTargetException) {
                 actualCause = (Exception) e.getCause();
-                System.err.println("Method: "+next.getName());
             } else {
                 actualCause = e;
             }
@@ -91,14 +90,14 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
                 response = new Response((JsonableException) actualCause);
             } else {
                 if (GameEngine.instance().IS_DEBUG_MODE) {
-                    e.printStackTrace();
+                    actualCause.printStackTrace();
                 }
                 //Generic error response here.
                 //TODO PRODUCTION-IFY
                 response = new Response(StatusCode.SERVER_ERROR);
             }
         }
-        System.out.println("Sent response for method " + next.getName() + " to client " + client.getSessionId());
+        System.out.println("Sent response for method " + next.getName() + " to client " + client.getSessionId()+":\n"+response.getJSONRepresentation().toString());
         ackSender.sendAckData(response.getJSONRepresentation());
     }
 }

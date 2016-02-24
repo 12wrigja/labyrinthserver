@@ -131,6 +131,7 @@ public class GameEngine {
         Configuration config = new Configuration();
         config.setHostname(this.serverInterface);
         config.setPort(this.serverPort);
+        config.getSocketConfig().setReuseAddress(true);
 
         JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport(new JsonOrgModule());
         config.setJsonSupport(jacksonJsonSupport);
