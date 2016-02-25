@@ -169,7 +169,7 @@ public class Match implements Jsonable {
         //First check and see if it is your turn
         if (isPlayerTurn(p)) {
             //Assemble the required lists of stuff.
-            action.checkCanDoAction(this.gameMap, this.boardObjects);
+            action.checkCanDoAction(this.gameMap, this.boardObjects, p);
             JSONObject matchState = this.getJSONRepresentation();
             action.doGameAction(this.gameMap, this.boardObjects);
             this.gameSequenceID++;

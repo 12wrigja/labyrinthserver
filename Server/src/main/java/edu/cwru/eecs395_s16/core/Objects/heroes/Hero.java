@@ -22,6 +22,7 @@ public class Hero implements Character, DatabaseObject {
     private int health = 50;
     private int movement = 3;
     private int vision = 5;
+    private int actionPoints = 2;
     private List<Ability> abilities = new ArrayList<>();
     private Location location = new Location(0,0);
     private final Optional<String> ownerID;
@@ -102,6 +103,21 @@ public class Hero implements Character, DatabaseObject {
     @Override
     public List<String> getStatuses() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public int getActionPoints() {
+        return this.actionPoints;
+    }
+
+    @Override
+    public void useActionPoint() {
+        this.actionPoints--;
+    }
+
+    @Override
+    public void resetActionPoints() {
+        this.actionPoints = 2;
     }
 
     @Override

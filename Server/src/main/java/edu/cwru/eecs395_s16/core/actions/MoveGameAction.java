@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.core.actions;
 
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
+import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
@@ -31,9 +32,8 @@ public class MoveGameAction implements GameAction {
     public List<Location> actualPath = new ArrayList<>();
 
 
-    //TODO check for permissions to move character
     @Override
-    public void checkCanDoAction(GameMap map, GameObjectCollection boardObjects) throws InvalidGameStateException {
+    public void checkCanDoAction(GameMap map, GameObjectCollection boardObjects, Player player) throws InvalidGameStateException {
         //Check and see if the character has enough movement to move that far.
         Optional<GameObject> boardObj = boardObjects.getByID(UUID.fromString(data.getCharacterID()));
         if (boardObj.isPresent()) {
@@ -41,7 +41,13 @@ public class MoveGameAction implements GameAction {
                 throw new InvalidGameStateException("Referenced Game Object ID is not a movable object.");
             } else {
                 Creature creature = (Creature) boardObj.get();
-                //TODO implement action point check
+                if(creature.getControllerID().isPresent() && !creature.getControllerID().get().equals(player.getUsername())){
+                    throw new InvalidGameStateException("You do not have permission to control that character.");
+                }
+                //Check action points. Should be 0, 1, or 2
+                if(creature.getActionPoints() <= 0){
+                    throw new InvalidGameStateException("That creature does not have any action points remaining.");
+                }
                 if (data.getPath().size() > creature.getMovement() || data.getPath().size() <= 0) {
                     throw new InvalidGameStateException("The character cannot move this far.");
                 } else {
@@ -52,7 +58,7 @@ public class MoveGameAction implements GameAction {
                     Optional<MapTile> previousTileOpt = map.getTile(creature.getLocation());
                     if (previousTileOpt.isPresent()) {
                         MapTile previousTile = previousTileOpt.get();
-
+                        this.actualPath = new ArrayList<>();
                         //Loop through the tiles
                         int count = 0;
                         for (Location aPath : path) {
@@ -61,14 +67,20 @@ public class MoveGameAction implements GameAction {
                             Optional<MapTile> tileOpt = map.getTile(aPath);
                             if (tileOpt.isPresent()) {
                                 MapTile nextTile = tileOpt.get();
-                                //TODO update this check so that traps do NOT trigger this.
                                 List<GameObject> objsAtTile = boardObjects.getForLocation(nextTile);
                                 if (objsAtTile.size() > 0) {
-                                    String response = "Tile at index "+count+" is an obstructed tile. Obstructed by: ";
-                                    for(GameObject obstruction : objsAtTile){
-                                        response += obstruction.getGameObjectID().toString()+" ";
+                                    if(objsAtTile.size() == 1 && objsAtTile.get(0).getGameObjectType() == GameObject.TYPE.TRAP){
+                                        //This is where the path ends.
+                                        //TODO actually trigger the trap and apply effects. This might go in doAction instead
+                                        this.actualPath.add(previousTile);
+                                        return;
+                                    } else {
+                                        String response = "Tile at index " + count + " is an obstructed tile. Obstructed by: ";
+                                        for (GameObject obstruction : objsAtTile) {
+                                            response += obstruction.getGameObjectID().toString() + " ";
+                                        }
+                                        throw new InvalidGameStateException(response);
                                     }
-                                    throw new InvalidGameStateException(response);
                                 }
                                 if(nextTile.isObstructionTileType()){
                                     throw new InvalidGameStateException("The character specified cannot move across this tile type.");
@@ -76,6 +88,7 @@ public class MoveGameAction implements GameAction {
                                 if (!previousTile.isNeighbourOf(nextTile, false)) {
                                     throw new InvalidGameStateException("Path jump detected! Tile at index "+count+" is not a neighbour of a previous tile.");
                                 }
+                                this.actualPath.add(previousTile);
                                 previousTile = nextTile;
                             } else {
                                 throw new InvalidGameStateException("Tile at index "+ count+" in the path is invalid.");
@@ -93,11 +106,12 @@ public class MoveGameAction implements GameAction {
 
     @Override
     public void doGameAction(GameMap map, GameObjectCollection boardObjects) {
-        Location last = data.getPath().get(data.getPath().size() - 1);
+        Location last = this.actualPath.get(this.actualPath.size() - 1);
         Optional<GameObject> boardObj = boardObjects.getByID(UUID.fromString(data.getCharacterID()));
+        Creature c = (Creature)boardObj.get();
         //TODO check for damage, traps, etc.
-        this.actualPath = data.getPath();
-        boardObj.get().setLocation(last);
+        c.setLocation(last);
+        c.useActionPoint();
     }
 
     @Override
