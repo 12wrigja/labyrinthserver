@@ -31,6 +31,9 @@ public class RegisterUserRequest implements RequestData {
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         this.username = RequestData.getString(obj,"username");
+        if(!this.username.matches("[a-zA-Z0-9]+")){
+            throw new InvalidDataException("username");
+        }
         this.password = RequestData.getString(obj,"password");
         this.password_confirm = RequestData.getString(obj,"password_confirm");
     }

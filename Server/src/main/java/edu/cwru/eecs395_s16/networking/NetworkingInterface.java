@@ -1,11 +1,9 @@
 package edu.cwru.eecs395_s16.networking;
 
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
-import edu.cwru.eecs395_s16.auth.AuthenticationMiddlewareDataListener;
 import edu.cwru.eecs395_s16.auth.exceptions.*;
+import edu.cwru.eecs395_s16.bots.PassBot;
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
@@ -15,12 +13,12 @@ import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 import org.json.JSONObject;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,23 +28,27 @@ import java.util.UUID;
  */
 public class NetworkingInterface {
 
-    public DataListener<JSONObject> createTypecastMiddleware(Method next, boolean needsAuth) {
-        return new AuthenticationMiddlewareDataListener(this, GameEngine.instance().getSessionRepository(), next, needsAuth);
-    }
-
     @NetworkEvent(mustAuthenticate = false, description = "Used to log a player in. This must be called once to allow the user to the call all methods that are marked as needing authentication.")
-    public Response login(LoginUserRequest data, SocketIOClient client) throws UnknownUsernameException, InvalidPasswordException {
+    public Response login(LoginUserRequest data, GameClient client) throws UnknownUsernameException, InvalidPasswordException {
         Optional<Player> p = GameEngine.instance().getPlayerRepository().loginPlayer(data.getUsername(), data.getPassword());
         if (p.isPresent()) {
             GameEngine.instance().getSessionRepository().storePlayer(client.getSessionId(), p.get());
+            return new Response();
+        } else {
+            //This will be triggered if you try and log in as a bot
+            return new Response(StatusCode.SERVER_ERROR);
         }
-        return new Response();
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "Registers a user if the username does not already exist and the given passwords match.")
     public Response register(RegisterUserRequest data) throws DuplicateUsernameException, MismatchedPasswordException {
-        GameEngine.instance().getPlayerRepository().registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
-        return new Response();
+        Optional<Player> p = GameEngine.instance().getPlayerRepository().registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
+        if(p.isPresent()) {
+            return new Response();
+        } else {
+            //This will be triggered if you try and register using a bot username
+            return new Response(StatusCode.SERVER_ERROR);
+        }
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns a random map generated using random walk.")
@@ -57,19 +59,40 @@ public class NetworkingInterface {
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
-    public Response queueUpHeroes(NoInputRequest obj, Player p) throws InvalidGameStateException {
-        boolean isQueued = GameEngine.instance().getMatchService().queueAsHeroes(p);
-        Response r = new Response();
-        r.setKey("queued", isQueued);
-        return r;
+    public Response queueUpHeroes(QueueRequest obj, Player p) throws InvalidGameStateException {
+        if(obj.shouldQueueWithPassBot()){
+            //TODO update this to pick a random map?
+            Optional<Match> m = Match.InitNewMatch(p,new PassBot(), new AlmostBlankMap(10,10));
+            if(m.isPresent()){
+                return new Response();
+            } else {
+                //TODO update this so that the correct response is sent when you cannot make a match
+                return new Response(StatusCode.UNPROCESSABLE_DATA);
+            }
+        } else {
+            boolean isQueued = GameEngine.instance().getMatchService().queueAsHeroes(p);
+            Response r = new Response();
+            r.setKey("queued", isQueued);
+            return r;
+        }
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
-    public Response queueUpArchitect(NoInputRequest obj, Player p) throws InvalidGameStateException {
-        boolean isQueued = GameEngine.instance().getMatchService().queueAsArchitect(p);
-        Response r = new Response();
-        r.setKey("queued", isQueued);
-        return r;
+    public Response queueUpArchitect(QueueRequest obj, Player p) throws InvalidGameStateException {
+        if(obj.shouldQueueWithPassBot()){
+            Optional<Match> m = Match.InitNewMatch(new PassBot(),p, new AlmostBlankMap(10,10));
+            if(m.isPresent()){
+                return new Response();
+            } else {
+                //TODO update this so that the correct response is sent when you cannot make a match
+                return new Response(StatusCode.UNPROCESSABLE_DATA);
+            }
+        } else {
+            boolean isQueued = GameEngine.instance().getMatchService().queueAsArchitect(p);
+            Response r = new Response();
+            r.setKey("queued", isQueued);
+            return r;
+        }
     }
 
     @NetworkEvent(description = "Removes the player from any matchmaking queue they are in.")
@@ -190,6 +213,32 @@ public class NetworkingInterface {
         } else {
             Response r = new Response(StatusCode.UNPROCESSABLE_DATA);
             r.setKey("message","You currently aren't in a match!");
+            return r;
+        }
+    }
+
+    @NetworkEvent(description = "Returns your current match id, if there is one.")
+    public Response currentMatch(NoInputRequest obj, Player p) {
+        Response r = new Response();
+        Optional<UUID> matchID = p.getCurrentMatchID();
+        r.setKey("match_id",matchID.isPresent()?matchID.get().toString():"none");
+        return r;
+    }
+
+    @NetworkEvent(description = "Leaves the current match. Will terminate the match for other players as well, and end the match for all spectators.")
+    public Response leaveMatch(NoInputRequest obj, Player p) {
+        Optional<UUID> m = p.getCurrentMatchID();
+        if(m.isPresent()){
+            Optional<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
+            if(match.isPresent()) {
+                match.get().end("Player " + p.getUsername() + " left the match.");
+                return new Response();
+            } else {
+                return new Response(StatusCode.SERVER_ERROR);
+            }
+        } else {
+            Response r = new Response(StatusCode.UNPROCESSABLE_DATA);
+            r.setKey("message","You are not currently in a match.");
             return r;
         }
     }

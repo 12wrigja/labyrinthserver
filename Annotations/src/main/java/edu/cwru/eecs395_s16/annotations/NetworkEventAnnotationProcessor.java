@@ -73,7 +73,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                 TypeMirror expectedDataType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.RequestData").asType();
                 TypeMirror jsonObjectDataType = elementUtils.getTypeElement("org.json.JSONObject").asType();
                 TypeMirror playerType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.core.Player").asType();
-                TypeMirror clientType = elementUtils.getTypeElement("com.corundumstudio.socketio.SocketIOClient").asType();
+                TypeMirror clientType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.services.GameClient").asType();
                 if(annotation.mustAuthenticate()){
                     //Check for the second parameter to be the Player type
                     switch(methodParams.size()){
@@ -119,7 +119,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                             if(methodParams.size() > 1) {
                                 VariableElement clientParam = methodParams.get(1);
                                 if (!typeUtils.isAssignable(clientParam.asType(), clientType)) {
-                                    error(networkedMethod, "The second parameter for a non-authenticated network method must be SocketIOClient.");
+                                    error(networkedMethod, "The second parameter for a non-authenticated network method must be a ClientCommunicationService.");
                                 }
                             }
                             break;

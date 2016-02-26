@@ -1,6 +1,5 @@
 package edu.cwru.eecs395_s16.core;
 
-import com.corundumstudio.socketio.BroadcastOperations;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.UnauthorizedActionException;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
@@ -59,12 +58,16 @@ public class Match implements Jsonable {
 
     //TODO Turn numbers
 
-    public static Match InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
+    public static Optional<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
         //TODO check and see if either specified player is already in a match
-        UUID randMatchID = UUID.randomUUID();
-        Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
-        m.startInitialGameTasks();
-        return m;
+        if(heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()){
+               return Optional.empty();
+        } else {
+            UUID randMatchID = UUID.randomUUID();
+            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
+            m.startInitialGameTasks();
+            return Optional.of(m);
+        }
     }
 
     public static Optional<Match> fromCacheWithMatchIdentifier(UUID id) {
@@ -136,7 +139,7 @@ public class Match implements Jsonable {
         pingTask = new TimerTask() {
             @Override
             public void run() {
-                GameEngine.instance().getBroadcastServiceForRoom(matchIdentifier.toString()).sendEvent("room_ping", "You are in room " + matchIdentifier.toString());
+                GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(),"room_ping", "You are in room " + matchIdentifier.toString());
             }
         };
 
@@ -145,8 +148,6 @@ public class Match implements Jsonable {
 
     private void startInitialGameTasks() {
         GameEngine.instance().getGameTimer().scheduleAtFixedRate(pingTask, 0, 1000);
-        this.heroPlayer.getClient().joinRoom(matchIdentifier.toString());
-        this.architectPlayer.getClient().joinRoom(matchIdentifier.toString());
         this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
         this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
         this.gameState = GameState.HERO_TURN;
@@ -162,6 +163,10 @@ public class Match implements Jsonable {
         setCurrentSequence(this.gameSequenceID);
         JSONObject matchBaseline = this.getJSONRepresentation();
         storeSnapshotForSequence(this.gameSequenceID, matchBaseline);
+
+        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+
         broadcastToAllParties("match_found", matchBaseline);
     }
 
@@ -206,14 +211,14 @@ public class Match implements Jsonable {
     }
 
     public void broadcastToAllParties(String event, JSONObject obj) {
-        BroadcastOperations roomBroadcast = GameEngine.instance().getBroadcastServiceForRoom(this.matchIdentifier.toString());
-        roomBroadcast.sendEvent(event, obj);
+        GameEngine.instance().broadcastEventForRoom(this.matchIdentifier.toString(), event, obj);
     }
 
     public void addSpectator(Player spectator) {
         synchronized (this.spectators) {
             if (!this.spectators.contains(spectator)) {
                 this.spectators.add(spectator);
+                spectator.getClient().get().joinRoom(this.matchIdentifier.toString());
                 spectator.setCurrentMatch(Optional.of(this.matchIdentifier));
             }
         }
@@ -222,6 +227,7 @@ public class Match implements Jsonable {
     public void removeSpectator(Player spectator) {
         synchronized (this.spectators) {
             this.spectators.remove(spectator);
+            spectator.getClient().get().leaveRoom(this.matchIdentifier.toString());
             spectator.setCurrentMatch(Optional.empty());
         }
     }
@@ -232,9 +238,20 @@ public class Match implements Jsonable {
         }
     }
 
-    public void cleanup() {
+    public void end(String reason) {
+        //TODO commit match data, update xp, currency, etc
+        JSONObject reasonObj = new JSONObject();
+        try {
+            reasonObj = new JSONObject("{\"reason\":"+reason+"}");
+        } catch (JSONException e) {
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
+        }
+        broadcastToAllParties("match_end",reasonObj);
         this.heroPlayer.setCurrentMatch(Optional.empty());
         this.architectPlayer.setCurrentMatch(Optional.empty());
+        spectators.forEach(this::removeSpectator);
         pingTask.cancel();
     }
 

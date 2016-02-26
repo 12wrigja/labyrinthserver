@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
 import edu.cwru.eecs395_s16.services.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.services.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -15,6 +16,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.net.BindException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,7 +36,9 @@ public abstract class NetworkedTest {
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
         engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
-        engine.setServerPort(PORT);
+        SocketIOConnectionService socketIO = new SocketIOConnectionService();
+        socketIO.setServerPort(PORT);
+        engine.addClientService(socketIO);
         int try_count = 0;
         while (true) {
             try {
@@ -93,7 +97,7 @@ public abstract class NetworkedTest {
         });
         lock.lock();
         try {
-            flag.await(/*10, TimeUnit.SECONDS*/);
+            flag.await(10, TimeUnit.SECONDS);
         }catch(InterruptedException e){
             fail("Ran out of time on request.");
         }

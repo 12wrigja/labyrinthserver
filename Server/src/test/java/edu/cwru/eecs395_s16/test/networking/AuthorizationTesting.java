@@ -14,8 +14,8 @@ import static org.junit.Assert.fail;
  */
 public class AuthorizationTesting extends NetworkedTest {
 
-    private final String testUsername = "USERNAME_TEST";
-    private final String testPassword = "PASSWORD_TEST";
+    private final String testUsername = "USERNAMETEST";
+    private final String testPassword = "PASSWORDTEST";
 
     @Test
     public void testRegistrationWithNoConfirmPassword() throws JSONException {

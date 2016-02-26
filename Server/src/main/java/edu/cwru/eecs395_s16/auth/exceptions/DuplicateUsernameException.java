@@ -11,4 +11,5 @@ public class DuplicateUsernameException extends JsonableException {
     public DuplicateUsernameException(String username) {
         super(StatusCode.UNPROCESSABLE_DATA,"The username "+username+" is not valid.");
     }
+
 }

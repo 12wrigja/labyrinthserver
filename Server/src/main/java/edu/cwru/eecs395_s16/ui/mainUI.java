@@ -8,6 +8,7 @@ import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -71,31 +72,33 @@ public class mainUI {
                         heroRepository = new InMemoryHeroRepository();
                     }
                     GameEngine engine = new GameEngine(enableTrace, playerRepo, sessionRepo, heroRepository, matchmakingService, cacheService);
+                    SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {
-                        engine.setServerInterface(serverInterface);
+                        socketIO.setServerInterface(serverInterface);
                     }
                     try {
                         String portText = getOption("port");
                         if (portText != null) {
                             int port = Integer.parseInt(portText);
-                            engine.setServerPort(port);
+                            socketIO.setServerPort(port);
                         }
                     } catch (NumberFormatException e) {
                         System.err.println("Specified port is invalid.");
                         return;
                     }
+                    engine.addClientService(socketIO);
                     try {
                         engine.start();
                         activeEngine = engine;
                     } catch (BindException e) {
                         engine.stop();
-                        System.err.println("Unable to start engine - something is running on port " + engine.getServerPort() + ". Try using the linux commands netstat or lsof to determine the offending program and kill it.");
+                        System.err.println("Unable to start engine - something is running on a port used for one of the client services. Try using the linux commands netstat or lsof to determine the offending program and kill it.");
                         if (enableTrace) {
                             e.printStackTrace();
                         }
                     } catch (UnknownHostException e){
-                        System.err.println("Unable to start engine - the provided host '"+ serverInterface + "' is not valid.");
+                        System.err.println("Unable to start engine - a provided interface for one of the client services is not valid.");
                         if (enableTrace) {
                             e.printStackTrace();
                         }

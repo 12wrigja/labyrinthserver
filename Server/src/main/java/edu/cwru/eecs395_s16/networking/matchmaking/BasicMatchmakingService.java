@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.networking.matchmaking;
 
+import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InvalidGameStateException;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
@@ -93,13 +94,17 @@ public class BasicMatchmakingService implements MatchmakingService {
                             //Deque Players and make match
                             Player heroPlayer = heroesQueue.poll();
                             Player architectPlayer = architectQueue.poll();
-                            createMatch(heroPlayer,architectPlayer);
+                            Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10));
                         }
                     }
                 mutex.readLock().unlock();
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                    if(GameEngine.instance().IS_DEBUG_MODE){
+                        e.printStackTrace();
+                    }
+                }
             }
         };
         Thread t = new Thread(matchmakingThread,"MATCHMAKING_THREAD");
@@ -114,10 +119,5 @@ public class BasicMatchmakingService implements MatchmakingService {
         this.started = false;
     }
 
-    private void createMatch(Player heroPlayer, Player architectPlayer){
-        //TODO setup the match with the correct parameters
-        Match m = Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10));
-
-    }
 }
 

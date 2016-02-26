@@ -1,15 +1,14 @@
 package edu.cwru.eecs395_s16.auth;
 
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.listener.DataListener;
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.bots.GameBot;
 import edu.cwru.eecs395_s16.core.JsonableException;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
 import edu.cwru.eecs395_s16.interfaces.Response;
+import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.interfaces.services.GameClient;
+import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.StatusCode;
 import org.json.JSONObject;
 
@@ -21,7 +20,7 @@ import java.util.UUID;
 /**
  * Created by james on 1/21/16.
  */
-public class AuthenticationMiddlewareDataListener implements DataListener<JSONObject> {
+public class AuthenticationMiddleware {
 
     private final Method next;
     private boolean needsAuthentication = false;
@@ -30,10 +29,10 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
 
     private final Class<? extends RequestData> objClass;
 
-    public AuthenticationMiddlewareDataListener(NetworkingInterface instance, SessionRepository sessions, Method next, boolean needsAuthentication) {
+    public AuthenticationMiddleware(NetworkingInterface instance, SessionRepository sessions, Method next, boolean needsAuthentication) {
         this.next = next;
         Class firstParam = next.getParameterTypes()[0];
-        if(JSONObject.class.isAssignableFrom(firstParam)){
+        if (JSONObject.class.isAssignableFrom(firstParam)) {
             objClass = null;
         } else {
             try {
@@ -49,8 +48,7 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
         this.needsAuthentication = needsAuthentication;
     }
 
-    @Override
-    public void onData(SocketIOClient client, JSONObject data, AckRequest ackSender) throws Exception {
+    public Response onEvent(GameClient client, JSONObject data) {
         System.out.println("Processing method " + next.getName() + " for client with SessionID  " + client.getSessionId());
         Response response;
         try {
@@ -59,21 +57,26 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
                 obj = data;
             } else {
                 obj = objClass.newInstance();
-                ((RequestData)obj).fillFromJSON(data);
+                ((RequestData) obj).fillFromJSON(data);
             }
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();
-                Optional<Player> p = sessions.findPlayer(token);
+                Optional<Player> p;
+                if(client instanceof GameBot){
+                    p = Optional.of((GameBot)client);
+                } else {
+                    p = sessions.findPlayer(token);
+                }
                 if (p.isPresent()) {
-                    p.get().setClient(client);
+                    p.get().setClient(Optional.of(client));
                     //We are all good. Invoke the next method.
                     response = (Response) next.invoke(instance, obj, p.get());
                 } else {
                     response = new Response(StatusCode.UNAUTHENTICATED);
                 }
             } else {
-                if (next.getParameterTypes().length == 2 && next.getParameterTypes()[1].equals(SocketIOClient.class)) {
+                if (next.getParameterTypes().length == 2 && next.getParameterTypes()[1].equals(GameClient.class)) {
                     response = (Response) next.invoke(instance, obj, client);
                 } else {
                     response = (Response) next.invoke(instance, obj);
@@ -97,7 +100,6 @@ public class AuthenticationMiddlewareDataListener implements DataListener<JSONOb
                 response = new Response(StatusCode.SERVER_ERROR);
             }
         }
-        System.out.println("Sent response for method " + next.getName() + " to client " + client.getSessionId()+":\n"+response.getJSONRepresentation().toString());
-        ackSender.sendAckData(response.getJSONRepresentation());
+        return response;
     }
 }

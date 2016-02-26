@@ -1,9 +1,9 @@
 package edu.cwru.eecs395_s16.core;
 
-import com.corundumstudio.socketio.SocketIOClient;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.interfaces.objects.DatabaseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +17,7 @@ public class Player implements DatabaseObject{
 
     private String password;
 
-    private SocketIOClient client;
+    private Optional<GameClient> client;
 
     //Match local storage and caching
     private static final String PLAYER_CURRENT_MATCH_KEY = ":CurrentMatch";
@@ -29,6 +29,7 @@ public class Player implements DatabaseObject{
         this.username = username;
         this.password = password;
         this.databaseIdentifier = databaseIdentifier;
+        this.client = Optional.empty();
     }
 
     public boolean checkPassword(String password) {
@@ -39,11 +40,11 @@ public class Player implements DatabaseObject{
         return username;
     }
 
-    public SocketIOClient getClient() {
+    public Optional<GameClient> getClient() {
         return this.client;
     }
 
-    public void setClient(SocketIOClient client) {
+    public void setClient(Optional<GameClient> client) {
         this.client = client;
     }
 
