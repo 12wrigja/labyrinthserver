@@ -18,22 +18,26 @@ import java.util.stream.Collectors;
  */
 public class BotClientService implements ClientConnectionService {
 
-    List<GameBot> connectedClients;
+    Set<GameBot> connectedClients;
 
-    Map<String, List<GameBot>> roomMap;
+    Map<String, Set<GameBot>> roomMap;
 
     Map<String, AuthenticationMiddleware> fds;
 
     @Override
     public void start() throws IOException {
-        connectedClients = new ArrayList<>();
-        roomMap = new HashMap<>();
+        initStorage();
     }
 
     @Override
     public void stop() {
         connectedClients.forEach(GameBot::disconnectBot);
-        connectedClients = new ArrayList<>();
+        initStorage();
+    }
+
+    private void initStorage(){
+        connectedClients = new HashSet<>();
+        roomMap = new HashMap<>();
     }
 
     @Override
@@ -54,16 +58,28 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public final void addClientToRoom(String roomName, GameBot c) {
-        roomMap.get(roomName).add(c);
+        Set<GameBot> botsInRoom = roomMap.get(roomName);
+        if(botsInRoom == null){
+            botsInRoom = new HashSet<>();
+            roomMap.put(roomName,botsInRoom);
+        }
+        if(!botsInRoom.contains(c)) {
+            botsInRoom.add(c);
+        }
     }
 
     public final void removeClientFromRoom(String roomName, GameBot c) {
-        roomMap.get(roomName).remove(c);
+        if(roomMap.containsKey(roomName)) {
+            Set<GameBot> botsInRoom = roomMap.get(roomName);
+            if(botsInRoom.contains(c)){
+                botsInRoom.remove(c);
+            }
+        }
     }
 
     @Override
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
-        List<GameBot> botsInRoom = roomMap.get(roomName);
+        Set<GameBot> botsInRoom = roomMap.get(roomName);
         if (botsInRoom != null) {
             for (GameBot bot : botsInRoom) {
                 bot.receiveEvent(eventName, data);

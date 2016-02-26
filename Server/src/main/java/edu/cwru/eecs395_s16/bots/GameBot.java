@@ -19,6 +19,7 @@ public abstract class GameBot extends Player implements GameClient {
     public GameBot(String botTypeName, UUID botID) {
         super(-1, botTypeName+"_"+botID.toString(), "");
         this.botID = botID;
+        setClient(Optional.of(this));
         GameEngine.instance().getBotService().register(this);
     }
 
@@ -49,7 +50,6 @@ public abstract class GameBot extends Player implements GameClient {
 
     public final void disconnectBot(){
         this.onDisconnect();
-        GameEngine.instance().getBotService().unregister(this);
     }
 
     protected abstract void onDisconnect();

@@ -63,8 +63,8 @@ public class AuthenticationMiddleware {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();
                 Optional<Player> p;
-                if(client instanceof GameBot){
-                    p = Optional.of((GameBot)client);
+                if (client instanceof GameBot) {
+                    p = Optional.of((GameBot) client);
                 } else {
                     p = sessions.findPlayer(token);
                 }
@@ -100,6 +100,7 @@ public class AuthenticationMiddleware {
                 response = new Response(StatusCode.SERVER_ERROR);
             }
         }
+        System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());
         return response;
     }
 }
