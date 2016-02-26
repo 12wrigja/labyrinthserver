@@ -34,9 +34,4 @@ public class PassBot extends GameBot {
 
     }
 
-    @Override
-    public void setCurrentMatch(Optional<UUID> currentMatch) {
-        //Do nothing. PassBot can be in multiple matches simultaneously as it is a singleton bot
-    }
-
 }

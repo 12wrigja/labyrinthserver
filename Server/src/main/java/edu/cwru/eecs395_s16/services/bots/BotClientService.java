@@ -11,6 +11,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 /**
@@ -24,14 +28,18 @@ public class BotClientService implements ClientConnectionService {
 
     Map<String, AuthenticationMiddleware> fds;
 
+    ExecutorService executorService;
+
     @Override
     public void start() throws IOException {
         initStorage();
+        executorService = Executors.newCachedThreadPool();
     }
 
     @Override
     public void stop() {
         connectedClients.forEach(GameBot::disconnectBot);
+        executorService.shutdownNow();
         initStorage();
     }
 
@@ -82,7 +90,9 @@ public class BotClientService implements ClientConnectionService {
         Set<GameBot> botsInRoom = roomMap.get(roomName);
         if (botsInRoom != null) {
             for (GameBot bot : botsInRoom) {
-                bot.receiveEvent(eventName, data);
+                executorService.execute(() -> {
+                    bot.receiveEvent(eventName, data);
+                });
             }
         }
     }

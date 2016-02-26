@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.bots.GameBot;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
@@ -30,7 +31,7 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
     }
 
     @Override
-    public Optional<Player> findPlayer(String username) {
+    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
         Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
         if(bot.isPresent()){
             return Optional.of(bot.get());

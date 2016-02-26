@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.services;
 
+import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.core.Player;
 
@@ -27,10 +28,10 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public Optional<Player> findPlayer(String username) {
+    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
         UUID clientID = connectionMap.get(username);
         if(clientID == null){
-            return Optional.empty();
+            throw new UnknownUsernameException(username);
         } else {
             return findPlayer(clientID);
         }
