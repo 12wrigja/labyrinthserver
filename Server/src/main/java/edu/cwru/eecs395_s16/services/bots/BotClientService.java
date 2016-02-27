@@ -38,7 +38,7 @@ public class BotClientService implements ClientConnectionService {
 
     @Override
     public void stop() {
-        connectedClients.forEach(GameBot::disconnectBot);
+        connectedClients.forEach(GameBot::disconnect);
         executorService.shutdownNow();
         initStorage();
     }
@@ -63,6 +63,7 @@ public class BotClientService implements ClientConnectionService {
 
     public final void unregister(GameBot c) {
         this.connectedClients.remove(c);
+        c.onDisconnect();
     }
 
     public final void addClientToRoom(String roomName, GameBot c) {

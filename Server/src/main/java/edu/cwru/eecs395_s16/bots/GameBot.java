@@ -48,11 +48,11 @@ public abstract class GameBot extends Player implements GameClient {
 
     public abstract void onConnect();
 
-    public final void disconnectBot(){
-        this.onDisconnect();
+    public final void disconnect(){
+        GameEngine.instance().getBotService().unregister(this);
     }
 
-    protected abstract void onDisconnect();
+    public abstract void onDisconnect();
 
     @Override
     public Optional<UUID> getCurrentMatchID() {
