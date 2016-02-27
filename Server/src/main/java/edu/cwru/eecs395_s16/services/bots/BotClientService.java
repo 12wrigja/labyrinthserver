@@ -38,7 +38,7 @@ public class BotClientService implements ClientConnectionService {
 
     @Override
     public void stop() {
-        connectedClients.forEach(GameBot::disconnect);
+        connectedClients.forEach(GameBot::onDisconnect);
         executorService.shutdownNow();
         initStorage();
     }

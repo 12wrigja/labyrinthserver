@@ -30,7 +30,7 @@ public class PassBot extends GameBot {
     }
 
     @Override
-    protected void onDisconnect() {
+    public void onDisconnect() {
 
     }
 

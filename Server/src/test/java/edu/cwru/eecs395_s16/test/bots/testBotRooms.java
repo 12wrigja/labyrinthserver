@@ -49,7 +49,7 @@ public class testBotRooms extends EngineOnlyTest {
             }
 
             @Override
-            protected void onDisconnect() {
+            public void onDisconnect() {
 
             }
         };
@@ -96,7 +96,7 @@ public class testBotRooms extends EngineOnlyTest {
             }
 
             @Override
-            protected void onDisconnect() {
+            public void onDisconnect() {
 
             }
         };
