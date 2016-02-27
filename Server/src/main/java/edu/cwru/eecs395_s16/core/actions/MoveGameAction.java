@@ -10,6 +10,7 @@ import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -88,7 +89,7 @@ public class MoveGameAction implements GameAction {
                                 if (!previousTile.isNeighbourOf(nextTile, false)) {
                                     throw new InvalidGameStateException("Path jump detected! Tile at index "+count+" is not a neighbour of a previous tile.");
                                 }
-                                this.actualPath.add(previousTile);
+                                this.actualPath.add(nextTile);
                                 previousTile = nextTile;
                             } else {
                                 throw new InvalidGameStateException("Tile at index "+ count+" in the path is invalid.");

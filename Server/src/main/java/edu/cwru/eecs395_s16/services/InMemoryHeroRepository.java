@@ -22,7 +22,7 @@ public class InMemoryHeroRepository implements HeroRepository {
     public List<Hero> getPlayerHeroes(Player p) {
         Hero h = playerHeroMap.get(p.getUsername());
         if (h == null) {
-            h = new HeroBuilder().setOwnerID(Optional.of(p.getUsername())).createHero();
+            h = new HeroBuilder().setOwnerID(Optional.of(p.getUsername())).setControllerID(Optional.of(p.getUsername())).createHero();
             playerHeroMap.put(p.getUsername(), h);
         }
         List<Hero> heroList = new ArrayList<>();

@@ -1,9 +1,13 @@
 package edu.cwru.eecs395_s16.core.objects;
 
+import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by james on 2/12/16.
  */
-public class Location {
+public class Location implements Jsonable {
 
     public static final String X_KEY = "x";
     public static final String Y_KEY = "y";
@@ -50,4 +54,15 @@ public class Location {
         }
     }
 
+    @Override
+    public JSONObject getJSONRepresentation() {
+        JSONObject repr = new JSONObject();
+        try {
+            repr.put("x", getX());
+            repr.put("y", getY());
+        }catch(JSONException e){
+            //This should never be called because the keys arent null.
+        }
+        return repr;
+    }
 }

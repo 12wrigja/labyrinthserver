@@ -26,9 +26,8 @@ public class FromJSONGameMap implements GameMap {
         for(int i=0; i<tiles.length(); i++){
             JSONObject tile = tiles.getJSONObject(i);
             String terrain = tile.getString("terrain");
-            JSONArray position = tile.getJSONArray("position");
-            int tileX = position.getInt(0);
-            int tileY = position.getInt(1);
+            int tileX = tile.getInt("x");
+            int tileY = tile.getInt("y");
             int rotation = tile.getInt("rotation");
             MapTile t = new MapTile(tileX,tileY,terrain,rotation);
             this.tiles[tileX][tileY] = t;

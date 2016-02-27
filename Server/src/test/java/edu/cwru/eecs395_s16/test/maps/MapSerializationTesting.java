@@ -44,11 +44,8 @@ public class MapSerializationTesting extends NetworkedTest {
             JSONObject tile = tiles.getJSONObject(i);
 
             //Validate the position
-            assertTrue(tile.has("position"));
-            JSONArray pos = tile.getJSONArray("position");
-            assertEquals(2,pos.length());
-            int x = pos.getInt(0);
-            int y = pos.getInt(1);
+            int x = tile.getInt("x");
+            int y = tile.getInt("y");
             assertTrue(x >= 0);
             assertTrue(x < MAP_X);
             assertTrue(y >= 0);

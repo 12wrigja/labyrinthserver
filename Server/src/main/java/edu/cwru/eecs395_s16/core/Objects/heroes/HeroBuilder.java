@@ -1,6 +1,5 @@
 package edu.cwru.eecs395_s16.core.objects.heroes;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.Ability;
 import edu.cwru.eecs395_s16.interfaces.objects.Creature;
@@ -16,11 +15,11 @@ import java.util.UUID;
 
 public class HeroBuilder {
     private Weapon weapon;
-    private int attack = 0;
-    private int defense = 0;
-    private int health = 0;
-    private int mobility = 0;
-    private int vision = 0;
+    private int attack = 10;
+    private int defense = 10;
+    private int health = 50;
+    private int mobility = 3;
+    private int vision = 5;
     private List<Ability> abilities = new ArrayList<>();
     private Location location = new Location(0,0);
     private Optional<String> ownerID = Optional.empty();
@@ -28,8 +27,8 @@ public class HeroBuilder {
     private UUID objectID = UUID.randomUUID();
     private int level = 1;
     private int databaseIdentifier = -1;
-    private HeroType heroType;
-    private GameObject.TYPE type;
+    private HeroType heroType = HeroType.WARRIOR;
+    private GameObject.TYPE type = GameObject.TYPE.HERO;
 
     public HeroBuilder setWeapon(Weapon weapon) {
         this.weapon = weapon;
@@ -96,8 +95,9 @@ public class HeroBuilder {
         return this;
     }
 
-    public void setControllerID(Optional<String> controllerID) {
+    public HeroBuilder setControllerID(Optional<String> controllerID) {
         this.controllerID = controllerID;
+        return this;
     }
 
     public HeroBuilder fillFromJSON(JSONObject obj) throws JSONException {

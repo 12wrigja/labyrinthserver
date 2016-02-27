@@ -24,13 +24,12 @@ public class MapTile extends Location implements Jsonable {
     @Override
     public JSONObject getJSONRepresentation() {
         JSONObject json = new JSONObject();
-        int[] posArray = new int[2];
-        posArray[0] = getX();
-        posArray[1] = getY();
         try {
-            json.put("position", posArray);
+            json.put("x", getX());
+            json.put("y",getY());
             json.put("terrain", tileType);
             json.put("rotation", rotation);
+            json.put("is_obstacle",isObstructionTileType());
         } catch (JSONException e) {
             //Never will happen - all keys are not null
         }
