@@ -65,4 +65,12 @@ public class Location implements Jsonable {
         }
         return repr;
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

@@ -77,6 +77,8 @@ public class Player implements DatabaseObject{
                 //Set this to empty so we don't need to look again
                 this.currentMatchID = Optional.empty();
             }
+        } else {
+            return currentMatchID;
         }
         //TODO check and make sure this is threadsafe
         return currentMatchID;

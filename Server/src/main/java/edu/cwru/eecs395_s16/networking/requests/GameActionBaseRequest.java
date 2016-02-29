@@ -40,4 +40,15 @@ public class GameActionBaseRequest implements RequestData {
             type = ACTION_TYPE.PASS_ACTION;
         }
     }
+
+    @Override
+    public JSONObject convertToJSON() {
+        try {
+            JSONObject repr = new JSONObject(this.originalData.toString());
+            repr.put("type",this.type.toString().split("_")[0]);
+            return repr;
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
 }

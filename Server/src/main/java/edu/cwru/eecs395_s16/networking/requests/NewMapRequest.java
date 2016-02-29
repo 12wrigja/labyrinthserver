@@ -29,4 +29,16 @@ public class NewMapRequest implements RequestData {
         this.x = RequestData.getInt(obj,"x");
         this.y = RequestData.getInt(obj,"y");
     }
+
+    @Override
+    public JSONObject convertToJSON() {
+        JSONObject repr = new JSONObject();
+        try {
+            repr.put("x",x);
+            repr.put("y",y);
+        } catch (JSONException e) {
+            //Should not happen b/c keys are not null.
+        }
+        return repr;
+    }
 }

@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.networking.requests;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -36,5 +37,18 @@ public class RegisterUserRequest implements RequestData {
         }
         this.password = RequestData.getString(obj,"password");
         this.password_confirm = RequestData.getString(obj,"password_confirm");
+    }
+
+    @Override
+    public JSONObject convertToJSON() {
+        JSONObject repr = new JSONObject();
+        try {
+            repr.put("username",username);
+            repr.put("password",password);
+            repr.put("password_confirm",password_confirm);
+        } catch (JSONException e) {
+            //Should not happen b/c keys are not null.
+        }
+        return repr;
     }
 }

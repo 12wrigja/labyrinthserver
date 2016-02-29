@@ -54,9 +54,4 @@ public abstract class GameBot extends Player implements GameClient {
 
     public abstract void onDisconnect();
 
-    @Override
-    public Optional<UUID> getCurrentMatchID() {
-        return Optional.empty();
-    }
-
 }

@@ -30,4 +30,16 @@ public class LoginUserRequest implements RequestData {
         this.username = RequestData.getString(obj,"username");
         this.password = RequestData.getString(obj,"password");
     }
+
+    @Override
+    public JSONObject convertToJSON() {
+        JSONObject repr = new JSONObject();
+        try {
+            repr.put("username",username);
+            repr.put("password",password);
+        } catch (JSONException e) {
+            //Should never happen b/c keys are not null
+        }
+        return repr;
+    }
 }

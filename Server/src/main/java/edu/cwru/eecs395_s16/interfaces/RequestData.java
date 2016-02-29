@@ -11,6 +11,8 @@ public interface RequestData {
 
     void fillFromJSON(JSONObject obj) throws InvalidDataException;
 
+    JSONObject convertToJSON();
+
     static String getString(JSONObject obj, String key) throws InvalidDataException {
         try {
             return obj.getString(key);

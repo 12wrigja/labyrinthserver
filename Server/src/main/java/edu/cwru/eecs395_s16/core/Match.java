@@ -60,8 +60,8 @@ public class Match implements Jsonable {
 
     public static Optional<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
         //TODO check and see if either specified player is already in a match
-        if(heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()){
-               return Optional.empty();
+        if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
+            return Optional.empty();
         } else {
             UUID randMatchID = UUID.randomUUID();
             Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
@@ -139,7 +139,7 @@ public class Match implements Jsonable {
         pingTask = new TimerTask() {
             @Override
             public void run() {
-                GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(),"room_ping", "You are in room " + matchIdentifier.toString());
+                GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
             }
         };
 
@@ -177,17 +177,7 @@ public class Match implements Jsonable {
             action.checkCanDoAction(this.gameMap, this.boardObjects, p);
             JSONObject matchState = this.getJSONRepresentation();
             action.doGameAction(this.gameMap, this.boardObjects);
-            this.gameSequenceID++;
-            setCurrentSequence(this.gameSequenceID);
-            JSONObject newMatchState = this.getJSONRepresentation();
-            JSONObject matchDifferences = JSONUtils.getDiff(matchState, newMatchState).asJSONObject();
-            JSONObject gameUpdate = new JSONObject();
-            try {
-                gameUpdate.put("action", action.getJSONRepresentation());
-                gameUpdate.put("new_state", matchDifferences);
-            } catch (JSONException e) {
-                //This should never happen as all the keys are not null
-            }
+            JSONObject gameUpdate = takeSnapshotForAction(matchState, action);
             storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
             broadcastToAllParties("game_update", gameUpdate);
             return true;
@@ -196,7 +186,32 @@ public class Match implements Jsonable {
         }
     }
 
-    private void setCurrentSequence(int sequence){
+    public JSONObject takeSnapshot(JSONObject originalState, Object actionReason){
+        this.gameSequenceID++;
+        setCurrentSequence(this.gameSequenceID);
+        JSONObject newMatchState = this.getJSONRepresentation();
+        JSONObject matchDifferences = JSONUtils.getDiff(originalState, newMatchState).asJSONObject();
+        JSONObject gameUpdate = new JSONObject();
+        try {
+            gameUpdate.put("action", actionReason);
+            gameUpdate.put("new_state", matchDifferences);
+
+        } catch (JSONException e) {
+            //This should never happen as all the keys are not null
+        }
+        return gameUpdate;
+    }
+
+    public void takeAndCommitSnapshot(JSONObject originalState, Object actionReason){
+        JSONObject diff = takeSnapshot(originalState,actionReason);
+        storeSnapshotForSequence(this.gameSequenceID,diff);
+    }
+
+    private JSONObject takeSnapshotForAction(JSONObject originaState, GameAction action){
+        return takeSnapshot(originaState, action.getJSONRepresentation());
+    }
+
+    private void setCurrentSequence(int sequence) {
         GameEngine.instance().getCacheService().storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
     }
 
@@ -242,13 +257,13 @@ public class Match implements Jsonable {
         //TODO commit match data, update xp, currency, etc
         JSONObject reasonObj = new JSONObject();
         try {
-            reasonObj = new JSONObject("{\"reason\":"+reason+"}");
+            reasonObj = new JSONObject("{\"reason\":" + reason + "}");
         } catch (JSONException e) {
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
         }
-        broadcastToAllParties("match_end",reasonObj);
+        broadcastToAllParties("match_end", reasonObj);
         this.heroPlayer.setCurrentMatch(Optional.empty());
         this.architectPlayer.setCurrentMatch(Optional.empty());
         spectators.forEach(this::removeSpectator);
@@ -284,5 +299,37 @@ public class Match implements Jsonable {
             //Never will be thrown as the keys are never null
         }
         return obj;
+    }
+
+    public Player getHeroPlayer() {
+        return heroPlayer;
+    }
+
+    public Player getArchitectPlayer() {
+        return architectPlayer;
+    }
+
+    public Set<Player> getSpectators() {
+        return spectators;
+    }
+
+    public UUID getMatchIdentifier() {
+        return matchIdentifier;
+    }
+
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public GameObjectCollection getBoardObjects() {
+        return boardObjects;
+    }
+
+    public int getGameSequenceID() {
+        return gameSequenceID;
     }
 }

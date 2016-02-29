@@ -13,4 +13,9 @@ public class NoInputRequest implements RequestData {
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
 
     }
+
+    @Override
+    public JSONObject convertToJSON() {
+        return new JSONObject();
+    }
 }

@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class MoveGameActionData implements RequestData {
 
-    private String character;
+    private String character_id;
     private List<Location> path;
 
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        this.character = RequestData.getString(obj,"character_id");
+        this.character_id = RequestData.getString(obj,"character_id");
         this.path = new ArrayList<>();
         try {
             JSONArray pathArr = obj.getJSONArray("path");
@@ -40,11 +40,32 @@ public class MoveGameActionData implements RequestData {
         }
     }
 
+    @Override
+    public JSONObject convertToJSON() {
+        JSONObject repr = new JSONObject();
+        try {
+            repr.put("character_id", character_id);
+            repr.put("path",path);
+            repr.put("type","move");
+        } catch (JSONException e) {
+            //Should not happen b/c keys are not null.
+        }
+        return repr;
+    }
+
     public String getCharacterID() {
-        return character;
+        return character_id;
     }
 
     public List<Location> getPath() {
         return path;
+    }
+
+    public void setCharacter(String character_id) {
+        this.character_id = character_id;
+    }
+
+    public void setPath(List<Location> path) {
+        this.path = path;
     }
 }
