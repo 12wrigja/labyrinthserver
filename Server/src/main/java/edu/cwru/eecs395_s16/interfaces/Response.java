@@ -1,60 +1,55 @@
 package edu.cwru.eecs395_s16.interfaces;
 
 import edu.cwru.eecs395_s16.core.JsonableException;
-import edu.cwru.eecs395_s16.networking.responses.StatusCode;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.List;
 
 /**
  * Created by james on 1/21/16.
  */
 public class Response implements Jsonable {
 
-    private JSONObject storage;
+    protected WebStatusCode status;
+    protected String message;
 
     public Response() {
-        this.storage = new JSONObject();
-        try {
-            storage.put("status", StatusCode.OK.code);
-            storage.put("message", StatusCode.OK.message);
-        } catch (JSONException e) {
-            //Not going to happen - all keys are not null;
-        }
+        this.status = WebStatusCode.OK;
+        this.message = WebStatusCode.OK.message;
     }
 
     public Response(JsonableException e) {
-        this();
-        this.storage = e.getJSONRepresentation();
+        this(e.getErrorCode(),e.getMessage());
     }
 
-    public Response(StatusCode code) {
-        this();
-        try {
-            storage.put("status", code.code);
-            storage.put("message", code.message);
-        } catch (JSONException e) {
-            //Not going to happen - both keys are not null;
-        }
+    public Response(WebStatusCode code) {
+        this(code,code.message);
     }
 
-    public void setKey(String key, Object value) {
-        //We can't override the status key.
-        if (key == null) {
-            return;
-        }
-        if (!key.equals("status")) {
-            try {
-                storage.put(key, value);
-            } catch (JSONException e) {
-                //Not going to happen - key is null
-            }
-        }
+    public Response(WebStatusCode code, String message){
+        this.status = code;
+        this.message = message;
     }
 
     @Override
     public JSONObject getJSONRepresentation() {
-        return this.storage;
+        JSONObject repr = new JSONObject();
+        try{
+            repr.put("status",this.status.code);
+            if(this.message != null) {
+                repr.put("message", this.message);
+            }
+        } catch (JSONException e) {
+            //Should not happen - keys are not null
+        }
+        return repr;
+    }
+
+    public WebStatusCode getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

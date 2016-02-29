@@ -1,9 +1,9 @@
 package edu.cwru.eecs395_s16.services;
 
-import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
 
@@ -19,35 +19,38 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     private Map<String, Player> playerMap = new HashMap<>();
 
     @Override
-    public Optional<Player> registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException {
-        if(!password.equals(passwordConfirm)){
-            throw new MismatchedPasswordException();
+    public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
+        if(username == null || !username.matches("[a-zA-Z0-9]+")){
+            return new InternalResponseObject<Player>(InternalErrorCode.INVALID_USERNAME);
+        }
+        if(password == null || passwordConfirm == null || !password.equals(passwordConfirm)){
+            return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
         }
         if (playerMap.containsKey(username)) {
-            throw new DuplicateUsernameException(username);
+            return new InternalResponseObject<>(InternalErrorCode.DUPLICATE_USERNAME);
         } else {
             Player p = new Player(-1,username, password);
             playerMap.put(username, p);
-            return Optional.of(p);
+            return new InternalResponseObject<>(p);
         }
     }
 
-    public Optional<Player> loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException {
+    public InternalResponseObject<Player> loginPlayer(String username, String password) {
         if (!playerMap.containsKey(username)) {
-            throw new UnknownUsernameException(username);
+            return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
         } else {
             Player p = playerMap.get(username);
             if (p.checkPassword(password)) {
-                return Optional.of(p);
+                return new InternalResponseObject<>(p);
             } else {
-                throw new InvalidPasswordException();
+                return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
             }
         }
     }
 
     @Override
-    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
-        return Optional.ofNullable(playerMap.get(username));
+    public InternalResponseObject<Player> findPlayer(String username) {
+        return new InternalResponseObject<>(playerMap.get(username));
     }
 
     @Override
@@ -60,11 +63,8 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     public boolean deletePlayer(Player p) {
         if(playerMap.containsKey(p.getUsername())) {
             playerMap.remove(p.getUsername());
-            return true;
-        } else {
-            return false;
         }
-
+        return true;
     }
 
 }

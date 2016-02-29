@@ -1,0 +1,119 @@
+package edu.cwru.eecs395_s16.test.persistance;
+
+import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.bots.PassBot;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+/**
+ * Created by james on 2/29/16.
+ */
+public abstract class PlayerRepositoryBaseTest {
+
+    public abstract PlayerRepository getRepositoryImplementation();
+
+    private final String TEST_USERNAME = "USERNAMETEST";
+    private final String TEST_PASSWORD = "PASSWORDTEST";
+
+    private final String TEST_BAD_USERNAME = "USERNAME_TEST";
+
+    @Test
+    public void testNormalRegisterPlayer(){
+        InternalResponseObject<Player> playerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME,TEST_PASSWORD,TEST_PASSWORD);
+        if(playerResponse.isNormal()) {
+            Player pl = playerResponse.get();
+            assertEquals(TEST_USERNAME,pl.getUsername());
+        } else {
+            fail(playerResponse.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testRegistrationWithNoConfirmPassword() {
+        //Test to make sure that registration fails if you try to register without matching passwords
+        InternalResponseObject<Player> playerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME, TEST_PASSWORD, null);
+        if(playerResponse.isNormal()){
+            fail("Should have caught that the player's password confirmation was invalid.");
+        } else if (playerResponse.getInternalErrorCode() != InternalErrorCode.MISMATCHED_PASSWORD){
+            fail(playerResponse.getMessage());
+        }
+    }
+
+    @Test
+    public void testRegisterWithNoPassword() {
+        //Test to make sure that registration fails if you try to register without matching passwords
+        InternalResponseObject<Player> playerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME, null, TEST_PASSWORD);
+        if(playerResponse.isNormal()){
+            fail("Should have caught that the player's password was invalid.");
+        } else if (playerResponse.getInternalErrorCode() != InternalErrorCode.MISMATCHED_PASSWORD){
+            fail(playerResponse.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testRegistrationWithMismatchingConfirmPassword() {
+        //Test to make sure that registration fails if you try to register without matching passwords
+        InternalResponseObject<Player> playerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME, TEST_PASSWORD, TEST_PASSWORD+"BLAH");
+        if(playerResponse.isNormal()){
+            fail("Should have caught that the player's password confirmation was invalid.");
+        } else if (playerResponse.getInternalErrorCode() != InternalErrorCode.MISMATCHED_PASSWORD){
+            fail(playerResponse.getMessage());
+        }
+    }
+
+    @Test
+    public void testRegistrationWithMismatchingPassword() {
+        InternalResponseObject<Player> playerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME, TEST_PASSWORD+"BLAH", TEST_PASSWORD);
+        if(playerResponse.isNormal()){
+            fail("Should have caught that the player's password confirmation was invalid.");
+        } else if (playerResponse.getInternalErrorCode() != InternalErrorCode.MISMATCHED_PASSWORD){
+            fail(playerResponse.getMessage());
+        }
+    }
+
+    @Test
+    public void testDuplicateRegistration() {
+        InternalResponseObject<Player> playerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME,TEST_PASSWORD,TEST_PASSWORD);
+        if(playerResponse.isNormal()) {
+            Player pl = playerResponse.get();
+            assertEquals(TEST_USERNAME,pl.getUsername());
+        } else {
+            fail(playerResponse.getMessage());
+        }
+
+        InternalResponseObject<Player> duplicatePlayerResponse = getRepositoryImplementation().registerPlayer(TEST_USERNAME,TEST_PASSWORD,TEST_PASSWORD);
+        if(duplicatePlayerResponse.isNormal()) {
+            fail("Should have caught that we were trying to register a player with the same username");
+        } else if (duplicatePlayerResponse.getInternalErrorCode() != InternalErrorCode.DUPLICATE_USERNAME){
+            fail(duplicatePlayerResponse.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidUsernameRegistration() {
+        InternalResponseObject<Player> duplicatePlayerResponse = getRepositoryImplementation().registerPlayer(TEST_BAD_USERNAME,TEST_PASSWORD,TEST_PASSWORD);
+        if(duplicatePlayerResponse.isNormal()) {
+            fail("Should have caught that we were trying to register a player with a bad username");
+        } else if (duplicatePlayerResponse.getInternalErrorCode() != InternalErrorCode.INVALID_USERNAME){
+            fail(duplicatePlayerResponse.getMessage());
+        }
+    }
+
+    @Before
+    public void cleanupPlayer() {
+        Player p = new Player(-1, TEST_USERNAME, TEST_PASSWORD);
+        if (!getRepositoryImplementation().deletePlayer(p)) {
+            fail("Unable to delete player from repo");
+        }
+    }
+
+}

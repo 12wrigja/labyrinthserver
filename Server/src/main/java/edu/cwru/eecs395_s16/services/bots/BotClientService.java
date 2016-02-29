@@ -5,7 +5,7 @@ import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
 import edu.cwru.eecs395_s16.bots.GameBot;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
-import edu.cwru.eecs395_s16.networking.responses.StatusCode;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import org.json.JSONObject;
 
@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 /**
@@ -103,7 +101,7 @@ public class BotClientService implements ClientConnectionService {
         if (fd != null) {
             return fd.onEvent(client, data);
         } else {
-            return new Response(StatusCode.UNPROCESSABLE_DATA);
+            return new Response(WebStatusCode.UNPROCESSABLE_DATA);
         }
     }
 

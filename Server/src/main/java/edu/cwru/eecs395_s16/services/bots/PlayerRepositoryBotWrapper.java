@@ -1,11 +1,10 @@
 package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
-import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 
@@ -23,30 +22,30 @@ public class PlayerRepositoryBotWrapper implements PlayerRepository {
     }
 
     @Override
-    public Optional<Player> registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException {
+    public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
         Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
         if(bot.isPresent()){
-            throw new DuplicateUsernameException(username);
+            return new InternalResponseObject<Player>(InternalErrorCode.RESTRICTED_USERNAME);
         } else {
             return actualRepo.registerPlayer(username,password,passwordConfirm);
         }
     }
 
     @Override
-    public Optional<Player> loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException {
+    public InternalResponseObject<Player> loginPlayer(String username, String password) {
         Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
         if(bot.isPresent()){
-            throw new InvalidPasswordException();
+            return new InternalResponseObject<Player>(InternalErrorCode.RESTRICTED_USERNAME);
         } else {
             return actualRepo.loginPlayer(username,password);
         }
     }
 
     @Override
-    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
+    public InternalResponseObject<Player> findPlayer(String username) {
         Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
         if(bot.isPresent()){
-            return Optional.of(bot.get());
+            return new InternalResponseObject<>(bot.get());
         } else {
             return actualRepo.findPlayer(username);
         }

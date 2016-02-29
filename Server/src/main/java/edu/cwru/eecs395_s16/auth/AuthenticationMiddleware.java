@@ -9,7 +9,7 @@ import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
-import edu.cwru.eecs395_s16.networking.responses.StatusCode;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
@@ -73,7 +73,7 @@ public class AuthenticationMiddleware {
                     //We are all good. Invoke the next method.
                     response = (Response) next.invoke(instance, obj, p.get());
                 } else {
-                    response = new Response(StatusCode.UNAUTHENTICATED);
+                    response = new Response(WebStatusCode.UNAUTHENTICATED);
                 }
             } else {
                 if (next.getParameterTypes().length == 2 && next.getParameterTypes()[1].equals(GameClient.class)) {
@@ -97,7 +97,7 @@ public class AuthenticationMiddleware {
                 }
                 //Generic error response here.
                 //TODO PRODUCTION-IFY
-                response = new Response(StatusCode.SERVER_ERROR);
+                response = new Response(WebStatusCode.SERVER_ERROR);
             }
         }
         System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());

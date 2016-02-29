@@ -4,6 +4,8 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.bots.GameBot;
 import edu.cwru.eecs395_s16.bots.PassBot;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.junit.Test;
@@ -18,25 +20,35 @@ import static org.junit.Assert.fail;
  */
 public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
 
+    private static final String TEST_PASSWORD = "test";
+
+    @Test
+    public void testRegisterAsBot() {
+        GameBot b = new PassBot();
+        String botUsername = b.getUsername();
+        InternalResponseObject<Player> duplicatePlayerResponse = GameEngine.instance().getPlayerRepository().registerPlayer(botUsername,TEST_PASSWORD,TEST_PASSWORD);
+        if(duplicatePlayerResponse.isNormal()) {
+            fail("Should have caught that we were trying to register a player using a bot username!");
+        } else if (duplicatePlayerResponse.getInternalErrorCode() != InternalErrorCode.RESTRICTED_USERNAME){
+            fail(duplicatePlayerResponse.getMessage());
+        }
+    }
+
     @Test
     public void testRetrieveBotFromPersistance() {
         GameBot b = new PassBot();
-        try {
-            Optional<Player> retr = GameEngine.instance().getPlayerRepository().findPlayer(b.getUsername());
-            if (retr.isPresent()) {
-                Player retrieved = retr.get();
-                if (retrieved instanceof GameBot) {
-                    GameBot retrievedBot = (GameBot) retrieved;
-                    assertEquals(b.getSessionId(), retrievedBot.getSessionId());
-                    assertEquals(b.getUsername(), retrievedBot.getUsername());
-                } else {
-                    fail("Didnt find a bot - found somthing else.");
-                }
+        InternalResponseObject<Player> retr = GameEngine.instance().getPlayerRepository().findPlayer(b.getUsername());
+        if (retr.isNormal() && retr.isPresent()) {
+            Player retrieved = retr.get();
+            if (retrieved instanceof GameBot) {
+                GameBot retrievedBot = (GameBot) retrieved;
+                assertEquals(b.getSessionId(), retrievedBot.getSessionId());
+                assertEquals(b.getUsername(), retrievedBot.getUsername());
             } else {
-                fail("Didnt find the bot.");
+                fail("Didnt find a bot - found somthing else.");
             }
-        } catch (UnknownUsernameException e) {
-            fail("Unknown username");
+        } else {
+            fail(retr.getMessage());
         }
     }
 

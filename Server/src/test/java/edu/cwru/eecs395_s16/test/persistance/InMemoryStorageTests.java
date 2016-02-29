@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.test.persistance;
 import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
 import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
@@ -29,21 +30,13 @@ public class InMemoryStorageTests {
     @Test
     public void testInMemoryPlayerRepository(){
         PlayerRepository repo = new InMemoryPlayerRepository();
-        try {
-            repo.registerPlayer(USERNAME,PASSWORD,PASSWORD);
-        } catch (DuplicateUsernameException e) {
-            fail("There was already a player in the in-memory store already with that username.");
-        } catch (MismatchedPasswordException e) {
-            fail("Somehow, the passwords arent the same. Fix this test!");
-        }
-        try {
-            Optional<Player> p = repo.findPlayer(USERNAME);
-            if(p.isPresent()){
-                Player pl = p.get();
-                assertEquals(USERNAME,pl.getUsername());
-            }
-        } catch (UnknownUsernameException e) {
-            fail("We couldn't find that player in the repo.");
+        InternalResponseObject<Player> playerResponse = repo.registerPlayer(USERNAME,PASSWORD,PASSWORD);
+
+        if(playerResponse.isNormal()) {
+            Player pl = playerResponse.get();
+            assertEquals(USERNAME,pl.getUsername());
+        } else {
+            fail(playerResponse.getMessage());
         }
     }
 

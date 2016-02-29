@@ -1,12 +1,13 @@
 package edu.cwru.eecs395_s16.services;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
-import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
+import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.sql.*;
 import java.util.Optional;
@@ -30,9 +31,12 @@ public class PostgresPlayerRepository implements PlayerRepository {
     }
 
     @Override
-    public Optional<Player> registerPlayer(String username, String password, String passwordConfirm) throws DuplicateUsernameException, MismatchedPasswordException {
+    public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
+        if(username.matches("[a-zA-Z0-9]+")){
+            return new InternalResponseObject<Player>(InternalErrorCode.INVALID_USERNAME);
+        }
         if (!password.equals(passwordConfirm)) {
-            throw new MismatchedPasswordException();
+            return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
         }
         try {
             PreparedStatement stmt = conn.prepareStatement(PLAYER_EXISTS_QUERY);
@@ -43,7 +47,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 count = rst.getInt("total");
             }
             if (count >= 1) {
-                throw new DuplicateUsernameException(username);
+                return new InternalResponseObject<>(InternalErrorCode.DUPLICATE_USERNAME);
             } else {
                 stmt = conn.prepareStatement(INSERT_PLAYER_QUERY, Statement.RETURN_GENERATED_KEYS);
                 stmt.setString(1, username);
@@ -61,18 +65,18 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
                 stmt.setInt(1,playerDBID);
                 stmt.executeUpdate();
-                return Optional.of(p);
+                return new InternalResponseObject<>(p);
             }
         } catch (SQLException e) {
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
             }
-            return Optional.empty();
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
         }
     }
 
     @Override
-    public Optional<Player> loginPlayer(String username, String password) throws UnknownUsernameException, InvalidPasswordException {
+    public InternalResponseObject<Player> loginPlayer(String username, String password) {
         try {
             PreparedStatement stmt = conn.prepareStatement(PLAYER_EXISTS_QUERY);
             stmt.setString(1, username);
@@ -92,23 +96,23 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 }
                 if (id >= 0) {
                     Player p = new Player(id,username, password);
-                    return Optional.of(p);
+                    return new InternalResponseObject<>(p);
                 } else {
-                    throw new InvalidPasswordException();
+                    return new InternalResponseObject<>(InternalErrorCode.INVALID_PASSWORD);
                 }
             } else {
-                throw new UnknownUsernameException(username);
+                return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
             }
         } catch (SQLException e) {
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
             }
-            return Optional.empty();
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
         }
     }
 
     @Override
-    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
+    public InternalResponseObject<Player> findPlayer(String username) {
         try {
             PreparedStatement stmt = conn.prepareStatement(PLAYER_EXISTS_QUERY);
             stmt.setString(1, username);
@@ -126,15 +130,15 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 int id = rst2.getInt("id");
                 String password = rst2.getString("password");
                 Player p = new Player(id,username, password);
-                return Optional.of(p);
+                return new InternalResponseObject<>(p);
             } else {
-                throw new UnknownUsernameException(username);
+                return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
             }
         } catch (SQLException e) {
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
             }
-            return Optional.empty();
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
         }
     }
 
