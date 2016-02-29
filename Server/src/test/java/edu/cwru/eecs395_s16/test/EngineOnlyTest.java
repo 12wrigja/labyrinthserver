@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.test;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.InMemoryCacheService;
 import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
@@ -27,13 +28,15 @@ import static org.junit.Assert.fail;
  */
 public abstract class EngineOnlyTest {
 
-    protected static GameEngine engine;
+    private static GameEngine engine;
+    protected static NetworkingInterface game;
     private static final int MAX_TRY_COUNT = 5;
 
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
         engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
+        game = engine.getNetworkingInterface();
         int try_count = 0;
         while (true) {
             try {
@@ -45,7 +48,7 @@ public abstract class EngineOnlyTest {
                 if(try_count > MAX_TRY_COUNT){
                     fail("Unable to setup game server.");
                 }
-                Thread.sleep(30000);
+                Thread.sleep(1000);
             }
         }
     }
