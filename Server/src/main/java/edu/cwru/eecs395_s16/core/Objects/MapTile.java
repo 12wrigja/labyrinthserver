@@ -1,24 +1,24 @@
 package edu.cwru.eecs395_s16.core.objects;
 
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by james on 2/12/16.
  */
 public class MapTile extends Location implements Jsonable {
 
-    private String tileType;
-    private int rotation;
+    private MapRepository.TileType tileType;
+    private final int rotation;
+    private final boolean isHeroSpawn;
 
-    public MapTile(int x, int y, String tileType, int rotation) {
+    public MapTile(int x, int y, MapRepository.TileType tileType, int rotation, boolean isHeroSpawn) {
         super(x, y);
         this.tileType = tileType;
         this.rotation = rotation;
+        this.isHeroSpawn = isHeroSpawn;
     }
 
     @Override
@@ -27,9 +27,9 @@ public class MapTile extends Location implements Jsonable {
         try {
             json.put("x", getX());
             json.put("y",getY());
-            json.put("terrain", tileType);
+            json.put("terrain", tileType.type);
             json.put("rotation", rotation);
-            json.put("is_obstacle",isObstructionTileType());
+            json.put("is_obstacle",tileType.isObstruction);
         } catch (JSONException e) {
             //Never will happen - all keys are not null
         }
@@ -37,6 +37,6 @@ public class MapTile extends Location implements Jsonable {
     }
 
     public boolean isObstructionTileType() {
-        return this.tileType.equals("water") || this.tileType.equals("wall") || this.tileType.equals("empty");
+        return this.tileType.isObstruction;
     }
 }

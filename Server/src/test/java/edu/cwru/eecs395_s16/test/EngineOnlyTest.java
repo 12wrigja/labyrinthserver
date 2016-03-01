@@ -6,19 +6,11 @@ import edu.cwru.eecs395_s16.services.InMemoryCacheService;
 import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
 import edu.cwru.eecs395_s16.services.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.services.InMemorySessionRepository;
-import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
-import io.socket.client.Ack;
-import io.socket.client.IO;
-import io.socket.client.Socket;
-import org.json.JSONObject;
+import edu.cwru.eecs395_s16.services.MapRepository.InMemoryMapRepository;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.net.BindException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.Assert.fail;
 
@@ -33,7 +25,7 @@ public abstract class EngineOnlyTest {
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
+        engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService(), new InMemoryMapRepository());
         int try_count = 0;
         while (true) {
             try {

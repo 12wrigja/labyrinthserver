@@ -23,7 +23,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
     private static final String DELETE_PLAYER_QUERY = "delete from players where user_id = ?";
     private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level) (select id as hero_id,? as player_id, 1 as level from heroes)";
 
-    Connection conn;
+    final Connection conn;
 
     public PostgresPlayerRepository(Connection dbConnection) {
         this.conn = dbConnection;
