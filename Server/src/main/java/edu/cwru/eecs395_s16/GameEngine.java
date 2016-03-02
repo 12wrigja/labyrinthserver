@@ -90,8 +90,6 @@ public class GameEngine {
         this(false, pRepo, sRepo, heroRepository, matchService, cache, mapRepository);
     }
 
-    ;
-
     private List<ClientConnectionService> clientConnectionServices;
 
     public GameEngine(boolean debugMode, PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache, MapRepository mapRepository) {

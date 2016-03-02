@@ -1,10 +1,13 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.interfaces.objects.DatabaseObject;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,6 +21,7 @@ public class FromDatabaseMap implements DatabaseObject, GameMap {
     private final int width;
     private final int height;
     private final int hero_capacity;
+    private final List<Location> heroSpawnLocations;
 
     private final MapTile[][] tiles;
 
@@ -29,11 +33,15 @@ public class FromDatabaseMap implements DatabaseObject, GameMap {
         this.height = height;
         this.hero_capacity = hero_capacity;
         this.tiles = new MapTile[width][height];
+        this.heroSpawnLocations = new ArrayList<>();
     }
 
     public void setTile(int x, int y, MapTile tile){
         if(!(x < 0 || x >= width || y < 0 || y >= height)) {
             this.tiles[x][y] = tile;
+            if(tile.isHeroSpawn()){
+                heroSpawnLocations.add(tile);
+            }
         }
     }
 
@@ -74,5 +82,10 @@ public class FromDatabaseMap implements DatabaseObject, GameMap {
     @Override
     public int getHeroCapacity() {
         return hero_capacity;
+    }
+
+    @Override
+    public List<Location> getHeroSpawnLocations() {
+        return this.heroSpawnLocations;
     }
 }

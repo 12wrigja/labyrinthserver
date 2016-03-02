@@ -42,8 +42,8 @@ public class GameObjectCollection implements Jsonable {
         return allObjects.get(key);
     }
 
-    public GameObject put(UUID key, GameObject value) {
-        return allObjects.put(key, value);
+    public GameObject add(GameObject value) {
+        return allObjects.put(value.getGameObjectID(), value);
     }
 
     public GameObject remove(UUID key) {
@@ -67,7 +67,7 @@ public class GameObjectCollection implements Jsonable {
 
     public void addAll(Collection<? extends GameObject> gameObjects){
         for(GameObject gObj : gameObjects){
-            this.put(gObj.getGameObjectID(),gObj);
+            this.add(gObj);
         }
     }
 
@@ -80,7 +80,7 @@ public class GameObjectCollection implements Jsonable {
                 Optional<GameObject> gOpt = gFact.objectFromJson(data.getJSONObject(key));
                 if(gOpt.isPresent()) {
                     GameObject gObj = gOpt.get();
-                    this.put(gObj.getGameObjectID(),gObj);
+                    this.add(gObj);
                 }
             } catch (JSONException e) {
                 if(GameEngine.instance().IS_DEBUG_MODE) {

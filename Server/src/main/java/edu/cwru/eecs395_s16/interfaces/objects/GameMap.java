@@ -88,4 +88,6 @@ public interface GameMap extends Jsonable {
 
     int getHeroCapacity();
 
+    List<Location> getHeroSpawnLocations();
+
 }

@@ -39,4 +39,8 @@ public class MapTile extends Location implements Jsonable {
     public boolean isObstructionTileType() {
         return this.tileType.isObstruction;
     }
+
+    public boolean isHeroSpawn() {
+        return isHeroSpawn;
+    }
 }

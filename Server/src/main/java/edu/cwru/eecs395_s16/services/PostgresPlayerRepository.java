@@ -17,7 +17,7 @@ import java.util.Optional;
 public class PostgresPlayerRepository implements PlayerRepository {
 
     private static final String GET_PLAYER_QUERY = "select * from players where username = ?";
-    private static final String INSERT_PLAYER_QUERY = "insert into players (username, password, currency, isdev) VALUES (?,?,?,false)";
+    private static final String INSERT_PLAYER_QUERY = "insert into players (username, password, currency, is_dev) VALUES (?,?,?,false)";
     private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from players where username = ?";
     private static final String VALID_LOGIN_QUERY = "select * from players where username = ? AND password = ?";
     private static final String DELETE_PLAYER_QUERY = "delete from players where user_id = ?";
