@@ -3,11 +3,13 @@ package edu.cwru.eecs395_s16.core;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.UnauthorizedActionException;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 import edu.cwru.eecs395_s16.utils.JSONDiff;
 import edu.cwru.eecs395_s16.utils.JSONUtils;
@@ -153,9 +155,16 @@ public class Match implements Jsonable {
         this.gameState = GameState.HERO_TURN;
         this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
-        //TODO update to give the heros proper starting locations based on the map
         List<Hero> heroPlayerHeroes = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.heroPlayer);
-        this.boardObjects.addAll(heroPlayerHeroes);
+        int numHeroes = this.gameMap.getHeroCapacity();
+        List<Location> heroSpawnLocations = this.gameMap.getHeroSpawnLocations();
+        Collections.shuffle(heroPlayerHeroes);
+        for(int i=0; i<numHeroes; i++){
+            GameObject hero = heroPlayerHeroes.get(i);
+            Location newLoc = heroSpawnLocations.get(i);
+            hero.setLocation(newLoc);
+            this.boardObjects.add(hero);
+        }
 
         //TODO update to add all the architect's monsters and traps to the board instead of their heroes
         List<Hero> architectPlayerHeroes = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.architectPlayer);

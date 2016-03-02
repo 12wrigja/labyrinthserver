@@ -1,8 +1,15 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
+import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -13,20 +20,32 @@ public class AlmostBlankMap implements GameMap {
     private int x;
     private int y;
     private MapTile[][] tiles;
+    private List<Location> heroSpawnLocations;
 
     public AlmostBlankMap(int x, int y) {
+        this(x,y,GameEngine.instance().getMapRepository().getTileTypeMap());
+    }
+
+    public AlmostBlankMap(int x, int y, Map<String,MapRepository.TileType> tileMap){
         tiles = new MapTile[x][y];
+        this.heroSpawnLocations = new ArrayList<>();
+        MapRepository.TileType wallType = tileMap.get("wall");
+        MapRepository.TileType dirtType = tileMap.get("dirt");
         this.x = x;
         this.y = y;
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 MapTile t;
+                boolean isHeroSpawnPoint = (i>=0 && i<=2 && j >= 0 && j <= 2);
                 if (i % 4 == 0 && i != 0 && y >= 2 && j >= 2 && j <= y-2) {
-                    t = new MapTile(i, j, "wall", 0);
+                    t = new MapTile(i, j, wallType, 0, isHeroSpawnPoint);
                 } else {
-                    t = new MapTile(i, j, "dirt", 0);
+                    t = new MapTile(i, j, dirtType, 0, isHeroSpawnPoint);
                 }
                 tiles[i][j] = t;
+                if(isHeroSpawnPoint){
+                    heroSpawnLocations.add(t);
+                }
             }
         }
     }
@@ -48,5 +67,25 @@ public class AlmostBlankMap implements GameMap {
     @Override
     public int getSizeY() {
         return y;
+    }
+
+    @Override
+    public String getCreatorUsername() {
+        return "SYSTEM";
+    }
+
+    @Override
+    public String getName() {
+        return "Almost Blank Map";
+    }
+
+    @Override
+    public int getHeroCapacity() {
+        return 4;
+    }
+
+    @Override
+    public List<Location> getHeroSpawnLocations() {
+        return heroSpawnLocations;
     }
 }

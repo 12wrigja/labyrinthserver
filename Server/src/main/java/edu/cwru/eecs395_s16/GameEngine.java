@@ -2,10 +2,7 @@ package edu.cwru.eecs395_s16;
 
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
-import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
-import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
-import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
@@ -25,13 +22,13 @@ public class GameEngine {
 
     private boolean isStarted = false;
 
-    private Map<String,FunctionDescription> functionDescriptions;
+    private Map<String, FunctionDescription> functionDescriptions;
 
     private UUID instanceID;
 
     private static InheritableThreadLocal<GameEngine> threadLocalGameEngine = new InheritableThreadLocal<>();
 
-    public static GameEngine instance(){
+    public static GameEngine instance() {
         return threadLocalGameEngine.get();
     }
 
@@ -43,6 +40,7 @@ public class GameEngine {
     private final CacheService cacheService;
     private final HeroRepository heroRepository;
     private final NetworkingInterface networkingInterface;
+    private final MapRepository mapRepository;
     private BotClientService botService;
     private Timer gameTimer;
 
@@ -58,17 +56,17 @@ public class GameEngine {
         return matchService;
     }
 
-    public void broadcastEventForRoom(String roomName, String eventName, Object data){
-        for(ClientConnectionService service : clientConnectionServices){
-            service.broadcastEventForRoom(roomName,eventName,data);
+    public void broadcastEventForRoom(String roomName, String eventName, Object data) {
+        for (ClientConnectionService service : clientConnectionServices) {
+            service.broadcastEventForRoom(roomName, eventName, data);
         }
     }
 
-    public HeroRepository getHeroRepository(){
+    public HeroRepository getHeroRepository() {
         return this.heroRepository;
     }
 
-    public CacheService getCacheService(){
+    public CacheService getCacheService() {
         return this.cacheService;
     }
 
@@ -84,13 +82,18 @@ public class GameEngine {
         return botService;
     }
 
-    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache){
-        this(false, pRepo,sRepo, heroRepository, matchService, cache);
-    };
+    public MapRepository getMapRepository() {
+        return mapRepository;
+    }
+
+    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache, MapRepository mapRepository) {
+        this(false, pRepo, sRepo, heroRepository, matchService, cache, mapRepository);
+    }
 
     private List<ClientConnectionService> clientConnectionServices;
 
-    public GameEngine(boolean debugMode, PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache){
+    public GameEngine(boolean debugMode, PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache, MapRepository mapRepository) {
+        this.mapRepository = mapRepository;
         this.instanceID = UUID.randomUUID();
         this.IS_DEBUG_MODE = debugMode;
         threadLocalGameEngine.set(this);
@@ -103,11 +106,11 @@ public class GameEngine {
         this.clientConnectionServices = new ArrayList<>();
         this.botService = new BotClientService();
         clientConnectionServices.add(this.botService);
-        System.out.println("GameEngine created with ID: "+instanceID.toString());
+        System.out.println("GameEngine created with ID: " + instanceID.toString());
         gameTimer = new Timer();
     }
 
-    public void addClientService(ClientConnectionService service){
+    public void addClientService(ClientConnectionService service) {
         this.clientConnectionServices.add(service);
     }
 
@@ -120,29 +123,29 @@ public class GameEngine {
                 String functionSocketEventName = convertMethodNameToEventName(m.getName());
                 System.out.println("Registering a game event method '" + functionSocketEventName + "'");
                 NetworkEvent at = m.getAnnotation(NetworkEvent.class);
-                AuthenticationMiddleware md = new AuthenticationMiddleware(this.networkingInterface,this.sessionRepository,m,at.mustAuthenticate());
+                AuthenticationMiddleware md = new AuthenticationMiddleware(this.networkingInterface, this.sessionRepository, m, at.mustAuthenticate());
                 FunctionDescription d = new FunctionDescription(functionSocketEventName, m.getName(), at.description(), new String[]{}, at.mustAuthenticate(), md);
-                functionDescriptions.put(d.humanName,d);
+                functionDescriptions.put(d.humanName, d);
             }
         }
         botService.start();
         matchService.start();
-        for(ClientConnectionService service : clientConnectionServices){
+        for (ClientConnectionService service : clientConnectionServices) {
             service.linkToGameEngine(this);
             service.start();
         }
         TimerTask pingTask = new TimerTask() {
             @Override
             public void run() {
-                if(isStarted){
-                    broadcastEventForRoom("TestRoom","room_ping","Ping at time: "+System.currentTimeMillis());
+                if (isStarted) {
+                    broadcastEventForRoom("TestRoom", "room_ping", "Ping at time: " + System.currentTimeMillis());
                 }
             }
         };
 
         System.out.println("Game Engine is now running.");
         this.isStarted = true;
-        gameTimer.scheduleAtFixedRate(pingTask,0,1000);
+        gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
     }
 
     private String convertMethodNameToEventName(String methodName) {
@@ -160,20 +163,20 @@ public class GameEngine {
 
     }
 
-    public List<FunctionDescription> getAllFunctions(){
-        return  new ArrayList<>(functionDescriptions.values());
+    public List<FunctionDescription> getAllFunctions() {
+        return new ArrayList<>(functionDescriptions.values());
     }
 
-    public FunctionDescription getFunctionDescription(String humanName){
+    public FunctionDescription getFunctionDescription(String humanName) {
         return functionDescriptions.get(humanName);
     }
 
-    public String getEngineID(){
+    public String getEngineID() {
         return this.instanceID.toString();
     }
 
-    public void stop(){
-        if(this.isStarted){
+    public void stop() {
+        if (this.isStarted) {
             System.out.println("Shutting down game engine");
             clientConnectionServices.forEach(ClientConnectionService::stop);
             matchService.stop();
@@ -183,4 +186,7 @@ public class GameEngine {
         System.out.println("Shut down complete.");
     }
 
+    public boolean isStarted() {
+        return isStarted;
+    }
 }

@@ -27,20 +27,19 @@ public class SocketIOConnectionService implements ClientConnectionService {
     private List<FunctionDescription> availableFunctions;
 
     public void setServerPort(int serverPort) {
-        if(!this.isStarted) {
+        if (!this.isStarted) {
             this.serverPort = serverPort;
         }
     }
 
     public void setServerInterface(String serverInterface) {
-        if(!this.isStarted) {
+        if (!this.isStarted) {
             this.serverInterface = serverInterface;
         }
     }
 
     @Override
     public void start() throws IOException {
-
         //Check here for port availability
         ServerSocket s = new ServerSocket(serverPort, 1, InetAddress.getByName(serverInterface));
         //Port is available.
@@ -62,11 +61,11 @@ public class SocketIOConnectionService implements ClientConnectionService {
 
         });
         gameSocket.addDisconnectListener(client -> {
-            System.out.println("Client disconnected: "+client.getSessionId());
+            System.out.println("Client disconnected: " + client.getSessionId());
         });
 
         gameSocket.start();
-        System.out.println("SocketIOConnectionService is now running, bound to interface "+this.serverInterface+" on port "+this.serverPort);
+        System.out.println("SocketIOConnectionService is now running, bound to interface " + this.serverInterface + " on port " + this.serverPort);
         this.isStarted = true;
     }
 
@@ -84,14 +83,14 @@ public class SocketIOConnectionService implements ClientConnectionService {
 
     @Override
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
-        gameSocket.getRoomOperations(roomName).sendEvent(eventName,data);
+        gameSocket.getRoomOperations(roomName).sendEvent(eventName, data);
     }
 
-    private void linkAllFunctionsToNetwork(){
-        for(FunctionDescription fd : this.availableFunctions){
+    private void linkAllFunctionsToNetwork() {
+        for (FunctionDescription fd : this.availableFunctions) {
             gameSocket.addEventListener(fd.name, JSONObject.class, (client, data, ackSender) -> {
                 SocketIOClientWrapper wrapper = new SocketIOClientWrapper(client);
-                Response r = fd.invocationPoint.onEvent(wrapper,data);
+                Response r = fd.invocationPoint.onEvent(wrapper, data);
                 ackSender.sendAckData(r.getJSONRepresentation());
             });
         }

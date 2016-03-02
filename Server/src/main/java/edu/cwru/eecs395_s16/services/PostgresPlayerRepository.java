@@ -18,13 +18,13 @@ import java.util.Optional;
 public class PostgresPlayerRepository implements PlayerRepository {
 
     private static final String GET_PLAYER_QUERY = "select * from players where username = ?";
-    private static final String INSERT_PLAYER_QUERY = "insert into players (username, password, currency, isdev) VALUES (?,?,?,false)";
+    private static final String INSERT_PLAYER_QUERY = "insert into players (username, password, currency, is_dev) VALUES (?,?,?,false)";
     private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from players where username = ?";
     private static final String VALID_LOGIN_QUERY = "select * from players where username = ? AND password = ?";
-    private static final String DELETE_PLAYER_QUERY = "delete from players where user_id = ?";
+    private static final String DELETE_PLAYER_QUERY = "delete from players where id = ?";
     private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level) (select id as hero_id,? as player_id, 1 as level from heroes)";
 
-    Connection conn;
+    final Connection conn;
 
     public PostgresPlayerRepository(Connection dbConnection) {
         this.conn = dbConnection;
@@ -32,10 +32,10 @@ public class PostgresPlayerRepository implements PlayerRepository {
 
     @Override
     public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
-        if(username.matches("[a-zA-Z0-9]+")){
-            return new InternalResponseObject<Player>(InternalErrorCode.INVALID_USERNAME);
+        if (!username.matches("[a-zA-Z0-9]+")) {
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME);
         }
-        if (!password.equals(passwordConfirm)) {
+        if (password == null || passwordConfirm == null || !password.equals(passwordConfirm)) {
             return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
         }
         try {
@@ -56,19 +56,18 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 stmt.executeUpdate();
                 ResultSet newKeys = stmt.getGeneratedKeys();
                 int playerDBID = -1;
-                while(newKeys.next()){
+                while (newKeys.next()) {
                     playerDBID = newKeys.getInt(1);
                 }
-                Player p = new Player(playerDBID,username, password);
-
+                Player p = new Player(playerDBID, username, password);
                 //Set up hero data links here
                 stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
-                stmt.setInt(1,playerDBID);
+                stmt.setInt(1, playerDBID);
                 stmt.executeUpdate();
                 return new InternalResponseObject<>(p);
             }
         } catch (SQLException e) {
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
             return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
@@ -95,7 +94,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                     id = rst2.getInt("id");
                 }
                 if (id >= 0) {
-                    Player p = new Player(id,username, password);
+                    Player p = new Player(id, username, password);
                     return new InternalResponseObject<>(p);
                 } else {
                     return new InternalResponseObject<>(InternalErrorCode.INVALID_PASSWORD);
@@ -104,7 +103,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
             }
         } catch (SQLException e) {
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
             return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
@@ -129,13 +128,13 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 rst2.next();
                 int id = rst2.getInt("id");
                 String password = rst2.getString("password");
-                Player p = new Player(id,username, password);
+                Player p = new Player(id, username, password);
                 return new InternalResponseObject<>(p);
             } else {
                 return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
             }
         } catch (SQLException e) {
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
             return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
@@ -151,6 +150,35 @@ public class PostgresPlayerRepository implements PlayerRepository {
 
     @Override
     public boolean deletePlayer(Player p) {
-        return false;
+        if (p.getDatabaseID() >= 0) {
+            return deletePlayerViaID(p.getDatabaseID());
+        } else {
+            //Check and see if we can delete by username
+            InternalResponseObject<Player> p1 = findPlayer(p.getUsername());
+            if (p1.isNormal()) {
+                p = p1.get();
+                return deletePlayerViaID(p.getDatabaseID());
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private boolean deletePlayerViaID(int id) {
+        if (id >= 0) {
+            try {
+                PreparedStatement stmt = conn.prepareStatement(DELETE_PLAYER_QUERY);
+                stmt.setInt(1, id);
+                int numChanged = stmt.executeUpdate();
+                return numChanged == 1;
+            } catch (SQLException e) {
+                if (GameEngine.instance() == null || GameEngine.instance().IS_DEBUG_MODE) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

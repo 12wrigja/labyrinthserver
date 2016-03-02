@@ -1,7 +1,5 @@
 package edu.cwru.eecs395_s16.test.persistance;
 
-import edu.cwru.eecs395_s16.bots.GameBot;
-import edu.cwru.eecs395_s16.bots.PassBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
@@ -9,8 +7,7 @@ import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created by james on 2/29/16.
@@ -108,11 +105,26 @@ public abstract class PlayerRepositoryBaseTest {
         }
     }
 
+    @Test
+    public void testCleanPlayerMethod(){
+        InternalResponseObject<Player> p1 = getRepositoryImplementation().registerPlayer(TEST_USERNAME,TEST_PASSWORD,TEST_PASSWORD);
+        assertTrue(p1.isPresent());
+        p1 = getRepositoryImplementation().findPlayer(TEST_USERNAME);
+        assertTrue(p1.isPresent());
+        cleanupPlayer();
+        p1 = getRepositoryImplementation().findPlayer(TEST_USERNAME);
+        assertFalse(p1.isPresent());
+    }
+
     @Before
     public void cleanupPlayer() {
         Player p = new Player(-1, TEST_USERNAME, TEST_PASSWORD);
-        if (!getRepositoryImplementation().deletePlayer(p)) {
-            fail("Unable to delete player from repo");
+        //Check to see if the player exists first.
+        InternalResponseObject<Player> p1 = getRepositoryImplementation().findPlayer(TEST_USERNAME);
+        if(p1.isPresent()) {
+            if (!getRepositoryImplementation().deletePlayer(p)) {
+                fail("Unable to delete player from repo");
+            }
         }
     }
 

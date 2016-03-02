@@ -62,7 +62,7 @@ public class PostgresHeroRepository implements HeroRepository {
         int movement = r.getInt("movement");
         int vision = r.getInt("vision");
         int level = r.getInt("level");
-        String heroType = r.getString("classname");
+        String heroType = r.getString("class");
         HeroBuilder hb = new HeroBuilder();
         hb.setDatabaseIdentifier(heroID)
                 .setAttack(attack)

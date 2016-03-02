@@ -1,13 +1,12 @@
 package edu.cwru.eecs395_s16.ui;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.services.*;
-import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
-import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.MapRepository.InMemoryMapRepository;
+import edu.cwru.eecs395_s16.services.MapRepository.PostgresMapRepository;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 
 import java.io.IOException;
@@ -46,6 +45,7 @@ public class mainUI {
                     MatchmakingService matchmakingService = new BasicMatchmakingService();
                     CacheService cacheService;
                     HeroRepository heroRepository;
+                    MapRepository mapRepository;
                     String persistText = getOption("persist");
                     boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
@@ -64,14 +64,15 @@ public class mainUI {
                         sessionRepo = new InMemorySessionRepository();
                         cacheService = new RedisCacheService();
                         heroRepository = new PostgresHeroRepository(dbConnection);
-
+                        mapRepository = new PostgresMapRepository(dbConnection);
                     } else {
                         playerRepo = new InMemoryPlayerRepository();
                         sessionRepo = new InMemorySessionRepository();
                         cacheService = new InMemoryCacheService();
                         heroRepository = new InMemoryHeroRepository();
+                        mapRepository = new InMemoryMapRepository();
                     }
-                    GameEngine engine = new GameEngine(enableTrace, playerRepo, sessionRepo, heroRepository, matchmakingService, cacheService);
+                    GameEngine engine = new GameEngine(enableTrace, playerRepo, sessionRepo, heroRepository, matchmakingService, cacheService, mapRepository);
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {

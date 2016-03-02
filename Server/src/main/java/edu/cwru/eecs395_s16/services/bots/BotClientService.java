@@ -29,7 +29,7 @@ public class BotClientService implements ClientConnectionService {
     ExecutorService executorService;
 
     @Override
-    public void start() throws IOException {
+    public void start() {
         initStorage();
         executorService = Executors.newCachedThreadPool();
     }
@@ -41,7 +41,7 @@ public class BotClientService implements ClientConnectionService {
         initStorage();
     }
 
-    private void initStorage(){
+    private void initStorage() {
         connectedClients = new HashSet<>();
         roomMap = new HashMap<>();
     }
@@ -66,19 +66,19 @@ public class BotClientService implements ClientConnectionService {
 
     public final void addClientToRoom(String roomName, GameBot c) {
         Set<GameBot> botsInRoom = roomMap.get(roomName);
-        if(botsInRoom == null){
+        if (botsInRoom == null) {
             botsInRoom = new HashSet<>();
-            roomMap.put(roomName,botsInRoom);
+            roomMap.put(roomName, botsInRoom);
         }
-        if(!botsInRoom.contains(c)) {
+        if (!botsInRoom.contains(c)) {
             botsInRoom.add(c);
         }
     }
 
     public final void removeClientFromRoom(String roomName, GameBot c) {
-        if(roomMap.containsKey(roomName)) {
+        if (roomMap.containsKey(roomName)) {
             Set<GameBot> botsInRoom = roomMap.get(roomName);
-            if(botsInRoom.contains(c)){
+            if (botsInRoom.contains(c)) {
                 botsInRoom.remove(c);
             }
         }

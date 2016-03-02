@@ -1,13 +1,15 @@
 package edu.cwru.eecs395_s16.interfaces.objects;
 
-import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
+import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by james on 2/12/16.
@@ -80,5 +82,13 @@ public interface GameMap extends Jsonable {
         }
         return mapObj;
     }
+
+    String getCreatorUsername();
+
+    String getName();
+
+    int getHeroCapacity();
+
+    List<Location> getHeroSpawnLocations();
 
 }

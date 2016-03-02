@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.services.InMemoryHeroRepository;
 import edu.cwru.eecs395_s16.services.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.services.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.MapRepository.InMemoryMapRepository;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 import io.socket.client.Ack;
 import io.socket.client.IO;
@@ -35,7 +36,7 @@ public abstract class NetworkedTest {
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService());
+        engine = new GameEngine(false, new InMemoryPlayerRepository(), new InMemorySessionRepository(), new InMemoryHeroRepository(), new BasicMatchmakingService(), new InMemoryCacheService(), new InMemoryMapRepository());
         SocketIOConnectionService socketIO = new SocketIOConnectionService();
         socketIO.setServerPort(PORT);
         engine.addClientService(socketIO);
