@@ -10,14 +10,15 @@ import org.json.JSONObject;
  */
 public class Response implements Jsonable {
 
-    protected WebStatusCode status;
-    protected String message;
+    protected final WebStatusCode status;
+    protected final String message;
 
     public Response() {
         this.status = WebStatusCode.OK;
         this.message = WebStatusCode.OK.message;
     }
 
+    //TODO deprecate / remove this.
     public Response(JsonableException e) {
         this(e.getErrorCode(),e.getMessage());
     }

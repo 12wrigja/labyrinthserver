@@ -5,6 +5,7 @@ import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
+import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.LoginUserRequest;
 import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
@@ -30,10 +31,10 @@ public class NetworkingInterface {
         return GameEngine.instance().getPlayerRepository().registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
     }
 
-    @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns a random map generated using random walk.")
-    public NewMapResponse map(NewMapRequest obj) {
-        NewMapResponse r = new NewMapResponse(new AlmostBlankMap(obj.getX(), obj.getY()));
-        return r;
+    @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
+    public InternalResponseObject<GameMap> map(NewMapRequest obj) {
+        GameMap m = new AlmostBlankMap(obj.getX(), obj.getY());
+        return new InternalResponseObject<>(m);
     }
 //
 //    @NetworkEvent(description = "Queues up the player to play as the heroes")

@@ -3,6 +3,9 @@ package edu.cwru.eecs395_s16.services.connections;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.protocol.JacksonJsonSupport;
+import com.corundumstudio.socketio.protocol.JsonSupport;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.interfaces.Response;
@@ -13,6 +16,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,6 +29,19 @@ public class SocketIOConnectionService implements ClientConnectionService {
     private String serverInterface = "0.0.0.0";
     private boolean isStarted = false;
     private List<FunctionDescription> availableFunctions;
+    private List<Module> usedSerializationModules;
+
+    public SocketIOConnectionService(){
+        usedSerializationModules = new ArrayList<>();
+        Module jsonMod = new JsonOrgModule();
+         usedSerializationModules.add(jsonMod);
+    }
+
+    public ObjectMapper getManualMapper(){
+        ObjectMapper mapper = new ObjectMapper();
+        usedSerializationModules.forEach(mapper::registerModule);
+        return mapper;
+    }
 
     public void setServerPort(int serverPort) {
         if (!this.isStarted) {
@@ -50,7 +67,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
         config.setPort(this.serverPort);
         config.getSocketConfig().setReuseAddress(true);
 
-        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport(new JsonOrgModule());
+        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport((Module[]) usedSerializationModules.toArray());
         config.setJsonSupport(jacksonJsonSupport);
         gameSocket = new SocketIOServer(config);
 

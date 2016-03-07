@@ -64,7 +64,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
                 stmt.setInt(1, playerDBID);
                 stmt.executeUpdate();
-                return new InternalResponseObject<>(p);
+                return new InternalResponseObject<>(p,"player");
             }
         } catch (SQLException e) {
             if (GameEngine.instance().IS_DEBUG_MODE) {
@@ -95,7 +95,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 }
                 if (id >= 0) {
                     Player p = new Player(id, username, password);
-                    return new InternalResponseObject<>(p);
+                    return new InternalResponseObject<>(p,"player");
                 } else {
                     return new InternalResponseObject<>(InternalErrorCode.INVALID_PASSWORD);
                 }
@@ -129,7 +129,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 int id = rst2.getInt("id");
                 String password = rst2.getString("password");
                 Player p = new Player(id, username, password);
-                return new InternalResponseObject<>(p);
+                return new InternalResponseObject<>(p,"player");
             } else {
                 return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
             }

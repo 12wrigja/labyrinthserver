@@ -4,7 +4,7 @@ package edu.cwru.eecs395_s16.core;
  * Created by james on 2/28/16.
  */
 public enum InternalErrorCode {
-
+    UNKNOWN("The internal error is unknown."),
     DUPLICATE_USERNAME("The given username already exists."),
     UNKNOWN_USERNAME("The given username could not be found."),
     INVALID_PASSWORD("The given password is invalid."),

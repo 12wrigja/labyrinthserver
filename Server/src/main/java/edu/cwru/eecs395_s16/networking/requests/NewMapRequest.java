@@ -24,6 +24,16 @@ public class NewMapRequest implements RequestData {
         return x;
     }
 
+    public NewMapRequest(){
+        this.x = -1;
+        this.y = -1;
+    };
+
+    public NewMapRequest(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         this.x = RequestData.getInt(obj,"x");
