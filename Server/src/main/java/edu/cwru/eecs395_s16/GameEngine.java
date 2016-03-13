@@ -2,10 +2,14 @@ package edu.cwru.eecs395_s16;
 
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
+import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.bots.BotClientService;
 import edu.cwru.eecs395_s16.services.bots.PlayerRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
@@ -84,6 +88,16 @@ public class GameEngine {
 
     public MapRepository getMapRepository() {
         return mapRepository;
+    }
+
+    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID){
+        for(ClientConnectionService service : clientConnectionServices){
+            InternalResponseObject<GameClient> resp = service.findClientFromUUID(clientID);
+            if(resp.isNormal() && resp.isPresent()){
+                return resp;
+            }
+        }
+        return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
     }
 
     public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache, MapRepository mapRepository) {

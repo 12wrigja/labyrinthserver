@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.services.connections;
 
 import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.protocol.JacksonJsonSupport;
 import com.corundumstudio.socketio.protocol.JsonSupport;
@@ -8,8 +9,12 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
+import edu.cwru.eecs395_s16.interfaces.services.GameClient;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import org.json.JSONObject;
 
@@ -18,6 +23,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by james on 2/25/16.
@@ -101,6 +107,16 @@ public class SocketIOConnectionService implements ClientConnectionService {
     @Override
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
         gameSocket.getRoomOperations(roomName).sendEvent(eventName, data);
+    }
+
+    @Override
+    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
+        SocketIOClient client = gameSocket.getClient(clientID);
+        if(client != null){
+            return new InternalResponseObject<>(new SocketIOClientWrapper(client));
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
+        }
     }
 
     private void linkAllFunctionsToNetwork() {

@@ -14,8 +14,8 @@ public class RedisCacheService implements CacheService {
 
     final JedisPool pool;
 
-    public RedisCacheService(){
-        this.pool = new JedisPool(new JedisPoolConfig(),"localhost");
+    public RedisCacheService(JedisPool pool){
+        this.pool = pool;
     }
 
     @Override

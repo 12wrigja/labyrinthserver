@@ -3,8 +3,11 @@ package edu.cwru.eecs395_s16.services.bots;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
 import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
+import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import org.json.JSONObject;
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class BotClientService implements ClientConnectionService {
 
-    Set<GameBot> connectedClients;
+    Map<UUID,GameBot> connectedClients;
 
     Map<String, Set<GameBot>> roomMap;
 
@@ -36,13 +39,13 @@ public class BotClientService implements ClientConnectionService {
 
     @Override
     public void stop() {
-        connectedClients.forEach(GameBot::onDisconnect);
+        connectedClients.values().forEach(GameBot::onDisconnect);
         executorService.shutdownNow();
         initStorage();
     }
 
     private void initStorage() {
-        connectedClients = new HashSet<>();
+        connectedClients = new HashMap<>();
         roomMap = new HashMap<>();
     }
 
@@ -55,7 +58,7 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public final void register(GameBot c) {
-        this.connectedClients.add(c);
+        this.connectedClients.put(c.getSessionId(),c);
         c.onConnect();
     }
 
@@ -96,6 +99,15 @@ public class BotClientService implements ClientConnectionService {
         }
     }
 
+    @Override
+    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
+        if(connectedClients.containsKey(clientID)){
+            return new InternalResponseObject<>(connectedClients.get(clientID));
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
+        }
+    }
+
     public Response submitEventForClient(GameBot client, String eventName, JSONObject data) {
         AuthenticationMiddleware fd = fds.get(eventName);
         if (fd != null) {
@@ -106,7 +118,7 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public Optional<GameBot> botForUsername(String username) {
-        List<GameBot> matches = connectedClients.stream().filter(gameBot -> gameBot.getUsername().equals(username)).collect(Collectors.toList());
+        List<GameBot> matches = connectedClients.values().stream().filter(gameBot -> gameBot.getUsername().equals(username)).collect(Collectors.toList());
         if (matches.size() == 1) {
             return Optional.of(matches.get(0));
         } else {
@@ -115,7 +127,7 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public Optional<GameBot> botForSessionID(UUID sessionID) {
-        List<GameBot> matches = connectedClients.stream().filter(gameBot -> gameBot.getSessionId().equals(sessionID)).collect(Collectors.toList());
+        List<GameBot> matches = connectedClients.values().stream().filter(gameBot -> gameBot.getSessionId().equals(sessionID)).collect(Collectors.toList());
         if (matches.size() == 1) {
             return Optional.of(matches.get(0));
         } else {

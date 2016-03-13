@@ -8,6 +8,7 @@ import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.MapRepository.InMemoryMapRepository;
 import edu.cwru.eecs395_s16.services.MapRepository.PostgresMapRepository;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
+import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -60,9 +61,10 @@ public class mainUI {
                             }
                             return;
                         }
+                        JedisPool jedisPool = new JedisPool("localhost");
                         playerRepo = new PostgresPlayerRepository(dbConnection);
-                        sessionRepo = new InMemorySessionRepository();
-                        cacheService = new RedisCacheService();
+                        sessionRepo = new RedisSessionRepository(jedisPool, playerRepo);
+                        cacheService = new RedisCacheService(jedisPool);
                         heroRepository = new PostgresHeroRepository(dbConnection);
                         mapRepository = new PostgresMapRepository(dbConnection);
                     } else {

@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.test.persistance;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 import edu.cwru.eecs395_s16.services.RedisCacheService;
 import org.junit.Test;
+import redis.clients.jedis.JedisPool;
 
 import java.util.Optional;
 
@@ -18,7 +19,7 @@ public class RedisConfigTest {
     public void testRedisCacheStoreString(){
         String key = "this key thing!";
         String value = "the value!";
-        CacheService cache = new RedisCacheService();
+        CacheService cache = new RedisCacheService(new JedisPool("localhost"));
         cache.storeString(key,value);
         Optional<String> returnedVal = cache.getString(key);
         if(returnedVal.isPresent()){
