@@ -143,4 +143,7 @@ public class MovementTesting extends InMatchTest {
         assertEquals(InternalErrorCode.INVALID_GAME_ACTION, resp.getInternalErrorCode());
     }
 
+    //TODO write tests for triggering traps
+    //Maybe those belong in a different test? (Probably)
+
 }

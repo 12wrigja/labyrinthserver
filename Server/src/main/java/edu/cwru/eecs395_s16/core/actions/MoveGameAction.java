@@ -41,7 +41,7 @@ public class MoveGameAction implements GameAction {
         Optional<GameObject> boardObj = boardObjects.getByID(UUID.fromString(data.getCharacterID()));
         if (boardObj.isPresent()) {
             if (!(boardObj.get() instanceof Creature)) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "Referenced Game Object ID is not a movable object.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_OBJECT);
             } else {
                 Creature creature = (Creature) boardObj.get();
                 if (creature.getControllerID().isPresent() && !creature.getControllerID().get().equals(player.getUsername())) {
@@ -49,10 +49,10 @@ public class MoveGameAction implements GameAction {
                 }
                 //Check action points. Should be 0, 1, or 2
                 if (creature.getActionPoints() <= 0) {
-                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "That creature does not have any action points remaining.");
+                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NO_ACTION_POINTS);
                 }
                 if (data.getPath().size() > creature.getMovement() || data.getPath().size() <= 0) {
-                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "The character cannot move this far.");
+                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_TOO_LONG);
                 } else {
                     //Check path for obstacles
                     List<Location> path = data.getPath();
@@ -82,28 +82,28 @@ public class MoveGameAction implements GameAction {
                                         for (GameObject obstruction : objsAtTile) {
                                             response += obstruction.getGameObjectID().toString() + " ";
                                         }
-                                        return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, response);
+                                        return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, response);
                                     }
                                 }
                                 if (nextTile.isObstructionTileType()) {
-                                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "The character specified cannot move across this tile type.");
+                                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, "The character specified cannot move across this tile type.");
                                 }
                                 if (!previousTile.isNeighbourOf(nextTile, false)) {
-                                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "Path jump detected! Tile at index " + count + " is not a neighbour of a previous tile.");
+                                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_SKIP, "Path jump detected! Tile at index " + count + " is not a neighbour of a previous tile.");
                                 }
                                 this.actualPath.add(nextTile);
                                 previousTile = nextTile;
                             } else {
-                                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "Tile at index " + count + " in the path is invalid.");
+                                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, "Tile at index " + count + " in the path is invalid.");
                             }
                         }
                     } else {
-                        return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "Initial tile in path is invalid.");
+                        return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, "Initial tile in path is invalid.");
                     }
                 }
             }
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "Unable to retrieve object with given ID.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_OBJECT);
         }
         return new InternalResponseObject<>(true, "valid");
     }
