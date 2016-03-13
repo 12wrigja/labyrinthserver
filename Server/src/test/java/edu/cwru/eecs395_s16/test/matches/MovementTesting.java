@@ -89,7 +89,7 @@ public class MovementTesting extends InMatchTest {
         InternalResponseObject<Boolean> response = moveCharacter(heroBot, heroID, pathToMove, false);
         assertFalse(response.isNormal());
         assertEquals(WebStatusCode.UNPROCESSABLE_DATA,response.getStatus());
-        assertEquals(InternalErrorCode.INVALID_GAME_ACTION, response.getInternalErrorCode());
+        assertEquals(InternalErrorCode.PATH_OBSTRUCTED, response.getInternalErrorCode());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class MovementTesting extends InMatchTest {
         InternalResponseObject<Boolean> response = moveCharacter(heroBot, heroID, pathToMove, false);
         assertFalse(response.isNormal());
         assertEquals(WebStatusCode.UNPROCESSABLE_DATA,response.getStatus());
-        assertEquals(InternalErrorCode.INVALID_GAME_ACTION, response.getInternalErrorCode());
+        assertEquals(InternalErrorCode.PATH_TOO_LONG, response.getInternalErrorCode());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class MovementTesting extends InMatchTest {
         InternalResponseObject<Boolean> resp = moveCharacter(heroBot, heroID, pathToMove, false);
         assertFalse(resp.isNormal());
         assertEquals(WebStatusCode.UNPROCESSABLE_DATA,resp.getStatus());
-        assertEquals(InternalErrorCode.INVALID_GAME_ACTION, resp.getInternalErrorCode());
+        assertEquals(InternalErrorCode.NO_ACTION_POINTS, resp.getInternalErrorCode());
     }
 
     //TODO write tests for triggering traps
