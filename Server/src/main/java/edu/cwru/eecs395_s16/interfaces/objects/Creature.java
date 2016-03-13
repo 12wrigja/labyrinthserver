@@ -28,6 +28,7 @@ public interface Creature extends GameObject {
     String STATUSES_KEY = "statuses";
     List<String> getStatuses();
 
+    String ACTION_POINTS_KEY = "action_points";
     int getActionPoints();
     void useActionPoint();
     void resetActionPoints();

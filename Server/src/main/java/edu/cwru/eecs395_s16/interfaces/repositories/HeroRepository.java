@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.interfaces.repositories;
 
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public interface HeroRepository {
 
-    List<Hero> getPlayerHeroes(Player p);
+    InternalResponseObject<List<Hero>> getPlayerHeroes(Player p);
 
     void saveHeroForPlayer(Player p, Hero h);
 

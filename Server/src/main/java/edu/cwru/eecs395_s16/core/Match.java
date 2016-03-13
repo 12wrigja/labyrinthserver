@@ -11,6 +11,7 @@ import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.utils.JSONDiff;
 import edu.cwru.eecs395_s16.utils.JSONUtils;
 import org.json.JSONException;
@@ -60,19 +61,22 @@ public class Match implements Jsonable {
 
     //TODO Turn numbers
 
-    public static Optional<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
-        //TODO check and see if either specified player is already in a match
+    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
-            return Optional.empty();
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
             UUID randMatchID = UUID.randomUUID();
             Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
-            m.startInitialGameTasks();
-            return Optional.of(m);
+            InternalResponseObject<?> resp = m.startInitialGameTasks();
+            if(!resp.isNormal()){
+                return InternalResponseObject.cloneError(resp);
+            } else {
+                return new InternalResponseObject<>(m, "match");
+            }
         }
     }
 
-    public static Optional<Match> fromCacheWithMatchIdentifier(UUID id) {
+    public static InternalResponseObject<Match> fromCacheWithMatchIdentifier(UUID id) {
         //This method is used to retrieve the match from a cache
         CacheService cache = GameEngine.instance().getCacheService();
         Optional<String> temp = cache.getString(id.toString() + CURRENT_SEQUENCE_CACHE_KEY);
@@ -92,18 +96,24 @@ public class Match implements Jsonable {
 
                 //Retrieve players
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
-                Optional<Player> heroPlayer = GameEngine.instance().getSessionRepository().findPlayer(players.getString(HERO_PLAYER_KEY));
-                Optional<Player> architectPlayer = GameEngine.instance().getSessionRepository().findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
+                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().getSessionRepository().findPlayer(players.getString(HERO_PLAYER_KEY));
+                if(!heroRetrievalResponse.isNormal()){
+                    return InternalResponseObject.cloneError(heroRetrievalResponse,"Unable to find the hero player for the match.");
+                }
+                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().getSessionRepository().findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
+                if(!architectRetrievalResponse.isNormal()){
+                    return InternalResponseObject.cloneError(architectRetrievalResponse, "Unable to find the architect player for the match");
+                }
 
                 //Retrieve Map
                 GameMap mp = new FromJSONGameMap((JSONObject) matchData.get("map"));
 
                 //Build match as we have all the basics we need
                 Match m;
-                if (heroPlayer.isPresent() && architectPlayer.isPresent()) {
-                    m = new Match(heroPlayer.get(), architectPlayer.get(), id, mp);
+                if (heroRetrievalResponse.isPresent() && architectRetrievalResponse.isPresent()) {
+                    m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp);
                 } else {
-                    return Optional.empty();
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR,InternalErrorCode.MISSING_PLAYER, "One of the two players in the match are missing.");
                 }
 
                 //Retrieve Game State
@@ -114,19 +124,19 @@ public class Match implements Jsonable {
                 JSONObject gameObjectCollectionData = matchData.getJSONObject(BOARD_COLLECTION_KEY);
                 m.boardObjects.fillFromJSONData(gameObjectCollectionData);
 
-                return Optional.of(m);
+                return new InternalResponseObject<>(m,"match");
             } catch (Exception e) {
                 if (GameEngine.instance().IS_DEBUG_MODE) {
                     e.printStackTrace();
                 }
-                return Optional.empty();
+                return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
             }
         } else {
-            return Optional.empty();
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR,InternalErrorCode.MATCH_RETRIEVAL_ERROR);
         }
     }
 
-    public static Optional<Match> fromCacheWithMatchIdentifier(String id) {
+    public static InternalResponseObject<Match> fromCacheWithMatchIdentifier(String id) {
         UUID uuidID = UUID.fromString(id);
         return fromCacheWithMatchIdentifier(uuidID);
     }
@@ -148,50 +158,73 @@ public class Match implements Jsonable {
         spectators = new HashSet<>(5);
     }
 
-    private void startInitialGameTasks() {
+    private InternalResponseObject<Match> startInitialGameTasks() {
+        //Schedule the ping task once every second and have the players join the room for the match
         GameEngine.instance().getGameTimer().scheduleAtFixedRate(pingTask, 0, 1000);
+        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+
+        //Set the player's current match identifiers
         this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
         this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
+
+        //Set initial turn data
         this.gameState = GameState.HERO_TURN;
         this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
-        List<Hero> heroPlayerHeroes = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.heroPlayer);
-        int numHeroes = this.gameMap.getHeroCapacity();
+        //Retrieve heroes for the hero player and place them randomly in the spawn positions
+        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.heroPlayer);
+        if(!heroHeroResponse.isNormal()){
+            return InternalResponseObject.cloneError(heroHeroResponse);
+        }
+        List<Hero> heroHeroes = heroHeroResponse.get();
+        int numHeroSpaces = this.gameMap.getHeroCapacity();
+        int numHeroes = heroHeroes.size();
         List<Location> heroSpawnLocations = this.gameMap.getHeroSpawnLocations();
-        Collections.shuffle(heroPlayerHeroes);
-        for(int i=0; i<numHeroes; i++){
-            GameObject hero = heroPlayerHeroes.get(i);
+        Collections.shuffle(heroHeroes);
+        int numIterations = Math.min(numHeroes, numHeroSpaces);
+        for(int i=0; i<numIterations; i++){
+            GameObject hero = heroHeroes.get(i);
             Location newLoc = heroSpawnLocations.get(i);
             hero.setLocation(newLoc);
             this.boardObjects.add(hero);
         }
 
+        //Add all the architect's monsters and traps to the board
         //TODO update to add all the architect's monsters and traps to the board instead of their heroes
-        List<Hero> architectPlayerHeroes = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.architectPlayer);
-        this.boardObjects.addAll(architectPlayerHeroes);
+        InternalResponseObject<List<Hero>> architectHeroResponse = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.architectPlayer);
+        if(!architectHeroResponse.isNormal()){
+            return InternalResponseObject.cloneError(architectHeroResponse);
+        }
+        List<Hero> architectHeroes = architectHeroResponse.get();
+        this.boardObjects.addAll(architectHeroes);
+
+        //Take initial snapshots and store them.
         setCurrentSequence(this.gameSequenceID);
         JSONObject matchBaseline = this.getJSONRepresentation();
         storeSnapshotForSequence(this.gameSequenceID, matchBaseline);
 
-        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
-        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
-
+        //Broadcast that a match has been found to all interested parties
         broadcastToAllParties("match_found", matchBaseline);
+        return new InternalResponseObject<>();
     }
 
-    public synchronized boolean updateGameState(Player p, GameAction action) throws UnauthorizedActionException, InvalidGameStateException {
+    public synchronized InternalResponseObject<Boolean> updateGameState(Player p, GameAction action) {
         //First check and see if it is your turn
         if (isPlayerTurn(p)) {
             //Assemble the required lists of stuff.
-            action.checkCanDoAction(this.gameMap, this.boardObjects, p);
+            InternalResponseObject<Boolean> resp = action.checkCanDoAction(this.gameMap, this.boardObjects, p);
+            if(!resp.isNormal()){
+                return resp;
+            }
             JSONObject matchState = this.getJSONRepresentation();
             action.doGameAction(this.gameMap, this.boardObjects);
             JSONObject gameUpdate = takeSnapshotForAction(matchState, action);
             storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
             broadcastToAllParties("game_update", gameUpdate);
-            return true;
+            return resp;
         } else {
-            throw new UnauthorizedActionException(p);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_YOUR_TURN);
         }
     }
 
@@ -310,35 +343,19 @@ public class Match implements Jsonable {
         return obj;
     }
 
-    public Player getHeroPlayer() {
-        return heroPlayer;
-    }
-
-    public Player getArchitectPlayer() {
-        return architectPlayer;
-    }
-
-    public Set<Player> getSpectators() {
-        return spectators;
-    }
-
     public UUID getMatchIdentifier() {
         return matchIdentifier;
-    }
-
-    public GameMap getGameMap() {
-        return gameMap;
-    }
-
-    public GameState getGameState() {
-        return gameState;
     }
 
     public GameObjectCollection getBoardObjects() {
         return boardObjects;
     }
 
-    public int getGameSequenceID() {
-        return gameSequenceID;
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public GameMap getGameMap() {
+        return gameMap;
     }
 }

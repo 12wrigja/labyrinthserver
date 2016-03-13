@@ -18,8 +18,9 @@ public class HeroBuilder {
     private int attack = 10;
     private int defense = 10;
     private int health = 50;
-    private int mobility = 3;
+    private int movement = 3;
     private int vision = 5;
+    private int actionPoints = 2;
     private List<Ability> abilities = new ArrayList<>();
     private Location location = new Location(0,0);
     private Optional<String> ownerID = Optional.empty();
@@ -51,7 +52,7 @@ public class HeroBuilder {
     }
 
     public HeroBuilder setMovement(int movement) {
-        this.mobility = movement;
+        this.movement = movement;
         return this;
     }
 
@@ -100,6 +101,10 @@ public class HeroBuilder {
         return this;
     }
 
+    public void setActionPoints(int actionPoints) {
+        this.actionPoints = actionPoints;
+    }
+
     public HeroBuilder fillFromJSON(JSONObject obj) throws JSONException {
         //Object ID
         setObjectID(UUID.fromString(obj.getString(GameObject.GAMEOBJECT_ID_KEY)));
@@ -127,6 +132,8 @@ public class HeroBuilder {
         setMovement(obj.getInt(Creature.MOVEMENT_KEY));
         //Vision
         setVision(obj.getInt(Creature.VISION_KEY));
+        //Action Points
+        setActionPoints(obj.getInt(Creature.ACTION_POINTS_KEY));
         //TODO implement setting weapon from ID
         //Weapon
 //        String weaponID = obj.getString(Hero.WEAPON_ID_KEY);
@@ -138,7 +145,7 @@ public class HeroBuilder {
     }
 
     public Hero createHero() {
-        return new Hero(objectID, databaseIdentifier, ownerID, controllerID, heroType, level, location, attack, defense, health, mobility, vision, weapon, abilities, new ArrayList<>());
+        return new Hero(objectID, databaseIdentifier, ownerID, controllerID, heroType, level, location, attack, defense, health, movement, vision, actionPoints, weapon, abilities, new ArrayList<>());
     }
 
     public void setGameObjectType(GameObject.TYPE type) {

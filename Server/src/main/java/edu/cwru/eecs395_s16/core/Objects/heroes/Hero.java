@@ -33,7 +33,7 @@ public class Hero implements Character, DatabaseObject {
     private final HeroType type;
     private final Optional<String> controllerID;
 
-    Hero(UUID objectID, int databaseIdentifier, Optional<String> ownerID, Optional<String> controllerID, HeroType type, int level, Location location, int attack, int defense, int health, int movement, int vision, Weapon weapon, List<Ability> abilities, List<String> statuses) {
+    Hero(UUID objectID, int databaseIdentifier, Optional<String> ownerID, Optional<String> controllerID, HeroType type, int level, Location location, int attack, int defense, int health, int movement, int vision, int actionPoints, Weapon weapon, List<Ability> abilities, List<String> statuses) {
         this.controllerID = controllerID;
         this.weapon = weapon;
         this.attack = attack;
@@ -48,6 +48,7 @@ public class Hero implements Character, DatabaseObject {
         this.level = level;
         this.databaseIdentifier = databaseIdentifier;
         this.type = type;
+        this.actionPoints = actionPoints;
     }
 
     @Override
@@ -198,9 +199,10 @@ public class Hero implements Character, DatabaseObject {
             representation.put(ABILITIES_KEY, getAbilities());
             representation.put(STATUSES_KEY, new ArrayList<String>());
             representation.put(OWNER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
-            representation.put("controller_id", getOwnerID().isPresent() ? getOwnerID().get() : null);
+            representation.put(CONTROLLER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
             representation.put(HERO_TYPE_KEY, getHeroType().toString().toLowerCase());
             representation.put(LEVEL_KEY, getLevel());
+            representation.put(ACTION_POINTS_KEY,getActionPoints());
             //TODO add in weapons
         } catch (JSONException e) {
             //Never will occur - all keys are non-null

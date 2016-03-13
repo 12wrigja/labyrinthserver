@@ -1,11 +1,14 @@
 package edu.cwru.eecs395_s16.services;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +31,7 @@ public class PostgresHeroRepository implements HeroRepository {
     }
 
     @Override
-    public List<Hero> getPlayerHeroes(Player p) {
+    public InternalResponseObject<List<Hero>> getPlayerHeroes(Player p) {
         try {
             List<Hero> heroes = new ArrayList<>();
             PreparedStatement stmt = conn.prepareStatement(GET_HEROES_QUERY);
@@ -38,12 +41,12 @@ public class PostgresHeroRepository implements HeroRepository {
                 Hero h = heroFromResultSet(p,rst);
                 heroes.add(h);
             }
-            return heroes;
+            return new InternalResponseObject<>(heroes, "heroes");
         } catch (SQLException e) {
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
             }
-            return new ArrayList<>();
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_USERNAME, "Unable to retrieve heroes from Postgres for the given username.");
         }
     }
 

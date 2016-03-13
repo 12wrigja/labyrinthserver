@@ -96,12 +96,12 @@ public class InternalResponseObject<T> extends Response {
     }
 
     /**
-     * Creates a 500 error response with the given internal error code, and uses the default message from the error code as the message
+     * Creates a Unprocessable data error response with the given internal error code, and uses the default message from the error code as the message
      *
      * @param code
      */
     public InternalResponseObject(InternalErrorCode code) {
-        this(WebStatusCode.SERVER_ERROR, code, code.message);
+        this(WebStatusCode.UNPROCESSABLE_DATA, code, code.message);
     }
 
     /**
@@ -111,6 +111,14 @@ public class InternalResponseObject<T> extends Response {
      */
     public InternalResponseObject(WebStatusCode code, InternalErrorCode errorCode) {
         this(code, errorCode, errorCode.message);
+    }
+
+    public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original,String message){
+        return new InternalResponseObject<>(original.getStatus(),original.getInternalErrorCode(),message);
+    }
+
+    public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original){
+        return new InternalResponseObject<>(original.getStatus(),original.getInternalErrorCode(),original.getMessage());
     }
 
     public T get() {
@@ -131,6 +139,10 @@ public class InternalResponseObject<T> extends Response {
 
     public boolean isNormal() {
         return this.status.equals(WebStatusCode.OK);
+    }
+
+    public boolean hasObjectKey(){
+        return this.objectKey != null;
     }
 
     @Override

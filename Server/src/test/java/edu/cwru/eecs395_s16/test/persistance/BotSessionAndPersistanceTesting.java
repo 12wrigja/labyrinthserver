@@ -26,10 +26,10 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     public void testRegisterAsBot() {
         GameBot b = new PassBot();
         String botUsername = b.getUsername();
-        InternalResponseObject<Player> duplicatePlayerResponse = GameEngine.instance().getPlayerRepository().registerPlayer(botUsername,TEST_PASSWORD,TEST_PASSWORD);
-        if(duplicatePlayerResponse.isNormal()) {
+        InternalResponseObject<Player> duplicatePlayerResponse = GameEngine.instance().getPlayerRepository().registerPlayer(botUsername, TEST_PASSWORD, TEST_PASSWORD);
+        if (duplicatePlayerResponse.isNormal()) {
             fail("Should have caught that we were trying to register a player using a bot username!");
-        } else if (duplicatePlayerResponse.getInternalErrorCode() != InternalErrorCode.RESTRICTED_USERNAME){
+        } else if (duplicatePlayerResponse.getInternalErrorCode() != InternalErrorCode.RESTRICTED_USERNAME) {
             fail(duplicatePlayerResponse.getMessage());
         }
     }
@@ -55,29 +55,25 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     @Test
     public void testRetrieveBotFromSessionUsername() {
         GameBot b = new PassBot();
-        try {
-            Optional<Player> retr = GameEngine.instance().getSessionRepository().findPlayer(b.getUsername());
-            if (retr.isPresent()) {
-                Player retrieved = retr.get();
-                if (retrieved instanceof GameBot) {
-                    GameBot retrievedBot = (GameBot) retrieved;
-                    assertEquals(b.getSessionId(), retrievedBot.getSessionId());
-                    assertEquals(b.getUsername(), retrievedBot.getUsername());
-                } else {
-                    fail("Didn't find a bot - found something else.");
-                }
+        InternalResponseObject<Player> retr = GameEngine.instance().getSessionRepository().findPlayer(b.getUsername());
+        if (retr.isNormal() && retr.isPresent()) {
+            Player retrieved = retr.get();
+            if (retrieved instanceof GameBot) {
+                GameBot retrievedBot = (GameBot) retrieved;
+                assertEquals(b.getSessionId(), retrievedBot.getSessionId());
+                assertEquals(b.getUsername(), retrievedBot.getUsername());
             } else {
-                fail("Didn't find the bot.");
+                fail("Didn't find a bot - found something else.");
             }
-        } catch (UnknownUsernameException e) {
-            fail("Unknown username");
+        } else {
+            fail("Didn't find the bot.");
         }
     }
 
     @Test
     public void testRetrieveBotFromSessionClientID() {
         GameBot b = new PassBot();
-        Optional<Player> retr = GameEngine.instance().getSessionRepository().findPlayer(b.getSessionId());
+        InternalResponseObject<Player> retr = GameEngine.instance().getSessionRepository().findPlayer(b.getSessionId());
         if (retr.isPresent()) {
             Player retrieved = retr.get();
             if (retrieved instanceof GameBot) {

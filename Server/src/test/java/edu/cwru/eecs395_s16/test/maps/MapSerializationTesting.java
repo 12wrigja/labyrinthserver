@@ -10,6 +10,7 @@ import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import edu.cwru.eecs395_s16.test.NetworkedTest;
+import edu.cwru.eecs395_s16.test.SerializationTest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,28 +23,25 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by james on 2/12/16.
  */
-public class MapSerializationTesting extends EngineOnlyTest {
+public class MapSerializationTesting extends SerializationTest {
 
     final int MAP_X = 6;
     final int MAP_Y = 7;
 
-    static ObjectMapper objMapper;
-
-    @BeforeClass
-    public static void setupObjectSerializer(){
-        objMapper = new SocketIOConnectionService().getManualMapper();
-    }
-
     @Test
     public void testSizeSerialization() throws JSONException, JsonProcessingException {
         NewMapRequest request = new NewMapRequest(MAP_X,MAP_Y);
+        //Start request
         InternalResponseObject<GameMap> obj = engine.getNetworkingInterface().map(request);
+        //Validate the response's values
         assertTrue(obj.isNormal());
         assertTrue(obj.isPresent());
         int generatedMapX = obj.get().getSizeX();
         int generatedMapY = obj.get().getSizeY();
         assertEquals(MAP_X,generatedMapX);
         assertEquals(MAP_Y,generatedMapY);
+
+        //Validate the serialization values
         JSONObject serializedResponse = new JSONObject(objMapper.writeValueAsString(obj));
         assertTrue(serializedResponse.has("map"));
         JSONObject map = serializedResponse.getJSONObject("map");

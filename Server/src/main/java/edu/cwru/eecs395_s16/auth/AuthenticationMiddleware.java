@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.auth;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.JsonableException;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
@@ -50,7 +51,7 @@ public class AuthenticationMiddleware {
 
     public Response onEvent(GameClient client, JSONObject data) {
         System.out.println("Processing method " + next.getName() + " for client with SessionID  " + client.getSessionId());
-        Response response;
+        Response response = new Response();
         try {
             Object obj;
             if (objClass == null) {
@@ -62,18 +63,21 @@ public class AuthenticationMiddleware {
             if (needsAuthentication) {
                 //Retrieve client ID and check and see if they are authenticated
                 UUID token = client.getSessionId();
-                Optional<Player> p;
+                Optional<Player> p = Optional.empty();
                 if (client instanceof GameBot) {
                     p = Optional.of((GameBot) client);
                 } else {
-                    p = sessions.findPlayer(token);
+                    InternalResponseObject<Player> pResp = sessions.findPlayer(token);
+                    if(pResp.isNormal()){
+                        p = Optional.of(pResp.get());
+                    } else {
+                        response = pResp;
+                    }
                 }
                 if (p.isPresent()) {
                     p.get().setClient(Optional.of(client));
                     //We are all good. Invoke the next method.
                     response = (Response) next.invoke(instance, obj, p.get());
-                } else {
-                    response = new Response(WebStatusCode.UNAUTHENTICATED);
                 }
             } else {
                 if (next.getParameterTypes().length == 2 && next.getParameterTypes()[1].equals(GameClient.class)) {
@@ -96,7 +100,6 @@ public class AuthenticationMiddleware {
                     actualCause.printStackTrace();
                 }
                 //Generic error response here.
-                //TODO PRODUCTION-IFY
                 response = new Response(WebStatusCode.SERVER_ERROR);
             }
         }

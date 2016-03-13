@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.interfaces.repositories;
 
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 
@@ -10,7 +11,7 @@ import java.util.Map;
  */
 public interface MapRepository {
 
-    GameMap getMapByID(int id);
+    InternalResponseObject<GameMap> getMapByID(int id);
 
     void storeNewMapInDatabase(String mapName, Player creator, GameMap map);
 

@@ -1,11 +1,14 @@
 package edu.cwru.eecs395_s16.services.MapRepository;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.core.objects.maps.FromDatabaseMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,7 +54,7 @@ public class PostgresMapRepository implements MapRepository {
     }
 
     @Override
-    public GameMap getMapByID(int id) {
+    public InternalResponseObject<GameMap> getMapByID(int id) {
         try {
             PreparedStatement mapBase = conn.prepareStatement(GET_MAP_QUERY);
             mapBase.setInt(0,id);
@@ -83,15 +86,17 @@ public class PostgresMapRepository implements MapRepository {
                 }
                 if(!(count == (mp.getSizeX()*mp.getSizeY()))){
                     //Throw issue here - map is not fully defined.
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_MAP_DEFINITION);
                 }
-                return mp;
+                return new InternalResponseObject<>(mp, "map");
             } else {
                 //Throw error - can't find that map.
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_MAP_IDENTIFIER);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL);
         }
-        return null;
     }
 
     @Override

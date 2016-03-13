@@ -47,7 +47,7 @@ public class InMemoryStorageTests {
         final UUID sessionID = UUID.randomUUID();
         repo.storePlayer(sessionID,p);
 
-        Optional<Player> p1 = repo.findPlayer(sessionID);
+        InternalResponseObject<Player> p1 = repo.findPlayer(sessionID);
         if(p1.isPresent()){
             assertEquals(p.getUsername(),p1.get().getUsername());
         } else {

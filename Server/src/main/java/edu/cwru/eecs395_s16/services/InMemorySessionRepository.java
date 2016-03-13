@@ -1,18 +1,14 @@
 package edu.cwru.eecs395_s16.services;
 
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by james on 1/21/16.
@@ -23,15 +19,20 @@ public class InMemorySessionRepository implements SessionRepository {
     private Map<String,UUID> connectionMap = new ConcurrentHashMap<>();
 
     @Override
-    public Optional<Player> findPlayer(UUID token) {
-        return Optional.ofNullable(sessionMap.get(token));
+    public InternalResponseObject<Player> findPlayer(UUID token) {
+        if(sessionMap.containsKey(token)){
+            return new InternalResponseObject<>(sessionMap.get(token),"player");
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER, "Unable to find the player for the given session token.");
+        }
+
     }
 
     @Override
-    public Optional<Player> findPlayer(String username) throws UnknownUsernameException {
+    public InternalResponseObject<Player> findPlayer(String username) {
         UUID clientID = connectionMap.get(username);
         if(clientID == null){
-            throw new UnknownUsernameException(username);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_USERNAME, "Could not find a session for the player with the given username.");
         } else {
             return findPlayer(clientID);
         }

@@ -1,11 +1,10 @@
 package edu.cwru.eecs395_s16.networking.matchmaking;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.core.InvalidGameStateException;
-import edu.cwru.eecs395_s16.core.Match;
-import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.*;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -35,39 +34,39 @@ public class BasicMatchmakingService implements MatchmakingService {
     }
 
     @Override
-    public boolean queueAsHeroes(Player p) throws InvalidGameStateException {
+    public InternalResponseObject<Boolean> queueAsHeroes(Player p) {
         mutex.writeLock().lock();
         try {
             if (!queuedPlayers.contains(p)) {
                 heroesQueue.add(p);
                 queuedPlayers.add(p);
             } else {
-                throw new InvalidGameStateException("You are already in the heroes queue");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.ALREADY_IN_QUEUE);
             }
         } finally {
             mutex.writeLock().unlock();
         }
-        return true;
+        return new InternalResponseObject<>(true,"queued");
     }
 
     @Override
-    public boolean queueAsArchitect(Player p) throws InvalidGameStateException {
+    public InternalResponseObject<Boolean> queueAsArchitect(Player p) {
         mutex.writeLock().lock();
         try {
             if (!queuedPlayers.contains(p)) {
                 architectQueue.add(p);
                 queuedPlayers.add(p);
             } else {
-                throw new InvalidGameStateException("You are already queued in the architect queue");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.ALREADY_IN_QUEUE);
             }
         } finally {
             mutex.writeLock().unlock();
         }
-        return true;
+        return new InternalResponseObject<>(true,"queued");
     }
 
     @Override
-    public boolean removeFromQueue(Player p) throws InvalidGameStateException {
+    public InternalResponseObject<Boolean> removeFromQueue(Player p) {
         mutex.writeLock().lock();
         if(queuedPlayers.contains(p)){
             queuedPlayers.remove(p);
@@ -78,10 +77,10 @@ public class BasicMatchmakingService implements MatchmakingService {
                 architectQueue.remove(p);
             }
         } else {
-            throw new InvalidGameStateException("You aren't in a queue.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_IN_QUEUE);
         }
         mutex.writeLock().unlock();
-        return true;
+        return new InternalResponseObject<>(false,"queued");
     }
 
     @Override

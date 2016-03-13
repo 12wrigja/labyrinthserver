@@ -2,15 +2,26 @@ package edu.cwru.eecs395_s16.networking;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
+import edu.cwru.eecs395_s16.bots.PassBot;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
+import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
+import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
-import edu.cwru.eecs395_s16.networking.requests.LoginUserRequest;
-import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
-import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
+import edu.cwru.eecs395_s16.networking.requests.*;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by james on 1/20/16.
@@ -34,113 +45,97 @@ public class NetworkingInterface {
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
     public InternalResponseObject<GameMap> map(NewMapRequest obj) {
         GameMap m = new AlmostBlankMap(obj.getX(), obj.getY());
-        return new InternalResponseObject<>(m);
+        return new InternalResponseObject<>(m,"map");
     }
-//
-//    @NetworkEvent(description = "Queues up the player to play as the heroes")
-//    public QueueStatusResponse queueUpHeroes(QueueRequest obj, Player p) {
-//        if (obj.shouldQueueWithPassBot()) {
-//            //TODO update this to pick a random map?
-//            Optional<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(10, 10));
-//            if (m.isPresent()) {
-//                return new QueueStatusResponse(true);
-//            } else {
-//                /*TODO figure out when this is called and update this so that the correct
-//                 * response is sent when you cannot make a match
-//                 */
-//                return new QueueStatusResponse(WebStatusCode.UNPROCESSABLE_DATA, "Unable to queue into a match", false);
-//            }
-//        } else {
-//            boolean isQueued = GameEngine.instance().getMatchService().queueAsHeroes(p);
-//            return new QueueStatusResponse(isQueued);
-//        }
-//    }
-//
-//    @NetworkEvent(description = "Queues up the player to play as the heroes")
-//    public Response queueUpArchitect(QueueRequest obj, Player p) {
-//        if (obj.shouldQueueWithPassBot()) {
-//            Optional<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(10, 10));
-//            if (m.isPresent()) {
-//                return new Response();
-//            } else {
-//                //TODO update this so that the correct response is sent when you cannot make a match
-//                return new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//            }
-//        } else {
-//            boolean isQueued = GameEngine.instance().getMatchService().queueAsArchitect(p);
-//            Response r = new Response();
-//            r.setKey("queued", isQueued);
-//            return r;
-//        }
-//    }
-//
-//    @NetworkEvent(description = "Removes the player from any matchmaking queue they are in.")
-//    public Response dequeue(NoInputRequest obj, Player p) {
-//        boolean isDequeued = GameEngine.instance().getMatchService().removeFromQueue(p);
-//        Response r = new Response();
-//        r.setKey("queued", !isDequeued);
-//        return r;
-//    }
-//
-//    @NetworkEvent(description = "TESTING: returns a list of heroes.")
-//    public Response getHeroes(NoInputRequest obj, Player p) {
-//        HeroRepository heroRepo = GameEngine.instance().getHeroRepository();
-//        List<Hero> myHeroes = heroRepo.getPlayerHeroes(p);
-//        Response r = new Response();
-//        r.setKey("heroes", myHeroes);
-//        return r;
-//    }
-//
-//    @NetworkEvent(description = "Allows a player to spectate a match between other players.")
-//    public Response spectate(SpectateMatchRequest obj, Player p) {
-//        Optional<Match> m = Match.fromCacheWithMatchIdentifier(obj.getMatchID());
-//        if (m.isPresent()) {
-//            Match match = m.get();
-//            match.addSpectator(p);
-//            return new Response();
-//        } else {
-//            Response r = new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//            r.setKey("message", "Unable to spectate match with id: " + obj.getMatchID());
-//            return r;
-//        }
-//    }
-//
-//    @NetworkEvent(description = "Allows a spectating player to stop spectating a match")
-//    public Response stopSpectating(NoInputRequest obj, Player p) {
-//        Optional<UUID> matchIdentifier = p.getCurrentMatchID();
-//        if (matchIdentifier.isPresent()) {
-//            Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchIdentifier.get());
-//            if (m.isPresent()) {
-//                if (m.get().isSpectatorOfMatch(p)) {
-//                    m.get().removeSpectator(p);
-//                    return new Response();
-//                } else {
-//                    Response r = new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//                    r.setKey("message", "You are currently not spectating a match right now");
-//                    return r;
-//                }
-//            } else {
-//                return new Response(WebStatusCode.SERVER_ERROR);
-//            }
-//        } else {
-//            Response r = new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//            r.setKey("message", "You are currently not spectating a match right now");
-//            return r;
-//        }
-//    }
-//
-//    @NetworkEvent(description = "Allows a player playing a game to submit a game action")
-//    public Response gameAction(GameActionBaseRequest obj, Player p) {
-//        Optional<UUID> matchID = p.getCurrentMatchID();
-//        if (matchID.isPresent()) {
-//            Optional<GameAction> action = Optional.empty();
-//            switch (obj.getType()) {
-//                case MOVE_ACTION: {
-//                    MoveGameActionData moveData = new MoveGameActionData();
-//                    moveData.fillFromJSON(obj.getOriginalData());
-//                    action = Optional.of(new MoveGameAction(moveData));
-//                    break;
-//                }
+
+    @NetworkEvent(description = "Queues up the player to play as the heroes")
+    public InternalResponseObject<Boolean> queueUpHeroes(QueueRequest obj, Player p) {
+        if (obj.shouldQueueWithPassBot()) {
+            //TODO update this to pick a random map?
+            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(10, 10));
+            if (m.isNormal()) {
+                return new InternalResponseObject<>(true, "queued");
+            } else {
+                return InternalResponseObject.cloneError(m);
+            }
+        } else {
+            return GameEngine.instance().getMatchService().queueAsHeroes(p);
+        }
+    }
+
+    @NetworkEvent(description = "Queues up the player to play as the heroes")
+    public InternalResponseObject<Boolean> queueUpArchitect(QueueRequest obj, Player p) {
+        if (obj.shouldQueueWithPassBot()) {
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(10, 10));
+            if (m.isNormal()) {
+                return new InternalResponseObject<>(true, "queued");
+            } else {
+                //TODO update this so that the correct response is sent when you cannot make a match
+                return InternalResponseObject.cloneError(m);
+            }
+        } else {
+            return GameEngine.instance().getMatchService().queueAsArchitect(p);
+        }
+    }
+
+    @NetworkEvent(description = "Removes the player from any matchmaking queue they are in.")
+    public InternalResponseObject<Boolean> dequeue(NoInputRequest obj, Player p) {
+        return GameEngine.instance().getMatchService().removeFromQueue(p);
+    }
+
+    @NetworkEvent(description = "Returns a list of all the player's current heroes. This is for use in the hero management pages, not in-game.")
+    public InternalResponseObject<List<Hero>> getHeroes(NoInputRequest obj, Player p) {
+        HeroRepository heroRepo = GameEngine.instance().getHeroRepository();
+        return heroRepo.getPlayerHeroes(p);
+    }
+
+    @NetworkEvent(description = "Allows a player to spectate a match between other players.")
+    public InternalResponseObject<String> spectate(SpectateMatchRequest obj, Player p) {
+        InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(obj.getMatchID());
+        if (m.isNormal()) {
+            Match match = m.get();
+            match.addSpectator(p);
+            return new InternalResponseObject<>(match.getMatchIdentifier().toString(), "spectating");
+        } else {
+            return InternalResponseObject.cloneError(m);
+        }
+    }
+
+    @NetworkEvent(description = "Allows a spectating player to stop spectating a match")
+    public InternalResponseObject<String> stopSpectating(NoInputRequest obj, Player p) {
+        Optional<UUID> matchIdentifier = p.getCurrentMatchID();
+        if (matchIdentifier.isPresent()) {
+            InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchIdentifier.get());
+            if (m.isNormal()) {
+                if (m.get().isSpectatorOfMatch(p)) {
+                    m.get().removeSpectator(p);
+                }
+            } else {
+                return InternalResponseObject.cloneError(m);
+            }
+        }
+        return new InternalResponseObject<>("none", "spectating");
+    }
+
+    @NetworkEvent(description = "Allows a player playing a game to submit a game action")
+    public InternalResponseObject<Boolean> gameAction(GameActionBaseRequest obj, Player p) {
+        String validActionStr = "valid";
+        Optional<UUID> matchID = p.getCurrentMatchID();
+        if (matchID.isPresent()) {
+            InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
+            if (!m.isNormal()) {
+                return InternalResponseObject.cloneError(m);
+            }
+            GameAction action;
+            switch (obj.getType()) {
+                case MOVE_ACTION: {
+                    InternalResponseObject<MoveGameActionData> dataResp = MoveGameActionData.fillFromJSON(obj.getOriginalData());
+                    if (!dataResp.isNormal()) {
+                        return InternalResponseObject.cloneError(dataResp);
+                    }
+                    action = new MoveGameAction(dataResp.get());
+                    break;
+                }
 //                case BASIC_ATTACK_ACTION: {
 ////                RequestData action = new MoveGameAction();
 ////                action.fillFromJSON(obj.getOriginalData());
@@ -148,78 +143,55 @@ public class NetworkingInterface {
 //                    break;
 //                }
 //                case PASS_ACTION: {
-//                    return new Response(WebStatusCode.SERVER_ERROR);
+//
 //                }
 //                case ABILITY_ACTION: {
-//                    return new Response(WebStatusCode.SERVER_ERROR);
+//
 //                }
-//            }
-//            if (action.isPresent()) {
-//                Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
-//                if (m.isPresent()) {
-//                    if (m.get().updateGameState(p, action.get())) {
-//                        return new Response();
-//                    }
-//                }
-//            }
-//            return new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//        }
-//        Response r = new Response(WebStatusCode.SERVER_ERROR);
-//        r.setKey("message", "Unable to find match.");
-//        return r;
-//    }
-//
-//    @NetworkEvent(description = "TESTS JSON PARSING", mustAuthenticate = false)
-//    public Response testJson(JSONObject obj) {
-//        System.out.println(obj.toString());
-//        Response r = new Response();
-//        r.setKey("input", obj);
-//        return r;
-//    }
-//
-//    @NetworkEvent(description = "Returns the latest state of a match if you are in one")
-//    public Response matchState(NoInputRequest obj, Player p) {
-//        Optional<UUID> matchID = p.getCurrentMatchID();
-//        if (matchID.isPresent()) {
-//            Optional<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
-//            if (m.isPresent()) {
-//                Response r = new Response();
-//                //JSON Representation Change
-//                r.setKey("game_state", m.get());
-//                return r;
-//            } else {
-//                return new Response(WebStatusCode.SERVER_ERROR);
-//            }
-//        } else {
-//            Response r = new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//            r.setKey("message", "You currently aren't in a match!");
-//            return r;
-//        }
-//    }
-//
-//    @NetworkEvent(description = "Returns your current match id, if there is one.")
-//    public Response currentMatch(NoInputRequest obj, Player p) {
-//        Response r = new Response();
-//        Optional<UUID> matchID = p.getCurrentMatchID();
-//        r.setKey("match_id", matchID.isPresent() ? matchID.get().toString() : "none");
-//        return r;
-//    }
-//
-//    @NetworkEvent(description = "Leaves the current match. Will terminate the match for other players as well, and end the match for all spectators.")
-//    public Response leaveMatch(NoInputRequest obj, Player p) {
-//        Optional<UUID> m = p.getCurrentMatchID();
-//        if (m.isPresent()) {
-//            Optional<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
-//            if (match.isPresent()) {
-//                match.get().end("Player " + p.getUsername() + " left the match.");
-//                return new Response();
-//            } else {
-//                return new Response(WebStatusCode.SERVER_ERROR);
-//            }
-//        } else {
-//            Response r = new Response(WebStatusCode.UNPROCESSABLE_DATA);
-//            r.setKey("message", "You are not currently in a match.");
-//            return r;
-//        }
-//    }
+                default: {
+                    return new InternalResponseObject<>(false, validActionStr);
+                }
+            }
+            return m.get().updateGameState(p, action);
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
+        }
+    }
+
+    @NetworkEvent(description = "Returns the latest state of a match if you are in one")
+    public InternalResponseObject<Match> matchState(NoInputRequest obj, Player p) {
+        Optional<UUID> matchID = p.getCurrentMatchID();
+        if (matchID.isPresent()) {
+            InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
+            return m;
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_IN_MATCH);
+        }
+    }
+
+    @NetworkEvent(description = "Returns your current match id, if there is one.")
+    public InternalResponseObject<String> currentMatch(NoInputRequest obj, Player p) {
+        Optional<UUID> matchIDOpt = p.getCurrentMatchID();
+        String matchID = "none";
+        if(matchIDOpt.isPresent()){
+            matchID = matchIDOpt.get().toString();
+        }
+        return new InternalResponseObject<>(matchID,"match_id");
+    }
+
+    @NetworkEvent(description = "Leaves the current match. Will terminate the match for other players as well, and end the match for all spectators.")
+    public InternalResponseObject<Boolean> leaveMatch(NoInputRequest obj, Player p) {
+        Optional<UUID> m = p.getCurrentMatchID();
+        if (m.isPresent()) {
+            InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
+            if (match.isNormal()) {
+                match.get().end("Player " + p.getUsername() + " left the match.");
+                return new InternalResponseObject<>(true,"left_match");
+            } else {
+                return InternalResponseObject.cloneError(match);
+            }
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_IN_MATCH);
+        }
+    }
 }

@@ -73,7 +73,7 @@ public interface GameMap extends Jsonable {
             for (int i = 0; i < getSizeX(); i++) {
                 for (int j = 0; j < getSizeY(); j++) {
                     //JSONRepresentation Change
-                    tileArray.put(getTile(i,j).get());
+                    tileArray.put(getTile(i,j).get().getJSONRepresentation());
                 }
             }
             mapObj.put("tiles", tileArray);

@@ -2,8 +2,12 @@ package edu.cwru.eecs395_s16.networking.requests.gameactions;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,15 +18,26 @@ import java.util.List;
 /**
  * Created by james on 2/21/16.
  */
-public class MoveGameActionData implements RequestData {
+public class MoveGameActionData {
 
     private String character_id;
     private List<Location> path;
 
-    @Override
-    public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        this.character_id = RequestData.getString(obj,"character_id");
-        this.path = new ArrayList<>();
+    public MoveGameActionData(String character_id, List<Location> path) {
+        this.character_id = character_id;
+        this.path = path;
+    }
+
+    public static InternalResponseObject<MoveGameActionData> fillFromJSON(JSONObject obj) {
+
+        String characterID;
+        try {
+            characterID = obj.getString("character_id");
+        } catch (JSONException e) {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The path is invalid.");
+        }
+
+        List<Location> path = new ArrayList<>();
         try {
             JSONArray pathArr = obj.getJSONArray("path");
             for(int i=0; i<pathArr.length(); i++){
@@ -36,11 +51,12 @@ public class MoveGameActionData implements RequestData {
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
             }
-            throw new InvalidDataException("path");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The path is invalid.");
         }
+
+        return new InternalResponseObject<>(new MoveGameActionData(characterID,path));
     }
 
-    @Override
     public JSONObject convertToJSON() {
         JSONObject repr = new JSONObject();
         try {

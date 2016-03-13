@@ -97,7 +97,7 @@ public class GameObjectCollection implements Jsonable {
         for(UUID key : allObjects.keySet()){
             try {
                 //JSONRepresentation Change
-                repr.put(key.toString(),allObjects.get(key));
+                repr.put(key.toString(),allObjects.get(key).getJSONRepresentation());
             } catch (JSONException e) {
                 //This should never be called - the key is always non-null
             }

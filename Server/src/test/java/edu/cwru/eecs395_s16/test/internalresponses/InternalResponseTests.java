@@ -31,6 +31,11 @@ public class InternalResponseTests {
     @Test
     public void testBasicResponseNoObjectNoMessage(){
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(new JSONObject());
+        assertTrue(obj.isNormal());
+        assertTrue(obj.isPresent());
+        assertEquals(WebStatusCode.OK,obj.getStatus());
+        assertEquals(InternalErrorCode.UNKNOWN,obj.getInternalErrorCode());
+        assertNull(obj.getMessage());
         try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(1,JSONObject.getNames(json).length);
@@ -55,6 +60,11 @@ public class InternalResponseTests {
         }
 
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(jObj);
+        assertTrue(obj.isNormal());
+        assertTrue(obj.isPresent());
+        assertEquals(WebStatusCode.OK,obj.getStatus());
+        assertEquals(InternalErrorCode.UNKNOWN,obj.getInternalErrorCode());
+        assertNull(obj.getMessage());
         try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(1,JSONObject.getNames(json).length);
@@ -79,6 +89,10 @@ public class InternalResponseTests {
         }
         String key = "testkey";
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(jObj,key);
+        assertTrue(obj.isNormal());
+        assertTrue(obj.isPresent());
+        assertNull(obj.getMessage());
+        assertTrue(JSONUtils.isEquivalent(jObj,obj.get()));
         try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);
@@ -99,11 +113,15 @@ public class InternalResponseTests {
     @Test
     public void testBasicErrorResponseNoObject(){
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME);
+        assertFalse(obj.isNormal());
+        assertFalse(obj.isPresent());
+        assertNotNull(obj.getMessage());
+        assertEquals(InternalErrorCode.INVALID_USERNAME.message, obj.getMessage());
         try{
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(500,json.getInt("status"));
+            assertEquals(422,json.getInt("status"));
             assertTrue(json.has("message"));
             assertEquals(InternalErrorCode.INVALID_USERNAME.message,json.getString("message"));
         } catch (JSONException e) {
@@ -116,6 +134,9 @@ public class InternalResponseTests {
     @Test
     public void testComplexErrorResponseNoObject(){
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.INVALID_USERNAME);
+        assertFalse(obj.isNormal());
+        assertFalse(obj.isPresent());
+        assertNotNull(obj.getMessage());
         try{
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);
@@ -134,6 +155,9 @@ public class InternalResponseTests {
     public void testComplexErrorResponseNoObjectCustomMessage(){
         String message = "This is a custom messaage";
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.INVALID_USERNAME,message);
+        assertFalse(obj.isNormal());
+        assertFalse(obj.isPresent());
+        assertNotNull(obj.getMessage());
         try{
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);
@@ -151,6 +175,9 @@ public class InternalResponseTests {
     @Test
     public void testWebStatusOnlyResponse(){
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA);
+        assertFalse(obj.isNormal());
+        assertFalse(obj.isPresent());
+        assertNotNull(obj.getMessage());
         try{
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);
@@ -169,6 +196,9 @@ public class InternalResponseTests {
     public void testInternalErrorCodeAndCustomMessage(){
         String message = "This is a really custom message.";
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME,message);
+        assertFalse(obj.isNormal());
+        assertFalse(obj.isPresent());
+        assertNotNull(obj.getMessage());
         try{
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);

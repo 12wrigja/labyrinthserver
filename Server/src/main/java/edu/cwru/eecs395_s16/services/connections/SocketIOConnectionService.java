@@ -67,7 +67,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
         config.setPort(this.serverPort);
         config.getSocketConfig().setReuseAddress(true);
 
-        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport((Module[]) usedSerializationModules.toArray());
+        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport((Module[]) usedSerializationModules.toArray(new Module[usedSerializationModules.size()]));
         config.setJsonSupport(jacksonJsonSupport);
         gameSocket = new SocketIOServer(config);
 
