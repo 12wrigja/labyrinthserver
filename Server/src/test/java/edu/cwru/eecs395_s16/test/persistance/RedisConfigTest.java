@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.test.persistance;
 
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
-import edu.cwru.eecs395_s16.services.RedisCacheService;
+import edu.cwru.eecs395_s16.services.cache.RedisCacheService;
 import org.junit.Test;
 import redis.clients.jedis.JedisPool;
 

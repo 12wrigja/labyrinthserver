@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.test.persistance;
+package edu.cwru.eecs395_s16.test.services.playerrepo;
 
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;

@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.services;
+package edu.cwru.eecs395_s16.services.sessionrepository;
 
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;

@@ -1,16 +1,13 @@
 package edu.cwru.eecs395_s16.test.persistance;
 
-import edu.cwru.eecs395_s16.auth.exceptions.DuplicateUsernameException;
-import edu.cwru.eecs395_s16.auth.exceptions.MismatchedPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
-import edu.cwru.eecs395_s16.services.InMemoryCacheService;
-import edu.cwru.eecs395_s16.services.InMemoryPlayerRepository;
-import edu.cwru.eecs395_s16.services.InMemorySessionRepository;
+import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
+import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository;
 import org.junit.Test;
 
 import java.util.Optional;

@@ -3,7 +3,10 @@ package edu.cwru.eecs395_s16.test;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.services.*;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+
+import javax.xml.ws.Service;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -15,12 +18,18 @@ public abstract class EngineOnlyTest {
 
     protected static GameEngine engine;
 
-    @BeforeClass
-    public static void setUpGameEngine() throws Exception {
-        System.out.println("Setting up game engine.");
-        engine = new GameEngine(false, new ServiceContainerBuilder().createServiceContainer());
-        engine.start();
-        assertTrue(engine.isStarted());
+    protected ServiceContainer setupServiceContainer(){
+        return new ServiceContainerBuilder().createServiceContainer();
+    }
+
+    @Before
+    public void setUpGameEngine() throws Exception {
+        if(engine == null) {
+            System.out.println("Setting up game engine.");
+            engine = new GameEngine(false, setupServiceContainer());
+            engine.start();
+            assertTrue(engine.isStarted());
+        }
     }
 
     @AfterClass

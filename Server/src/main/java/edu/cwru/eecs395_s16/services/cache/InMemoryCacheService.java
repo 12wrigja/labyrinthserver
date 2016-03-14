@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.services;
+package edu.cwru.eecs395_s16.services.cache;
 
 import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
 

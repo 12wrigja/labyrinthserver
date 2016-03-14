@@ -3,11 +3,12 @@ package edu.cwru.eecs395_s16.ui;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.services.*;
-import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
-import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
-import edu.cwru.eecs395_s16.services.MapRepository.InMemoryMapRepository;
-import edu.cwru.eecs395_s16.services.MapRepository.PostgresMapRepository;
+import edu.cwru.eecs395_s16.services.maprepository.PostgresMapRepository;
+import edu.cwru.eecs395_s16.services.cache.RedisCacheService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
+import edu.cwru.eecs395_s16.services.herorepository.PostgresHeroRepository;
+import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
+import edu.cwru.eecs395_s16.services.sessionrepository.RedisSessionRepository;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;

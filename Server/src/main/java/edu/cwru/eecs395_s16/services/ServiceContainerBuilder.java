@@ -2,12 +2,14 @@ package edu.cwru.eecs395_s16.services;
 
 import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
-import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
-import edu.cwru.eecs395_s16.services.MapRepository.InMemoryMapRepository;
-import edu.cwru.eecs395_s16.services.bots.BotClientService;
+import edu.cwru.eecs395_s16.services.maprepository.InMemoryMapRepository;
 import edu.cwru.eecs395_s16.services.bots.PlayerRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
+import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
+import edu.cwru.eecs395_s16.services.herorepository.InMemoryHeroRepository;
+import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository;
 
 import java.util.Timer;
 

@@ -1,7 +1,7 @@
-package edu.cwru.eecs395_s16.test.persistance;
+package edu.cwru.eecs395_s16.test.services.playerrepo;
 
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.services.PostgresPlayerRepository;
+import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 

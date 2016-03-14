@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.services;
+package edu.cwru.eecs395_s16.services.herorepository;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;

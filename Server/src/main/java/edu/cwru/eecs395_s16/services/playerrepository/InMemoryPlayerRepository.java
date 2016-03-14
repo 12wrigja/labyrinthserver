@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.services;
+package edu.cwru.eecs395_s16.services.playerrepository;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;

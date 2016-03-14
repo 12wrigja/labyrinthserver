@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.services;
+package edu.cwru.eecs395_s16.services.sessionrepository;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
