@@ -85,6 +85,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
         });
         gameSocket.addDisconnectListener(client -> {
             System.out.println("Client disconnected: " + client.getSessionId());
+            GameEngine.instance().getSessionRepository().expirePlayerSession(client.getSessionId());
         });
 
         gameSocket.start();

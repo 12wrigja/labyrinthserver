@@ -49,4 +49,18 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
         }
     }
 
+    @Override
+    public void expirePlayerSession(UUID clientID) {
+        //Directly forward this to the wrapped session repo.
+        //The bot service will take care of expiring the session id automatically.
+        actualRepo.expirePlayerSession(clientID);
+    }
+
+    @Override
+    public void expirePlayerSession(String username) {
+        //Directly forward this to the wrapped session repo.
+        //The bot service will take care of expiring the session id automatically.
+        actualRepo.expirePlayerSession(username);
+    }
+
 }

@@ -15,7 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InMemorySessionRepository implements SessionRepository {
 
+    //Maps session ID's to players
     private Map<UUID, Player> sessionMap = new ConcurrentHashMap<>();
+    //Maps usernames to player sessions
     private Map<String,UUID> connectionMap = new ConcurrentHashMap<>();
 
     @Override
@@ -42,5 +44,24 @@ public class InMemorySessionRepository implements SessionRepository {
     public void storePlayer(UUID token, Player player) {
         sessionMap.put(token, player);
         connectionMap.put(player.getUsername(), token);
+    }
+
+    @Override
+    public void expirePlayerSession(UUID clientID) {
+        if(sessionMap.containsKey(clientID)){
+            Player p = sessionMap.get(clientID);
+            sessionMap.remove(clientID);
+            if(connectionMap.containsKey(p.getUsername())) {
+                connectionMap.remove(p.getUsername());
+            }
+        }
+    }
+
+    @Override
+    public void expirePlayerSession(String username) {
+        if(connectionMap.containsKey(username)){
+            UUID playerID = connectionMap.get(username);
+            expirePlayerSession(playerID);
+        }
     }
 }

@@ -6,6 +6,7 @@ import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.test.NetworkedTest;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -20,6 +21,11 @@ public class AuthorizationTesting extends NetworkedTest {
     private final String TEST_PASSWORD = "PASSWORDTEST";
 
     private final String TEST_BAD_USERNAME = "USERNAME_TEST";
+
+    @Before
+    public void setup(){
+        connectSocketIOClient();
+    }
 
     @Test
     public void testRegistrationWithNoConfirmPassword() throws JSONException {

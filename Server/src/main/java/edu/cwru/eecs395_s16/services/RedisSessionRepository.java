@@ -76,35 +76,30 @@ public class RedisSessionRepository implements SessionRepository {
         }
     }
 
-//    @Override
-//    public void expirePlayerSession(UUID clientID) {
-//        Optional<Player> p = findPlayer(clientID);
-//        if(p.isPresent()) {
-//            Player player = p.get();
-//            try (Jedis j = pool.getResource()) {
-//                j.del(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
-//                j.del(SESSION_KEY_PREFIX + SESSION_CLIENT_ID_PREFIX + clientID.toString());
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void expirePlayerSession(String username) {
-//        Optional<Player> p = Optional.empty();
-//        try {
-//            p = findPlayer(username);
-//        } catch (UnknownUsernameException e) {
-//            //Do nothing.
-//        }
-//        if(p.isPresent()){
-//            Player player = p.get();
-//            try (Jedis j = pool.getResource()){
-//                j.del(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
-//                Optional<GameClient> c = p.get().getClient();
-//                if(c.isPresent()) {
-//                    j.del(SESSION_KEY_PREFIX + SESSION_CLIENT_ID_PREFIX + c.get().getSessionId());
-//                }
-//            }
-//        }
-//    }
+    @Override
+    public void expirePlayerSession(UUID clientID) {
+        InternalResponseObject<Player> p = findPlayer(clientID);
+        if(p.isPresent()) {
+            Player player = p.get();
+            try (Jedis j = pool.getResource()) {
+                j.del(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
+                j.del(SESSION_KEY_PREFIX + SESSION_CLIENT_ID_PREFIX + clientID.toString());
+            }
+        }
+    }
+
+    @Override
+    public void expirePlayerSession(String username) {
+        InternalResponseObject<Player> p = findPlayer(username);
+        if(p.isPresent()){
+            Player player = p.get();
+            try (Jedis j = pool.getResource()){
+                j.del(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
+                Optional<GameClient> c = p.get().getClient();
+                if(c.isPresent()) {
+                    j.del(SESSION_KEY_PREFIX + SESSION_CLIENT_ID_PREFIX + c.get().getSessionId());
+                }
+            }
+        }
+    }
 }

@@ -13,10 +13,12 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.net.BindException;
+import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -28,10 +30,12 @@ import static org.junit.Assert.fail;
  * Created by james on 2/12/16.
  */
 public abstract class NetworkedTest {
-    protected static Socket socket;
+
     protected static GameEngine engine;
     protected static final int MAX_TRY_COUNT = 5;
     protected static final int PORT = 4500;
+
+    protected Socket socket;
 
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
@@ -48,14 +52,31 @@ public abstract class NetworkedTest {
             } catch (BindException e) {
                 System.err.println("Retrying binding. Port not available.");
                 try_count++;
-                if(try_count > MAX_TRY_COUNT){
+                if (try_count > MAX_TRY_COUNT) {
                     fail("Unable to setup game server.");
                 }
                 Thread.sleep(30000);
             }
         }
-        socket = IO.socket("http://localhost:"+PORT);
+    }
+
+    @AfterClass
+    public static void tearDownGameEngine() throws Exception {
+        if(engine != null) {
+            engine.stop();
+        }
+    }
+
+
+    public void connectSocketIOClient(){
+        try {
+            socket = IO.socket("http://localhost:"+PORT);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            fail("Unable to parse UIR.");
+        }
         socket.connect();
+        int try_count = 0;
         while (true) {
             if (socket.connected()) {
                 break;
@@ -64,22 +85,21 @@ public abstract class NetworkedTest {
                 if(try_count > MAX_TRY_COUNT){
                     fail("Client was unable to connect.");
                 }
-                Thread.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    fail("Interrupted while waiting.");
+                }
             }
         }
     }
 
-    @AfterClass
-    public static void tearDownGameEngine() throws Exception {
-        if(socket != null) {
-            System.out.println("Tearing down game engine.");
+    @After
+    public void disconnectClient(){
+        if(socket != null){
             socket.disconnect();
         }
-        if(engine != null) {
-            engine.stop();
-        }
     }
-
 
     public final JSONObject emitEventAndWaitForResult(String event, JSONObject data){
         final JSONObject[] response = {null};

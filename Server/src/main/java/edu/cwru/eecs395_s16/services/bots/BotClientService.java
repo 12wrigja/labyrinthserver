@@ -63,7 +63,7 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public final void unregister(GameBot c) {
-        this.connectedClients.remove(c);
+        this.connectedClients.remove(c.getSessionId());
         c.onDisconnect();
     }
 

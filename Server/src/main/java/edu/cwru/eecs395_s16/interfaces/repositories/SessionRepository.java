@@ -12,4 +12,6 @@ public interface SessionRepository {
     InternalResponseObject<Player> findPlayer(UUID clientID);
     InternalResponseObject<Player> findPlayer(String username);
     void storePlayer(UUID clientID, Player player);
+    void expirePlayerSession(UUID clientID);
+    void expirePlayerSession(String username);
 }
