@@ -68,7 +68,7 @@ public class Player implements DatabaseObject{
         //If the current match is null, it means we haven't looked at it yet.
         //Let's try retrieving it from the cache
         if (currentMatchID == null) {
-            Optional<String> matchID = GameEngine.instance().getCacheService().getString(this.getUsername() + PLAYER_CURRENT_MATCH_KEY);
+            Optional<String> matchID = GameEngine.instance().services.cacheService.getString(this.getUsername() + PLAYER_CURRENT_MATCH_KEY);
             if (matchID.isPresent()) {
                 //Build up the match object from it's unique id
                 currentMatchID = Optional.of(UUID.fromString(matchID.get()));
@@ -86,7 +86,7 @@ public class Player implements DatabaseObject{
 
     public void setCurrentMatch(Optional<UUID> currentMatch) {
         //TODO check and make sure this is threadsafe
-        CacheService cache = GameEngine.instance().getCacheService();
+        CacheService cache = GameEngine.instance().services.cacheService;
         if (currentMatch.isPresent()) {
             cache.storeString(this.getUsername() + PLAYER_CURRENT_MATCH_KEY, currentMatch.get().toString());
         } else {

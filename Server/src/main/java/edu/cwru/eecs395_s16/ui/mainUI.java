@@ -41,12 +41,7 @@ public class mainUI {
             @Override
             public void run() {
                 if (activeEngine == null) {
-                    PlayerRepository playerRepo;
-                    SessionRepository sessionRepo;
-                    MatchmakingService matchmakingService = new BasicMatchmakingService();
-                    CacheService cacheService;
-                    HeroRepository heroRepository;
-                    MapRepository mapRepository;
+                    ServiceContainerBuilder containerBuilder = new ServiceContainerBuilder();
                     String persistText = getOption("persist");
                     boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
@@ -62,19 +57,14 @@ public class mainUI {
                             return;
                         }
                         JedisPool jedisPool = new JedisPool("localhost");
-                        playerRepo = new PostgresPlayerRepository(dbConnection);
-                        sessionRepo = new RedisSessionRepository(jedisPool, playerRepo);
-                        cacheService = new RedisCacheService(jedisPool);
-                        heroRepository = new PostgresHeroRepository(dbConnection);
-                        mapRepository = new PostgresMapRepository(dbConnection);
-                    } else {
-                        playerRepo = new InMemoryPlayerRepository();
-                        sessionRepo = new InMemorySessionRepository();
-                        cacheService = new InMemoryCacheService();
-                        heroRepository = new InMemoryHeroRepository();
-                        mapRepository = new InMemoryMapRepository();
+                        PlayerRepository playerRepo = new PostgresPlayerRepository(dbConnection);
+                        containerBuilder.setPlayerRepository(playerRepo);
+                        containerBuilder.setSessionRepository(new RedisSessionRepository(jedisPool, playerRepo));
+                        containerBuilder.setCacheService(new RedisCacheService(jedisPool));
+                        containerBuilder.setHeroRepository(new PostgresHeroRepository(dbConnection));
+                        containerBuilder.setMapRepository(new PostgresMapRepository(dbConnection));
                     }
-                    GameEngine engine = new GameEngine(enableTrace, playerRepo, sessionRepo, heroRepository, matchmakingService, cacheService, mapRepository);
+                    GameEngine engine = new GameEngine(enableTrace, containerBuilder.createServiceContainer());
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {

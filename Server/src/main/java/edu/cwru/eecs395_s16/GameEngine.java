@@ -10,6 +10,8 @@ import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.ServiceContainer;
+import edu.cwru.eecs395_s16.services.ServiceContainerBuilder;
 import edu.cwru.eecs395_s16.services.bots.BotClientService;
 import edu.cwru.eecs395_s16.services.bots.PlayerRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
@@ -38,56 +40,14 @@ public class GameEngine {
 
     public final boolean IS_DEBUG_MODE;
 
-    private final PlayerRepository playerRepository;
-    private final SessionRepository sessionRepository;
-    private final MatchmakingService matchService;
-    private final CacheService cacheService;
-    private final HeroRepository heroRepository;
-    private final NetworkingInterface networkingInterface;
-    private final MapRepository mapRepository;
-    private BotClientService botService;
-    private Timer gameTimer;
-
-    public PlayerRepository getPlayerRepository() {
-        return playerRepository;
-    }
-
-    public SessionRepository getSessionRepository() {
-        return sessionRepository;
-    }
-
-    public MatchmakingService getMatchService() {
-        return matchService;
-    }
+    public final NetworkingInterface networkingInterface;
+    public final ServiceContainer services;
+    public final BotClientService botService;
 
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
         for (ClientConnectionService service : clientConnectionServices) {
             service.broadcastEventForRoom(roomName, eventName, data);
         }
-    }
-
-    public HeroRepository getHeroRepository() {
-        return this.heroRepository;
-    }
-
-    public CacheService getCacheService() {
-        return this.cacheService;
-    }
-
-    public Timer getGameTimer() {
-        return gameTimer;
-    }
-
-    public NetworkingInterface getNetworkingInterface() {
-        return networkingInterface;
-    }
-
-    public BotClientService getBotService() {
-        return botService;
-    }
-
-    public MapRepository getMapRepository() {
-        return mapRepository;
     }
 
     public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID){
@@ -100,28 +60,22 @@ public class GameEngine {
         return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
     }
 
-    public GameEngine(PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache, MapRepository mapRepository) {
-        this(false, pRepo, sRepo, heroRepository, matchService, cache, mapRepository);
+    public GameEngine(ServiceContainer container) {
+        this(false, container);
     }
 
     private List<ClientConnectionService> clientConnectionServices;
 
-    public GameEngine(boolean debugMode, PlayerRepository pRepo, SessionRepository sRepo, HeroRepository heroRepository, MatchmakingService matchService, CacheService cache, MapRepository mapRepository) {
-        this.mapRepository = mapRepository;
+    public GameEngine(boolean debugMode, ServiceContainer serviceContainer) {
         this.instanceID = UUID.randomUUID();
+        this.services = serviceContainer;
         this.IS_DEBUG_MODE = debugMode;
         threadLocalGameEngine.set(this);
-        this.playerRepository = new PlayerRepositoryBotWrapper(pRepo);
-        this.sessionRepository = new SessionRepositoryBotWrapper(sRepo);
-        this.matchService = matchService;
-        this.cacheService = cache;
-        this.heroRepository = heroRepository;
         this.networkingInterface = new NetworkingInterface();
         this.clientConnectionServices = new ArrayList<>();
         this.botService = new BotClientService();
-        clientConnectionServices.add(this.botService);
+        clientConnectionServices.add(botService);
         System.out.println("GameEngine created with ID: " + instanceID.toString());
-        gameTimer = new Timer();
     }
 
     public void addClientService(ClientConnectionService service) {
@@ -137,13 +91,13 @@ public class GameEngine {
                 String functionSocketEventName = convertMethodNameToEventName(m.getName());
                 System.out.println("Registering a game event method '" + functionSocketEventName + "'");
                 NetworkEvent at = m.getAnnotation(NetworkEvent.class);
-                AuthenticationMiddleware md = new AuthenticationMiddleware(this.networkingInterface, this.sessionRepository, m, at.mustAuthenticate());
+                AuthenticationMiddleware md = new AuthenticationMiddleware(this.networkingInterface, this.services.sessionRepository, m, at.mustAuthenticate());
                 FunctionDescription d = new FunctionDescription(functionSocketEventName, m.getName(), at.description(), new String[]{}, at.mustAuthenticate(), md);
                 functionDescriptions.put(d.humanName, d);
             }
         }
         botService.start();
-        matchService.start();
+        services.matchService.start();
         for (ClientConnectionService service : clientConnectionServices) {
             service.linkToGameEngine(this);
             service.start();
@@ -159,7 +113,7 @@ public class GameEngine {
 
         System.out.println("Game Engine is now running.");
         this.isStarted = true;
-        gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
+        services.gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
     }
 
     private String convertMethodNameToEventName(String methodName) {
@@ -193,10 +147,10 @@ public class GameEngine {
         if (this.isStarted) {
             System.out.println("Shutting down game engine");
             clientConnectionServices.forEach(ClientConnectionService::stop);
-            matchService.stop();
+            services.matchService.stop();
         }
-        gameTimer.cancel();
-        this.cacheService.stop();
+        services.gameTimer.cancel();
+        services.cacheService.stop();
         System.out.println("Shut down complete.");
     }
 

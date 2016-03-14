@@ -20,12 +20,12 @@ public abstract class GameBot extends Player implements GameClient {
         super(-1, botTypeName+"_"+botID.toString(), "");
         this.botID = botID;
         setClient(Optional.of(this));
-        GameEngine.instance().getBotService().register(this);
+        GameEngine.instance().botService.register(this);
     }
 
     @Override
     public final Response sendEvent(String event, JSONObject data) {
-        return GameEngine.instance().getBotService().submitEventForClient(this,event,data);
+        return GameEngine.instance().botService.submitEventForClient(this,event,data);
     }
 
     @Override
@@ -38,18 +38,18 @@ public abstract class GameBot extends Player implements GameClient {
 
     @Override
     public final void joinRoom(String roomName) {
-        GameEngine.instance().getBotService().addClientToRoom(roomName,this);
+        GameEngine.instance().botService.addClientToRoom(roomName,this);
     }
 
     @Override
     public void leaveRoom(String roomName) {
-        GameEngine.instance().getBotService().removeClientFromRoom(roomName,this);
+        GameEngine.instance().botService.removeClientFromRoom(roomName,this);
     }
 
     public abstract void onConnect();
 
     public final void disconnect(){
-        GameEngine.instance().getBotService().unregister(this);
+        GameEngine.instance().botService.unregister(this);
     }
 
     public abstract void onDisconnect();

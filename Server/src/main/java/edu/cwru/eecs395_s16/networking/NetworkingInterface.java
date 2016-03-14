@@ -30,16 +30,16 @@ public class NetworkingInterface {
 
     @NetworkEvent(mustAuthenticate = false, description = "Used to log a player in. This must be called once to allow the user to the call all methods that are marked as needing authentication.")
     public InternalResponseObject<Player> login(LoginUserRequest data, GameClient client) {
-        InternalResponseObject<Player> p = GameEngine.instance().getPlayerRepository().loginPlayer(data.getUsername(), data.getPassword());
+        InternalResponseObject<Player> p = GameEngine.instance().services.playerRepository.loginPlayer(data.getUsername(), data.getPassword());
         if (p.isPresent()) {
-            GameEngine.instance().getSessionRepository().storePlayer(client.getSessionId(), p.get());
+            GameEngine.instance().services.sessionRepository.storePlayer(client.getSessionId(), p.get());
         }
         return p;
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "Registers a user if the username does not already exist and the given passwords match.")
     public InternalResponseObject<Player> register(RegisterUserRequest data) {
-        return GameEngine.instance().getPlayerRepository().registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
+        return GameEngine.instance().services.playerRepository.registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
@@ -59,7 +59,7 @@ public class NetworkingInterface {
                 return InternalResponseObject.cloneError(m);
             }
         } else {
-            return GameEngine.instance().getMatchService().queueAsHeroes(p);
+            return GameEngine.instance().services.matchService.queueAsHeroes(p);
         }
     }
 
@@ -74,18 +74,18 @@ public class NetworkingInterface {
                 return InternalResponseObject.cloneError(m);
             }
         } else {
-            return GameEngine.instance().getMatchService().queueAsArchitect(p);
+            return GameEngine.instance().services.matchService.queueAsArchitect(p);
         }
     }
 
     @NetworkEvent(description = "Removes the player from any matchmaking queue they are in.")
     public InternalResponseObject<Boolean> dequeue(NoInputRequest obj, Player p) {
-        return GameEngine.instance().getMatchService().removeFromQueue(p);
+        return GameEngine.instance().services.matchService.removeFromQueue(p);
     }
 
     @NetworkEvent(description = "Returns a list of all the player's current heroes. This is for use in the hero management pages, not in-game.")
     public InternalResponseObject<List<Hero>> getHeroes(NoInputRequest obj, Player p) {
-        HeroRepository heroRepo = GameEngine.instance().getHeroRepository();
+        HeroRepository heroRepo = GameEngine.instance().services.heroRepository;
         return heroRepo.getPlayerHeroes(p);
     }
 

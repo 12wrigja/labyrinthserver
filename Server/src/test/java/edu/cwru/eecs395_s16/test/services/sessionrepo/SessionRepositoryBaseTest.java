@@ -28,7 +28,7 @@ public abstract class SessionRepositoryBaseTest extends NetworkedTest {
 
     @BeforeClass
     public static void registerPlayer(){
-        InternalResponseObject<Player> p = GameEngine.instance().getPlayerRepository().registerPlayer(TEST_USERNAME, TEST_PASSWORD, TEST_PASSWORD);
+        InternalResponseObject<Player> p = GameEngine.instance().services.playerRepository.registerPlayer(TEST_USERNAME, TEST_PASSWORD, TEST_PASSWORD);
         assertTrue(p.isNormal());
         registeredPlayer = p.get();
     }
@@ -36,7 +36,7 @@ public abstract class SessionRepositoryBaseTest extends NetworkedTest {
     @AfterClass
     public static void cleanupPlayer(){
         if(registeredPlayer != null) {
-            boolean resp = GameEngine.instance().getPlayerRepository().deletePlayer(registeredPlayer);
+            boolean resp = GameEngine.instance().services.playerRepository.deletePlayer(registeredPlayer);
             if (!resp) {
                 fail("Unable to clean up player.");
             }

@@ -23,7 +23,7 @@ public class AlmostBlankMap implements GameMap {
     private List<Location> heroSpawnLocations;
 
     public AlmostBlankMap(int x, int y) {
-        this(x,y,GameEngine.instance().getMapRepository().getTileTypeMap());
+        this(x,y,GameEngine.instance().services.mapRepository.getTileTypeMap());
     }
 
     public AlmostBlankMap(int x, int y, Map<String,MapRepository.TileType> tileMap){

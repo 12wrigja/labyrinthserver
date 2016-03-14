@@ -23,7 +23,7 @@ public class PlayerRepositoryBotWrapper implements PlayerRepository {
 
     @Override
     public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
-        Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
+        Optional<GameBot> bot = GameEngine.instance().botService.botForUsername(username);
         if(bot.isPresent()){
             return new InternalResponseObject<Player>(InternalErrorCode.RESTRICTED_USERNAME);
         } else {
@@ -33,7 +33,7 @@ public class PlayerRepositoryBotWrapper implements PlayerRepository {
 
     @Override
     public InternalResponseObject<Player> loginPlayer(String username, String password) {
-        Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
+        Optional<GameBot> bot = GameEngine.instance().botService.botForUsername(username);
         if(bot.isPresent()){
             return new InternalResponseObject<Player>(InternalErrorCode.RESTRICTED_USERNAME);
         } else {
@@ -43,7 +43,7 @@ public class PlayerRepositoryBotWrapper implements PlayerRepository {
 
     @Override
     public InternalResponseObject<Player> findPlayer(String username) {
-        Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
+        Optional<GameBot> bot = GameEngine.instance().botService.botForUsername(username);
         if(bot.isPresent()){
             return new InternalResponseObject<>(bot.get());
         } else {

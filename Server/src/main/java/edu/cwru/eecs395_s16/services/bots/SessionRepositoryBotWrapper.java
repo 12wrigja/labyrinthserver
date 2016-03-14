@@ -23,7 +23,7 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
 
     @Override
     public InternalResponseObject<Player> findPlayer(UUID clientID) {
-        Optional<GameBot> bot = GameEngine.instance().getBotService().botForSessionID(clientID);
+        Optional<GameBot> bot = GameEngine.instance().botService.botForSessionID(clientID);
         if(bot.isPresent()){
             return new InternalResponseObject<>(bot.get(),"bot");
         } else {
@@ -33,7 +33,7 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
 
     @Override
     public InternalResponseObject<Player> findPlayer(String username) {
-        Optional<GameBot> bot = GameEngine.instance().getBotService().botForUsername(username);
+        Optional<GameBot> bot = GameEngine.instance().botService.botForUsername(username);
         if(bot.isPresent()){
             return new InternalResponseObject<>(bot.get(),"bot");
         } else {
@@ -43,7 +43,7 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
 
     @Override
     public void storePlayer(UUID clientID, Player player) {
-        Optional<GameBot> bot = GameEngine.instance().getBotService().botForSessionID(clientID);
+        Optional<GameBot> bot = GameEngine.instance().botService.botForSessionID(clientID);
         if(!bot.isPresent()){
             actualRepo.storePlayer(clientID,player);
         }

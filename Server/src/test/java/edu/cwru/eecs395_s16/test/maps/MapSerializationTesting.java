@@ -32,7 +32,7 @@ public class MapSerializationTesting extends SerializationTest {
     public void testSizeSerialization() throws JSONException, JsonProcessingException {
         NewMapRequest request = new NewMapRequest(MAP_X,MAP_Y);
         //Start request
-        InternalResponseObject<GameMap> obj = engine.getNetworkingInterface().map(request);
+        InternalResponseObject<GameMap> obj = engine.networkingInterface.map(request);
         //Validate the response's values
         assertTrue(obj.isNormal());
         assertTrue(obj.isPresent());
@@ -52,7 +52,7 @@ public class MapSerializationTesting extends SerializationTest {
     @Test
     public void testTileSpecification() throws JSONException, JsonProcessingException {
         NewMapRequest request = new NewMapRequest(MAP_X, MAP_Y);
-        InternalResponseObject<GameMap> response = engine.getNetworkingInterface().map(request);
+        InternalResponseObject<GameMap> response = engine.networkingInterface.map(request);
         JSONObject serialized = new JSONObject(objMapper.writeValueAsString(response));
         assertTrue(serialized.has("map"));
         JSONObject map = serialized.getJSONObject("map");

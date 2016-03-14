@@ -131,7 +131,7 @@ public class AuthorizationTesting extends NetworkedTest {
 
     private void cleanupPlayer() {
         Player p = new Player(-1, TEST_USERNAME, TEST_PASSWORD);
-        if (!engine.getPlayerRepository().deletePlayer(p)) {
+        if (!engine.services.playerRepository.deletePlayer(p)) {
             fail("Unable to delete player from repo");
         }
     }

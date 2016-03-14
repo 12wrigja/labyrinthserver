@@ -34,7 +34,7 @@ public class FromJSONGameMap implements GameMap {
         for (int i = 0; i < tiles.length(); i++) {
             JSONObject tile = tiles.getJSONObject(i);
             String terrain = tile.getString("terrain");
-            MapRepository.TileType tileType = GameEngine.instance().getMapRepository().getTileTypeMap().get(terrain);
+            MapRepository.TileType tileType = GameEngine.instance().services.mapRepository.getTileTypeMap().get(terrain);
             int tileX = tile.getInt("x");
             int tileY = tile.getInt("y");
             int rotation = tile.getInt("rotation");

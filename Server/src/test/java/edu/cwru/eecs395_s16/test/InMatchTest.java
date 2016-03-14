@@ -56,13 +56,13 @@ public abstract class InMatchTest extends EngineOnlyTest {
         GameMap gameMap = new AlmostBlankMap(10, 10);
         Hero h = new HeroBuilder().setOwnerID(Optional.of(heroBot.getUsername())).createHero();
         Hero h1 = new HeroBuilder().setOwnerID(Optional.of(heroBot.getUsername())).createHero();
-        HeroRepository heroRepo = engine.getHeroRepository();
+        HeroRepository heroRepo = engine.services.heroRepository;
         heroRepo.saveHeroForPlayer(heroBot, h);
         heroRepo.saveHeroForPlayer(architectBot, h1);
 
         InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, gameMap);
         if (matchOpt.isNormal()) {
-            game = engine.getNetworkingInterface();
+            game = engine.networkingInterface;
             updateMatchState();
         } else {
             fail("Unable to setup a match. ERROR: " + matchOpt.getInternalErrorCode().message);

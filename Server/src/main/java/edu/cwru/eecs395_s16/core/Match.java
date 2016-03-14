@@ -78,7 +78,7 @@ public class Match implements Jsonable {
 
     public static InternalResponseObject<Match> fromCacheWithMatchIdentifier(UUID id) {
         //This method is used to retrieve the match from a cache
-        CacheService cache = GameEngine.instance().getCacheService();
+        CacheService cache = GameEngine.instance().services.cacheService;
         Optional<String> temp = cache.getString(id.toString() + CURRENT_SEQUENCE_CACHE_KEY);
         Optional<String> base = cache.getString(id.toString() + GAME_SEQUENCE_KEY + INITIAL_SEQUENCE_NUMBER);
         if (temp.isPresent() && base.isPresent()) {
@@ -96,11 +96,11 @@ public class Match implements Jsonable {
 
                 //Retrieve players
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
-                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().getSessionRepository().findPlayer(players.getString(HERO_PLAYER_KEY));
+                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
                 if(!heroRetrievalResponse.isNormal()){
                     return InternalResponseObject.cloneError(heroRetrievalResponse,"Unable to find the hero player for the match.");
                 }
-                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().getSessionRepository().findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
+                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
                 if(!architectRetrievalResponse.isNormal()){
                     return InternalResponseObject.cloneError(architectRetrievalResponse, "Unable to find the architect player for the match");
                 }
@@ -160,7 +160,7 @@ public class Match implements Jsonable {
 
     private InternalResponseObject<Match> startInitialGameTasks() {
         //Schedule the ping task once every second and have the players join the room for the match
-        GameEngine.instance().getGameTimer().scheduleAtFixedRate(pingTask, 0, 1000);
+        GameEngine.instance().services.gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
         this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
         this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
 
@@ -173,7 +173,7 @@ public class Match implements Jsonable {
         this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
         //Retrieve heroes for the hero player and place them randomly in the spawn positions
-        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.heroPlayer);
+        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
         if(!heroHeroResponse.isNormal()){
             return InternalResponseObject.cloneError(heroHeroResponse);
         }
@@ -192,7 +192,7 @@ public class Match implements Jsonable {
 
         //Add all the architect's monsters and traps to the board
         //TODO update to add all the architect's monsters and traps to the board instead of their heroes
-        InternalResponseObject<List<Hero>> architectHeroResponse = GameEngine.instance().getHeroRepository().getPlayerHeroes(this.architectPlayer);
+        InternalResponseObject<List<Hero>> architectHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.architectPlayer);
         if(!architectHeroResponse.isNormal()){
             return InternalResponseObject.cloneError(architectHeroResponse);
         }
@@ -254,11 +254,11 @@ public class Match implements Jsonable {
     }
 
     private void setCurrentSequence(int sequence) {
-        GameEngine.instance().getCacheService().storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
     }
 
     private void storeSnapshotForSequence(int sequenceNumber, JSONObject snapshot) {
-        GameEngine.instance().getCacheService().storeString(this.matchIdentifier + GAME_SEQUENCE_KEY + sequenceNumber, snapshot.toString());
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier + GAME_SEQUENCE_KEY + sequenceNumber, snapshot.toString());
     }
 
     private boolean isPlayerTurn(Player p) {
