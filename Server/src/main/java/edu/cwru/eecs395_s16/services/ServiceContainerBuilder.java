@@ -14,18 +14,13 @@ import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository
 import java.util.Timer;
 
 public class ServiceContainerBuilder {
-    private Timer gameTimer = new Timer();
+
     private MapRepository mapRepository = new InMemoryMapRepository();
     private HeroRepository heroRepository = new InMemoryHeroRepository();
     private CacheService cacheService = new InMemoryCacheService();
     private MatchmakingService matchService = new BasicMatchmakingService();
     private SessionRepository sessionRepository = new SessionRepositoryBotWrapper(new InMemorySessionRepository());
     private PlayerRepository playerRepository = new PlayerRepositoryBotWrapper(new InMemoryPlayerRepository());
-
-    public ServiceContainerBuilder setGameTimer(Timer gameTimer) {
-        this.gameTimer = gameTimer;
-        return this;
-    }
 
     public ServiceContainerBuilder setMapRepository(MapRepository mapRepository) {
         this.mapRepository = mapRepository;
@@ -58,6 +53,6 @@ public class ServiceContainerBuilder {
     }
 
     public ServiceContainer createServiceContainer() {
-        return new ServiceContainer(gameTimer, mapRepository, heroRepository, cacheService, matchService, sessionRepository, playerRepository);
+        return new ServiceContainer(mapRepository, heroRepository, cacheService, matchService, sessionRepository, playerRepository);
     }
 }

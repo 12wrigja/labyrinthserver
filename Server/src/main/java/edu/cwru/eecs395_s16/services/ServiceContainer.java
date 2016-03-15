@@ -16,10 +16,8 @@ public class ServiceContainer {
     public final CacheService cacheService;
     public final HeroRepository heroRepository;
     public final MapRepository mapRepository;
-    public final Timer gameTimer;
 
-    public ServiceContainer(Timer gameTimer, MapRepository mapRepository, HeroRepository heroRepository, CacheService cacheService, MatchmakingService matchService, SessionRepository sessionRepository, PlayerRepository playerRepository) {
-        this.gameTimer = gameTimer;
+    public ServiceContainer(MapRepository mapRepository, HeroRepository heroRepository, CacheService cacheService, MatchmakingService matchService, SessionRepository sessionRepository, PlayerRepository playerRepository) {
         this.mapRepository = mapRepository;
         this.heroRepository = heroRepository;
         this.cacheService = cacheService;

@@ -1,7 +1,6 @@
 package edu.cwru.eecs395_s16.test.persistance;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.bots.GameBot;
 import edu.cwru.eecs395_s16.bots.PassBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
@@ -9,8 +8,6 @@ import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

@@ -151,7 +151,11 @@ public class Match implements Jsonable {
         pingTask = new TimerTask() {
             @Override
             public void run() {
-                GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
+                try {
+                    GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         };
 
@@ -160,9 +164,9 @@ public class Match implements Jsonable {
 
     private InternalResponseObject<Match> startInitialGameTasks() {
         //Schedule the ping task once every second and have the players join the room for the match
-        GameEngine.instance().services.gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
         this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
         this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        GameEngine.instance().gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
 
         //Set the player's current match identifiers
         this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));

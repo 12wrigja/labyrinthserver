@@ -1,24 +1,16 @@
 package edu.cwru.eecs395_s16.test.maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
-import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
-import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
-import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
-import edu.cwru.eecs395_s16.test.EngineOnlyTest;
-import edu.cwru.eecs395_s16.test.NetworkedTest;
 import edu.cwru.eecs395_s16.test.SerializationTest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by james on 2/12/16.

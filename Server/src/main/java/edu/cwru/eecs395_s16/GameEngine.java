@@ -32,7 +32,7 @@ public class GameEngine {
 
     private UUID instanceID;
 
-    private static InheritableThreadLocal<GameEngine> threadLocalGameEngine = new InheritableThreadLocal<>();
+    public static final InheritableThreadLocal<GameEngine> threadLocalGameEngine = new InheritableThreadLocal<>();
 
     public static GameEngine instance() {
         return threadLocalGameEngine.get();
@@ -42,6 +42,7 @@ public class GameEngine {
 
     public final NetworkingInterface networkingInterface;
     public final ServiceContainer services;
+    public final Timer gameTimer;
     public final BotClientService botService;
 
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
@@ -50,10 +51,10 @@ public class GameEngine {
         }
     }
 
-    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID){
-        for(ClientConnectionService service : clientConnectionServices){
+    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
+        for (ClientConnectionService service : clientConnectionServices) {
             InternalResponseObject<GameClient> resp = service.findClientFromUUID(clientID);
-            if(resp.isNormal() && resp.isPresent()){
+            if (resp.isNormal() && resp.isPresent()) {
                 return resp;
             }
         }
@@ -68,9 +69,10 @@ public class GameEngine {
 
     public GameEngine(boolean debugMode, ServiceContainer serviceContainer) {
         this.instanceID = UUID.randomUUID();
+        threadLocalGameEngine.set(this);
         this.services = serviceContainer;
         this.IS_DEBUG_MODE = debugMode;
-        threadLocalGameEngine.set(this);
+        this.gameTimer = new Timer();
         this.networkingInterface = new NetworkingInterface();
         this.clientConnectionServices = new ArrayList<>();
         this.botService = new BotClientService();
@@ -105,15 +107,19 @@ public class GameEngine {
         TimerTask pingTask = new TimerTask() {
             @Override
             public void run() {
-                if (isStarted) {
-                    broadcastEventForRoom("TestRoom", "room_ping", "Ping at time: " + System.currentTimeMillis());
+                try {
+                    if (isStarted) {
+                        broadcastEventForRoom("TestRoom", "room_ping", "Ping at time: " + System.currentTimeMillis());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         };
 
         System.out.println("Game Engine is now running.");
         this.isStarted = true;
-        services.gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
+        this.gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
     }
 
     private String convertMethodNameToEventName(String methodName) {
@@ -149,7 +155,7 @@ public class GameEngine {
             clientConnectionServices.forEach(ClientConnectionService::stop);
             services.matchService.stop();
         }
-        services.gameTimer.cancel();
+        this.gameTimer.cancel();
         services.cacheService.stop();
         System.out.println("Shut down complete.");
     }
