@@ -8,6 +8,7 @@ import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
+import edu.cwru.eecs395_s16.core.actions.PassGameAction;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
@@ -16,6 +17,7 @@ import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
@@ -45,7 +47,7 @@ public class NetworkingInterface {
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
     public InternalResponseObject<GameMap> map(NewMapRequest obj) {
         GameMap m = new AlmostBlankMap(obj.getX(), obj.getY());
-        return new InternalResponseObject<>(m,"map");
+        return new InternalResponseObject<>(m, "map");
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
@@ -142,9 +144,14 @@ public class NetworkingInterface {
 ////                actualAction = Optional.of(action);
 //                    break;
 //                }
-//                case PASS_ACTION: {
-//
-//                }
+                case PASS_ACTION: {
+                    InternalResponseObject<PassGameActionData> dataResp = PassGameActionData.fillFromJSON(obj.getOriginalData());
+                    if (!dataResp.isNormal()) {
+                        return InternalResponseObject.cloneError(dataResp);
+                    }
+                    action = new PassGameAction(dataResp.get());
+                    break;
+                }
 //                case ABILITY_ACTION: {
 //
 //                }
@@ -165,7 +172,7 @@ public class NetworkingInterface {
             InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
             return m;
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_IN_MATCH);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
         }
     }
 
@@ -173,10 +180,10 @@ public class NetworkingInterface {
     public InternalResponseObject<String> currentMatch(NoInputRequest obj, Player p) {
         Optional<UUID> matchIDOpt = p.getCurrentMatchID();
         String matchID = "none";
-        if(matchIDOpt.isPresent()){
+        if (matchIDOpt.isPresent()) {
             matchID = matchIDOpt.get().toString();
         }
-        return new InternalResponseObject<>(matchID,"match_id");
+        return new InternalResponseObject<>(matchID, "match_id");
     }
 
     @NetworkEvent(description = "Leaves the current match. Will terminate the match for other players as well, and end the match for all spectators.")
@@ -186,12 +193,12 @@ public class NetworkingInterface {
             InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
             if (match.isNormal()) {
                 match.get().end("Player " + p.getUsername() + " left the match.");
-                return new InternalResponseObject<>(true,"left_match");
+                return new InternalResponseObject<>(true, "left_match");
             } else {
                 return InternalResponseObject.cloneError(match);
             }
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_IN_MATCH);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
         }
     }
 }

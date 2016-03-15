@@ -16,6 +16,7 @@ import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.requests.GameActionBaseRequest;
 import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
@@ -116,4 +117,25 @@ public abstract class InMatchTest extends SerializationTest {
         return response;
     }
 
+    public InternalResponseObject<Boolean> passCharacter(Player p, Hero character, boolean failTestOnFailure) {
+        PassGameActionData actionData = new PassGameActionData(character.getGameObjectID());
+        GameActionBaseRequest req = new GameActionBaseRequest();
+        try {
+            String json = objMapper.writeValueAsString(actionData.convertToJSON());
+            req.fillFromJSON(new JSONObject(json));
+        } catch (Exception e) {
+            fail("Unable to create input data. Error: " + e.getMessage());
+        }
+        InternalResponseObject<Boolean> response = game.gameAction(req, p);
+        if (failTestOnFailure && !response.isNormal()) {
+            fail("Incorrect response while moving. ERROR:" + response.getMessage());
+        }
+        updateMatchState();
+        Hero myHero = (Hero) currentMatchState.getBoardObjects().get(character.getGameObjectID());
+        int newAP = myHero.getActionPoints();
+        if (failTestOnFailure) {
+            assertEquals(0, newAP);
+        }
+        return response;
+    }
 }

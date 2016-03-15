@@ -112,6 +112,11 @@ public class Hero implements Character, DatabaseObject {
     }
 
     @Override
+    public void drainActionPoints() {
+        this.actionPoints = 0;
+    }
+
+    @Override
     public void useActionPoint() {
         this.actionPoints--;
     }

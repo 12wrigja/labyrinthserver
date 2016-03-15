@@ -30,6 +30,7 @@ public interface Creature extends GameObject {
 
     String ACTION_POINTS_KEY = "action_points";
     int getActionPoints();
+    void drainActionPoints();
     void useActionPoint();
     void resetActionPoints();
 
