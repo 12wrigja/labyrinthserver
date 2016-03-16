@@ -19,14 +19,4 @@ public class TestBot extends GameBot {
     public void receiveEvent(String event, Object data) {
 
     }
-
-    @Override
-    public void onConnect() {
-
-    }
-
-    @Override
-    public void onDisconnect() {
-
-    }
 }

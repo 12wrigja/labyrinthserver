@@ -30,6 +30,7 @@ public abstract class GameBot extends Player implements GameClient {
         GameEngine.instance().botService.register(this);
         heroes = new ArrayList<>();
         architectObjects = new ArrayList<>();
+        populate();
     }
 
     @Override
@@ -55,19 +56,38 @@ public abstract class GameBot extends Player implements GameClient {
         GameEngine.instance().botService.removeClientFromRoom(roomName,this);
     }
 
-    public abstract void onConnect();
+    public void onConnect(){};
 
     public final void disconnect(){
         GameEngine.instance().botService.unregister(this);
     }
 
-    public abstract void onDisconnect();
+    public void onDisconnect(){};
 
     public final List<Hero> getBotsHeroes(){
         return heroes;
     }
 
+    public final void replaceBotHeroes(List<Hero> heroes){
+        if(!getCurrentMatchID().isPresent()) {
+            this.heroes.clear();
+            this.heroes.addAll(heroes);
+        }
+    }
+
     public final List<GameObject> getArchitectObjects(){
         return architectObjects;
     }
+
+    public final void replaceArchitectObjects(List<GameObject> architectObjects){
+        if(!getCurrentMatchID().isPresent()){
+            this.architectObjects.clear();
+            this.architectObjects.addAll(architectObjects);
+        }
+    }
+
+    protected void populate() {
+        heroes.add(new HeroBuilder().setOwnerID(Optional.of(getUsername())).createHero());
+        architectObjects.add(new HeroBuilder().setOwnerID(Optional.of(getUsername())).createHero());
+    };
 }

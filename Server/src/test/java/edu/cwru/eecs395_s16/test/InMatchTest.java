@@ -77,19 +77,10 @@ public abstract class InMatchTest extends SerializationTest {
 
     public void setupMatch() throws Exception {
         heroBot = new TestBot();
+        heroBot.replaceBotHeroes(getHeroesForHero(heroBot));
         architectBot = new TestBot();
+        architectBot.replaceArchitectObjects(getObjectsForArchitect(architectBot));
         GameMap gameMap = new AlmostBlankMap(10, 10);
-
-        HeroRepository heroRepo = engine.services.heroRepository;
-        getHeroesForHero(heroBot).forEach(hero -> heroRepo.saveHeroForPlayer(heroBot,hero));
-        for(GameObject obj : getObjectsForArchitect(architectBot)){
-            if(obj instanceof Hero){
-                heroRepo.saveHeroForPlayer(architectBot,(Hero)obj);
-            } else if (obj instanceof Creature){
-                //These are generic creatures, like monsters. Do something here probably.
-                //TODO "persist" monsters and stuff in tests
-            }
-        }
 
         InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, gameMap);
         if (matchOpt.isNormal()) {

@@ -23,7 +23,7 @@ public class PassBot extends GameBot {
 
     public PassBot() {
         super(BOT_NAME,UUID.randomUUID());
-        heroes.add(new HeroBuilder().setOwnerID(Optional.of(getUsername())).createHero());
+
     }
 
     @Override
@@ -41,16 +41,6 @@ public class PassBot extends GameBot {
                 });
             }
         }
-    }
-
-    @Override
-    public void onConnect() {
-
-    }
-
-    @Override
-    public void onDisconnect() {
-
     }
 
 }

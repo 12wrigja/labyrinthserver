@@ -50,6 +50,11 @@ public class testBotRooms extends EngineOnlyTest {
             public void onDisconnect() {
 
             }
+
+            @Override
+            protected void populate() {
+
+            }
         };
         b.joinRoom("test_room");
         while(!complete[0]){
@@ -86,16 +91,6 @@ public class testBotRooms extends EngineOnlyTest {
                     worked[0] = !worked[0];
                     l.unlock();
                 }
-            }
-
-            @Override
-            public void onConnect() {
-
-            }
-
-            @Override
-            public void onDisconnect() {
-
             }
         };
         b.joinRoom("test_room");
