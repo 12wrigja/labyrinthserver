@@ -18,12 +18,12 @@ import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
-import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Created by james on 1/20/16.
@@ -95,8 +95,11 @@ public class NetworkingInterface {
     public InternalResponseObject<String> spectate(SpectateMatchRequest obj, Player p) {
         InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(obj.getMatchID());
         if (m.isNormal()) {
+            Lock lock = GameEngine.instance().getLockForID(m.get().getMatchIdentifier()).writeLock();
+            lock.lock();
             Match match = m.get();
             match.addSpectator(p);
+            lock.unlock();
             return new InternalResponseObject<>(match.getMatchIdentifier().toString(), "spectating");
         } else {
             return InternalResponseObject.cloneError(m);
@@ -107,14 +110,18 @@ public class NetworkingInterface {
     public InternalResponseObject<String> stopSpectating(NoInputRequest obj, Player p) {
         Optional<UUID> matchIdentifier = p.getCurrentMatchID();
         if (matchIdentifier.isPresent()) {
+            Lock lock = GameEngine.instance().getLockForID(matchIdentifier.get()).writeLock();
+            lock.lock();
             InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchIdentifier.get());
             if (m.isNormal()) {
                 if (m.get().isSpectatorOfMatch(p)) {
                     m.get().removeSpectator(p);
                 }
             } else {
+                lock.unlock();
                 return InternalResponseObject.cloneError(m);
             }
+            lock.unlock();
         }
         return new InternalResponseObject<>("none", "spectating");
     }
@@ -124,6 +131,8 @@ public class NetworkingInterface {
         String validActionStr = "valid";
         Optional<UUID> matchID = p.getCurrentMatchID();
         if (matchID.isPresent()) {
+            Lock lock = GameEngine.instance().getLockForID(matchID.get()).writeLock();
+            lock.lock();
             InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
             if (!m.isNormal()) {
                 return InternalResponseObject.cloneError(m);
@@ -156,9 +165,11 @@ public class NetworkingInterface {
 //
 //                }
                 default: {
+                    lock.unlock();
                     return new InternalResponseObject<>(false, validActionStr);
                 }
             }
+            lock.unlock();
             return m.get().updateGameState(p, action);
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
@@ -167,9 +178,14 @@ public class NetworkingInterface {
 
     @NetworkEvent(description = "Returns the latest state of a match if you are in one")
     public InternalResponseObject<Match> matchState(NoInputRequest obj, Player p) {
+        Lock playerLock = GameEngine.instance().getLockForPlayer(p).readLock();
+        playerLock.lock();
         Optional<UUID> matchID = p.getCurrentMatchID();
         if (matchID.isPresent()) {
+            Lock matchLock = GameEngine.instance().getLockForID(matchID.get()).readLock();
+            matchLock.lock();
             InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID.get());
+            matchLock.unlock();
             return m;
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
@@ -177,11 +193,11 @@ public class NetworkingInterface {
     }
 
     @NetworkEvent(description = "Returns your current match id, if there is one.")
-    public InternalResponseObject<String> currentMatch(NoInputRequest obj, Player p) {
+    public InternalResponseObject<UUID> currentMatch(NoInputRequest obj, Player p) {
         Optional<UUID> matchIDOpt = p.getCurrentMatchID();
-        String matchID = "none";
+        UUID matchID = null;
         if (matchIDOpt.isPresent()) {
-            matchID = matchIDOpt.get().toString();
+            matchID = matchIDOpt.get();
         }
         return new InternalResponseObject<>(matchID, "match_id");
     }
@@ -190,11 +206,15 @@ public class NetworkingInterface {
     public InternalResponseObject<Boolean> leaveMatch(NoInputRequest obj, Player p) {
         Optional<UUID> m = p.getCurrentMatchID();
         if (m.isPresent()) {
+            Lock lock = GameEngine.instance().getLockForID(m.get()).writeLock();
+            lock.lock();
             InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
             if (match.isNormal()) {
                 match.get().end("Player " + p.getUsername() + " left the match.");
+                lock.unlock();
                 return new InternalResponseObject<>(true, "left_match");
             } else {
+                lock.unlock();
                 return InternalResponseObject.cloneError(match);
             }
         } else {

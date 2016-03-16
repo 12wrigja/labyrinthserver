@@ -4,6 +4,7 @@ import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
@@ -20,6 +21,8 @@ import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by james on 1/21/16.
@@ -44,6 +47,26 @@ public class GameEngine {
     public final ServiceContainer services;
     public final Timer gameTimer;
     public final BotClientService botService;
+    private final Map<String,ReadWriteLock> lockMap;
+
+    public ReadWriteLock getLockForID(UUID id){
+        return getOrCreateLock(id.toString());
+    }
+
+    public ReadWriteLock getLockForPlayer(Player p){
+        return getOrCreateLock(p.getUsername());
+    }
+
+    private ReadWriteLock getOrCreateLock(String idStr){
+        if(!lockMap.containsKey(idStr)){
+            System.out.println("Creating a new lock for ID String: "+idStr);
+            ReadWriteLock lock = new ReentrantReadWriteLock(true);
+            lockMap.put(idStr, lock);
+            return lock;
+        } else {
+            return lockMap.get(idStr);
+        }
+    }
 
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
         for (ClientConnectionService service : clientConnectionServices) {
@@ -78,6 +101,7 @@ public class GameEngine {
         this.botService = new BotClientService();
         clientConnectionServices.add(botService);
         System.out.println("GameEngine created with ID: " + instanceID.toString());
+        this.lockMap = new HashMap<>();
     }
 
     public void addClientService(ClientConnectionService service) {
