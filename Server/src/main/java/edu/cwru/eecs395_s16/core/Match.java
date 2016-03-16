@@ -105,11 +105,11 @@ public class Match implements Jsonable {
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
                 InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
                 if (!heroRetrievalResponse.isNormal()) {
-                    return InternalResponseObject.cloneError(heroRetrievalResponse, "Unable to find the hero player for the match.");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, heroRetrievalResponse.getInternalErrorCode(), "Unable to find the hero player for the match.");
                 }
                 InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
                 if (!architectRetrievalResponse.isNormal()) {
-                    return InternalResponseObject.cloneError(architectRetrievalResponse, "Unable to find the architect player for the match");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR,architectRetrievalResponse.getInternalErrorCode(), "Unable to find the architect player for the match");
                 }
 
                 //Retrieve Map
