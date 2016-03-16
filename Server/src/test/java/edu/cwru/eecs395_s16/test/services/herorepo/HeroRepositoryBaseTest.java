@@ -6,6 +6,7 @@ import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.List;
@@ -43,10 +44,10 @@ public abstract class HeroRepositoryBaseTest extends EngineOnlyTest {
 
     }
 
-
-    private void clearupPlayer(Player p){
+    @After
+    public void cleanup(){
         if(createdPlayer != null) {
-            boolean cleaned = GameEngine.instance().services.playerRepository.deletePlayer(p);
+            boolean cleaned = GameEngine.instance().services.playerRepository.deletePlayer(createdPlayer);
             assertTrue(cleaned);
         }
 

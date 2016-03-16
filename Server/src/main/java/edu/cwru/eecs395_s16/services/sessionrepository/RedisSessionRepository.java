@@ -51,6 +51,9 @@ public class RedisSessionRepository implements SessionRepository {
     public InternalResponseObject<Player> findPlayer(String username) {
         try (Jedis j = pool.getResource()) {
             String clientIDString = j.get(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + username);
+            if(clientIDString == null){
+                return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
+            }
             UUID clientID;
             try {
                 clientID = UUID.fromString(clientIDString);

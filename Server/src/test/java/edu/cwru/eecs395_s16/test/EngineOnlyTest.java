@@ -21,7 +21,7 @@ public abstract class EngineOnlyTest {
 
     private void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(false, buildContainer());
+        engine = new GameEngine(true, buildContainer());
         engine.start();
         assertTrue(engine.isStarted());
     }

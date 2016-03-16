@@ -1,14 +1,11 @@
 package edu.cwru.eecs395_s16.bots;
 
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
-import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
+import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.objects.Creature;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
-import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONObject;
@@ -26,6 +23,7 @@ public class PassBot extends GameBot {
 
     public PassBot() {
         super(BOT_NAME,UUID.randomUUID());
+        heroes.add(new HeroBuilder().setOwnerID(Optional.of(getUsername())).createHero());
     }
 
     @Override

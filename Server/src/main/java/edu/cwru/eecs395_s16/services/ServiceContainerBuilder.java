@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.services;
 import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.bots.HeroRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.maprepository.InMemoryMapRepository;
 import edu.cwru.eecs395_s16.services.bots.PlayerRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
@@ -16,9 +17,9 @@ import java.util.Timer;
 public class ServiceContainerBuilder {
 
     private MapRepository mapRepository = new InMemoryMapRepository();
-    private HeroRepository heroRepository = new InMemoryHeroRepository();
     private CacheService cacheService = new InMemoryCacheService();
     private MatchmakingService matchService = new BasicMatchmakingService();
+    private HeroRepository heroRepository = new HeroRepositoryBotWrapper(new InMemoryHeroRepository());
     private SessionRepository sessionRepository = new SessionRepositoryBotWrapper(new InMemorySessionRepository());
     private PlayerRepository playerRepository = new PlayerRepositoryBotWrapper(new InMemoryPlayerRepository());
 
@@ -28,7 +29,7 @@ public class ServiceContainerBuilder {
     }
 
     public ServiceContainerBuilder setHeroRepository(HeroRepository heroRepository) {
-        this.heroRepository = heroRepository;
+        this.heroRepository = new HeroRepositoryBotWrapper(heroRepository);
         return this;
     }
 

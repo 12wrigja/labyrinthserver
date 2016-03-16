@@ -63,7 +63,7 @@ public class NetworkingInterface {
             //TODO update this to pick a random map?
             InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(10, 10));
             if (m.isNormal()) {
-                return new InternalResponseObject<>(true, "queued");
+                return new InternalResponseObject<>(true, "match_created");
             } else {
                 return InternalResponseObject.cloneError(m);
             }
@@ -77,7 +77,7 @@ public class NetworkingInterface {
         if (obj.shouldQueueWithPassBot()) {
             InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(10, 10));
             if (m.isNormal()) {
-                return new InternalResponseObject<>(true, "queued");
+                return new InternalResponseObject<>(true, "match_created");
             } else {
                 //TODO update this so that the correct response is sent when you cannot make a match
                 return InternalResponseObject.cloneError(m);
