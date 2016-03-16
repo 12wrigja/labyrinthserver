@@ -54,7 +54,6 @@ public abstract class InMatchTest extends SerializationTest {
         super.teardown();
     }
 
-    @After
     public void teardownMatch() throws Exception {
         game.leaveMatch(new NoInputRequest(), heroBot);
 

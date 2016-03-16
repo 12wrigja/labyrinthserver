@@ -13,6 +13,8 @@ public interface HeroRepository {
 
     InternalResponseObject<List<Hero>> getPlayerHeroes(Player p);
 
-    void saveHeroForPlayer(Player p, Hero h);
+    InternalResponseObject<Boolean> saveHeroForPlayer(Player p, Hero h);
+
+    InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p);
 
 }

@@ -29,6 +29,12 @@ public class RegisterUserRequest implements RequestData {
         return username;
     }
 
+    public RegisterUserRequest(String username, String password, String password_confirm) {
+        this.username = username;
+        this.password = password;
+        this.password_confirm = password_confirm;
+    }
+
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         this.username = RequestData.getString(obj,"username");

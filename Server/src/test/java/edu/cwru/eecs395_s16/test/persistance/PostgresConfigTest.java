@@ -17,6 +17,7 @@ public class PostgresConfigTest {
     public void testPostgresConfig() throws SQLException {
         try {
             Connection c = DriverManager.getConnection("jdbc:postgresql:vagrant", "vagrant", "vagrant");
+            //TODO: update this to potentially test for the default schema and data?
             c.close();
         } catch (SQLException e) {
             fail("Unable to get db connection.");

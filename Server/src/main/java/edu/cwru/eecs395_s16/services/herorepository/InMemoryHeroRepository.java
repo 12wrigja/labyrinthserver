@@ -31,7 +31,7 @@ public class InMemoryHeroRepository implements HeroRepository {
     }
 
     @Override
-    public void saveHeroForPlayer(Player p, Hero h) {
+    public InternalResponseObject<Boolean> saveHeroForPlayer(Player p, Hero h) {
         Set<Hero> heroSet;
         if (!playerHeroMap.containsKey(p.getUsername())) {
             heroSet = new HashSet<>();
@@ -43,5 +43,12 @@ public class InMemoryHeroRepository implements HeroRepository {
             heroSet.remove(h);
         }
         heroSet.add(h);
+        return new InternalResponseObject<>(true,"saved");
+    }
+
+    @Override
+    public InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p) {
+        Hero h = new HeroBuilder().createHero();
+        return saveHeroForPlayer(p,h);
     }
 }

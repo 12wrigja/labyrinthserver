@@ -22,7 +22,6 @@ public class PostgresPlayerRepository implements PlayerRepository {
     private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from players where username = ?";
     private static final String VALID_LOGIN_QUERY = "select * from players where username = ? AND password = ?";
     private static final String DELETE_PLAYER_QUERY = "delete from players where id = ?";
-    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level) (select id as hero_id,? as player_id, 1 as level from heroes)";
 
     final Connection conn;
 
@@ -60,10 +59,6 @@ public class PostgresPlayerRepository implements PlayerRepository {
                     playerDBID = newKeys.getInt(1);
                 }
                 Player p = new Player(playerDBID, username, password);
-                //Set up hero data links here
-                stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
-                stmt.setInt(1, playerDBID);
-                stmt.executeUpdate();
                 return new InternalResponseObject<>(p,"player");
             }
         } catch (SQLException e) {

@@ -25,6 +25,7 @@ public enum InternalErrorCode {
 
     //Database errors
     INVALID_SQL("Some SQL was invalid."),
+    INVALID_DB_IDENTIFIER("The identifier for a database object was invald."),
 
     //Match creation and info retrieval for matches
     MISSING_PLAYER("Unable to retrieve a player from given information."),

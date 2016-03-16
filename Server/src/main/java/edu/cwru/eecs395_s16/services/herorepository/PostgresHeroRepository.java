@@ -24,6 +24,8 @@ import java.util.Optional;
 public class PostgresHeroRepository implements HeroRepository {
 
     private Connection conn;
+    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level) (select id as hero_id,? as player_id, 1 as level from heroes)";
+    private static final String DROP_ALL_PLAYER_HEROES = "delete from hero_player where player_id = ?";
     private static final String GET_HEROES_QUERY = "select * from hero_player inner join heroes on hero_player.hero_id = heroes.id where player_id = ?";
 
     public PostgresHeroRepository(Connection conn) {
@@ -35,15 +37,15 @@ public class PostgresHeroRepository implements HeroRepository {
         try {
             List<Hero> heroes = new ArrayList<>();
             PreparedStatement stmt = conn.prepareStatement(GET_HEROES_QUERY);
-            stmt.setInt(1,p.getDatabaseID());
+            stmt.setInt(1, p.getDatabaseID());
             ResultSet rst = stmt.executeQuery();
-            while(rst.next()){
-                Hero h = heroFromResultSet(p,rst);
+            while (rst.next()) {
+                Hero h = heroFromResultSet(p, rst);
                 heroes.add(h);
             }
             return new InternalResponseObject<>(heroes, "heroes");
         } catch (SQLException e) {
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_USERNAME, "Unable to retrieve heroes from Postgres for the given username.");
@@ -51,10 +53,34 @@ public class PostgresHeroRepository implements HeroRepository {
     }
 
     @Override
-    public void saveHeroForPlayer(Player p, Hero h) {
+    public InternalResponseObject<Boolean> saveHeroForPlayer(Player p, Hero h) {
         //Need to save: hero level, equipped weapon, and equipped equipment
         //TODO implement hero data storage - useful for whenever weapons, equipment, or level changes
+        return new InternalResponseObject<>(true,"saved");
+    }
 
+    @Override
+    public InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p) {
+        if(p.getDatabaseID() < 0){
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_DB_IDENTIFIER);
+        }
+        //Set up hero data links here
+        try {
+            //TODO determine what error checking should be here for update counts.
+            PreparedStatement stmt = conn.prepareStatement(DROP_ALL_PLAYER_HEROES);
+            stmt.setInt(1,p.getDatabaseID());
+            stmt.executeUpdate();
+
+            stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
+            stmt.setInt(1, p.getDatabaseID());
+            stmt.executeUpdate();
+        } catch (SQLException e){
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL, "Unable to create default heroes for player.");
+        }
+        return new InternalResponseObject<>(true,"created");
     }
 
     private Hero heroFromResultSet(Player p, ResultSet r) throws SQLException {

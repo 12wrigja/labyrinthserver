@@ -41,7 +41,14 @@ public class NetworkingInterface {
 
     @NetworkEvent(mustAuthenticate = false, description = "Registers a user if the username does not already exist and the given passwords match.")
     public InternalResponseObject<Player> register(RegisterUserRequest data) {
-        return GameEngine.instance().services.playerRepository.registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
+        InternalResponseObject<Player> newPlayerResp = GameEngine.instance().services.playerRepository.registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
+        if(newPlayerResp.isNormal()){
+            InternalResponseObject<Boolean> heroesCreatedResp = GameEngine.instance().services.heroRepository.createDefaultHeroesForPlayer(newPlayerResp.get());
+            if(!heroesCreatedResp.isNormal()){
+                return InternalResponseObject.cloneError(heroesCreatedResp);
+            }
+        }
+        return newPlayerResp;
     }
 
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
