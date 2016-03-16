@@ -15,7 +15,6 @@ import java.util.UUID;
  */
 public class PassGameActionData {
 
-    private String characterIdSstr;
     private UUID character_id;
 
     public PassGameActionData(UUID character_id) {
