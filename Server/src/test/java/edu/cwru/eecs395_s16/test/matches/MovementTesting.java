@@ -2,8 +2,11 @@ package edu.cwru.eecs395_s16.test.matches;
 
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.test.InMatchTest;
@@ -12,6 +15,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -22,6 +26,14 @@ import static org.junit.Assert.assertTrue;
  * Created by james on 2/27/16.
  */
 public class MovementTesting extends InMatchTest {
+
+    @Override
+    public List<Hero> getHeroesForHero(Player hero) {
+        List<Hero> baseHeroes = super.getHeroesForHero(hero);
+        Hero h2 = new HeroBuilder().setHeroType(HeroType.MAGE).setOwnerID(Optional.of(hero.getUsername())).createHero();
+        baseHeroes.add(h2);
+        return baseHeroes;
+    }
 
     @Test
     public void testMoveOneTile() throws JSONException {

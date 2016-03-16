@@ -31,6 +31,10 @@ task(testDebug, type: Test) {
     testLogging.exceptionFormat = 'full'
 }
 
+test {
+    outputs.upToDateWhen {false}
+}
+
 compileJava {
     options.encoding = 'UTF-8'
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"

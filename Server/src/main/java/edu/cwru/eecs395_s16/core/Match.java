@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import edu.cwru.eecs395_s16.interfaces.objects.Creature;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
@@ -60,6 +61,12 @@ public class Match implements Jsonable {
     private int gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
     //TODO Turn numbers
+    //Turn numbers
+    private static final String TURN_NUMBER_KEY = "turn_number";
+    private int turnNumber = 0;
+
+    //Event Keys
+    public static final String GAME_UPDATE_KEY = "game_update";
 
     public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
@@ -68,7 +75,7 @@ public class Match implements Jsonable {
             UUID randMatchID = UUID.randomUUID();
             Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
             InternalResponseObject<?> resp = m.startInitialGameTasks();
-            if(!resp.isNormal()){
+            if (!resp.isNormal()) {
                 return InternalResponseObject.cloneError(resp);
             } else {
                 return new InternalResponseObject<>(m, "match");
@@ -97,11 +104,11 @@ public class Match implements Jsonable {
                 //Retrieve players
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
                 InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
-                if(!heroRetrievalResponse.isNormal()){
-                    return InternalResponseObject.cloneError(heroRetrievalResponse,"Unable to find the hero player for the match.");
+                if (!heroRetrievalResponse.isNormal()) {
+                    return InternalResponseObject.cloneError(heroRetrievalResponse, "Unable to find the hero player for the match.");
                 }
                 InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
-                if(!architectRetrievalResponse.isNormal()){
+                if (!architectRetrievalResponse.isNormal()) {
                     return InternalResponseObject.cloneError(architectRetrievalResponse, "Unable to find the architect player for the match");
                 }
 
@@ -113,18 +120,19 @@ public class Match implements Jsonable {
                 if (heroRetrievalResponse.isPresent() && architectRetrievalResponse.isPresent()) {
                     m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp);
                 } else {
-                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR,InternalErrorCode.MISSING_PLAYER, "One of the two players in the match are missing.");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MISSING_PLAYER, "One of the two players in the match are missing.");
                 }
 
                 //Retrieve Game State
                 m.gameState = GameState.valueOf(matchData.getString(GAME_STATE_KEY).toUpperCase());
                 m.gameSequenceID = latestSequenceNumber;
+                m.turnNumber = matchData.getInt(TURN_NUMBER_KEY);
 
                 //Retrieve Game Board Objects
                 JSONObject gameObjectCollectionData = matchData.getJSONObject(BOARD_COLLECTION_KEY);
                 m.boardObjects.fillFromJSONData(gameObjectCollectionData);
 
-                return new InternalResponseObject<>(m,"match");
+                return new InternalResponseObject<>(m, "match");
             } catch (Exception e) {
                 if (GameEngine.instance().IS_DEBUG_MODE) {
                     e.printStackTrace();
@@ -132,7 +140,7 @@ public class Match implements Jsonable {
                 return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
             }
         } else {
-            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR,InternalErrorCode.MATCH_RETRIEVAL_ERROR);
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MATCH_RETRIEVAL_ERROR);
         }
     }
 
@@ -153,7 +161,7 @@ public class Match implements Jsonable {
             public void run() {
                 try {
                     GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
-                } catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -174,11 +182,12 @@ public class Match implements Jsonable {
 
         //Set initial turn data
         this.gameState = GameState.HERO_TURN;
+        this.turnNumber = 1;
         this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
         //Retrieve heroes for the hero player and place them randomly in the spawn positions
         InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
-        if(!heroHeroResponse.isNormal()){
+        if (!heroHeroResponse.isNormal()) {
             return InternalResponseObject.cloneError(heroHeroResponse);
         }
         List<Hero> heroHeroes = heroHeroResponse.get();
@@ -187,7 +196,7 @@ public class Match implements Jsonable {
         List<Location> heroSpawnLocations = this.gameMap.getHeroSpawnLocations();
         Collections.shuffle(heroHeroes);
         int numIterations = Math.min(numHeroes, numHeroSpaces);
-        for(int i=0; i<numIterations; i++){
+        for (int i = 0; i < numIterations; i++) {
             GameObject hero = heroHeroes.get(i);
             Location newLoc = heroSpawnLocations.get(i);
             hero.setLocation(newLoc);
@@ -197,7 +206,7 @@ public class Match implements Jsonable {
         //Add all the architect's monsters and traps to the board
         //TODO update to add all the architect's monsters and traps to the board instead of their heroes
         InternalResponseObject<List<Hero>> architectHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.architectPlayer);
-        if(!architectHeroResponse.isNormal()){
+        if (!architectHeroResponse.isNormal()) {
             return InternalResponseObject.cloneError(architectHeroResponse);
         }
         List<Hero> architectHeroes = architectHeroResponse.get();
@@ -218,21 +227,51 @@ public class Match implements Jsonable {
         if (isPlayerTurn(p)) {
             //Assemble the required lists of stuff.
             InternalResponseObject<Boolean> resp = action.checkCanDoAction(this.gameMap, this.boardObjects, p);
-            if(!resp.isNormal()){
+            if (!resp.isNormal()) {
                 return resp;
             }
-            JSONObject matchState = this.getJSONRepresentation();
-            action.doGameAction(this.gameMap, this.boardObjects);
-            JSONObject gameUpdate = takeSnapshotForAction(matchState, action);
-            storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
-            broadcastToAllParties("game_update", gameUpdate);
+            doAndSnapshot(action.getJSONRepresentation(), () ->
+                    action.doGameAction(this.gameMap, this.boardObjects), true);
+            //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
+            long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
+            if (numNotExhausted == 0) {
+                doAndSnapshot("turn_end", this::swapSides, true);
+            }
             return resp;
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_YOUR_TURN);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_YOUR_TURN);
         }
     }
 
-    public JSONObject takeSnapshot(JSONObject originalState, Object actionReason){
+    public void doAndSnapshot(Object actionReason, Runnable method, boolean broadcast) {
+        JSONObject matchState = this.getJSONRepresentation();
+        method.run();
+        JSONObject gameUpdate = takeSnapshot(matchState, actionReason);
+        storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
+        if (broadcast) {
+            broadcastToAllParties(GAME_UPDATE_KEY, gameUpdate);
+        }
+    }
+
+    private void swapSides() {
+        if (gameState == GameState.HERO_TURN) {
+            gameState = GameState.ARCHITECT_TURN;
+        } else if (gameState == GameState.ARCHITECT_TURN) {
+            gameState = GameState.HERO_TURN;
+        }
+    }
+
+    /**
+     * Creates a diff snapshot of the match given a previous state, creating a diff between the current state
+     * and that previous state. Turns that diff into a Game Update object, with the difference and an action /
+     * reason for the update. Automatically updates the game's sequence identifier.
+     *
+     * @param originalState The state to compare against. Typically this is the state before an action is done.
+     * @param actionReason The reason for the game update. Usually this describes the action that occurred.
+     * @return Returns a Game Update - a JSONObject that cotains an "action" (the reason for the update) and a "new_state"
+     * which is the difference between the old and new states.
+     */
+    public JSONObject takeSnapshot(JSONObject originalState, Object actionReason) {
         this.gameSequenceID++;
         setCurrentSequence(this.gameSequenceID);
         JSONObject newMatchState = this.getJSONRepresentation();
@@ -248,13 +287,9 @@ public class Match implements Jsonable {
         return gameUpdate;
     }
 
-    public void takeAndCommitSnapshot(JSONObject originalState, Object actionReason){
-        JSONObject diff = takeSnapshot(originalState,actionReason);
-        storeSnapshotForSequence(this.gameSequenceID,diff);
-    }
-
-    private JSONObject takeSnapshotForAction(JSONObject originaState, GameAction action){
-        return takeSnapshot(originaState, action.getJSONRepresentation());
+    public void takeAndCommitSnapshot(JSONObject originalState, Object actionReason) {
+        JSONObject diff = takeSnapshot(originalState, actionReason);
+        storeSnapshotForSequence(this.gameSequenceID, diff);
     }
 
     private void setCurrentSequence(int sequence) {
@@ -340,6 +375,9 @@ public class Match implements Jsonable {
 
             //Current game state
             obj.put(GAME_STATE_KEY, this.gameState.toString().toLowerCase());
+
+            //Current turn number
+            obj.put(TURN_NUMBER_KEY, this.turnNumber);
 
         } catch (JSONException e) {
             //Never will be thrown as the keys are never null
