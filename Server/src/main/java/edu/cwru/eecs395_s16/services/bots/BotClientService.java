@@ -64,6 +64,7 @@ public class BotClientService implements ClientConnectionService {
 
     public final void unregister(GameBot c) {
         this.connectedClients.remove(c.getSessionId());
+        GameEngine.instance().services.sessionRepository.expirePlayerSession(c.getSessionId());
         c.onDisconnect();
     }
 

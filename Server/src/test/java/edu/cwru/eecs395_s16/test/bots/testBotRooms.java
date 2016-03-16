@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.test.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.bots.TestBot;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class testBotRooms extends EngineOnlyTest {
         ReentrantLock l = new ReentrantLock();
         Condition c = l.newCondition();
         Thread testThread = Thread.currentThread();
-        GameBot b = new GameBot("TESTBOT", UUID.randomUUID()){
+        GameBot b = new GameBot(){
 
             @Override
             public void receiveEvent(String event, Object data) {
@@ -77,7 +78,7 @@ public class testBotRooms extends EngineOnlyTest {
         ReentrantLock l = new ReentrantLock();
         Condition c = l.newCondition();
         Thread testThread = Thread.currentThread();
-        GameBot b = new GameBot("TESTBOT", UUID.randomUUID()){
+        GameBot b = new GameBot(){
 
             @Override
             public void receiveEvent(String event, Object data) {

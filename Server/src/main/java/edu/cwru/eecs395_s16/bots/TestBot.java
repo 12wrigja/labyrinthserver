@@ -9,10 +9,12 @@ import java.util.UUID;
  */
 public class TestBot extends GameBot {
 
-    static final String BOT_NAME = "TESTBOT";
-
     public TestBot() {
-        super(BOT_NAME, UUID.randomUUID());
+        this(UUID.randomUUID());
+    }
+
+    public TestBot(UUID id){
+        super (GameBotType.TESTBOT, id);
     }
 
     @Override

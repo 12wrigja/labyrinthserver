@@ -22,9 +22,33 @@ public abstract class GameBot extends Player implements GameClient {
     final UUID botID;
     final List<Hero> heroes;
     final List<GameObject> architectObjects;
+    final GameBotType type;
 
-    public GameBot(String botTypeName, UUID botID) {
+    public enum GameBotType{
+        TESTBOT,
+        PASSBOT,
+        CUSTOM
+    }
+
+    private static GameBot botForType(GameBotType type, UUID id){
+        if(id == null){
+            id = UUID.randomUUID();
+        }
+        switch (type){
+            case PASSBOT: return new PassBot(id);
+            case TESTBOT:
+            default:
+                return new TestBot(id);
+        }
+    }
+
+    public GameBot(){
+        this(GameBotType.CUSTOM,UUID.randomUUID());
+    }
+
+    protected GameBot(GameBotType botTypeName, UUID botID) {
         super(-1, botTypeName+"_"+botID.toString(), "");
+        this.type = botTypeName;
         this.botID = botID;
         setClient(Optional.of(this));
         GameEngine.instance().botService.register(this);

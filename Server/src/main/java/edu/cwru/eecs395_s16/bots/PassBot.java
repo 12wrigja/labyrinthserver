@@ -19,11 +19,12 @@ import java.util.UUID;
  */
 public class PassBot extends GameBot {
 
-    static final String BOT_NAME = "PASSBOT";
-
     public PassBot() {
-        super(BOT_NAME,UUID.randomUUID());
+        this(UUID.randomUUID());
+    }
 
+    public PassBot(UUID id){
+        super(GameBotType.PASSBOT,id);
     }
 
     @Override

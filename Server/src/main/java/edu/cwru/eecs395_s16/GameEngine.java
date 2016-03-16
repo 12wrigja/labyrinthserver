@@ -81,7 +81,9 @@ public class GameEngine {
     }
 
     public void addClientService(ClientConnectionService service) {
-        this.clientConnectionServices.add(service);
+        if(!this.isStarted) {
+            this.clientConnectionServices.add(service);
+        }
     }
 
     public void start() throws IOException {

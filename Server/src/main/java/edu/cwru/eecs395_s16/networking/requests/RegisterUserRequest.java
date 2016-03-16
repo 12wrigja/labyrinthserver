@@ -34,7 +34,7 @@ public class RegisterUserRequest implements RequestData {
         this.password = password;
         this.password_confirm = password_confirm;
     }
-    
+
     public RegisterUserRequest(){}
 
     @Override
