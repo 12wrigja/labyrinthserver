@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.actions.BasicAttackGameAction;
 import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
 import edu.cwru.eecs395_s16.core.actions.PassGameAction;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
@@ -16,6 +17,7 @@ import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.*;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
@@ -145,12 +147,14 @@ public class NetworkingInterface {
                     action = new MoveGameAction(dataResp.get());
                     break;
                 }
-//                case BASIC_ATTACK_ACTION: {
-////                RequestData action = new MoveGameAction();
-////                action.fillFromJSON(obj.getOriginalData());
-////                actualAction = Optional.of(action);
-//                    break;
-//                }
+                case BASIC_ATTACK_ACTION: {
+                    InternalResponseObject<BasicAttackActionData> dataResp = BasicAttackActionData.fillFromJSON(obj.getOriginalData());
+                    if(!dataResp.isNormal()){
+                        return InternalResponseObject.cloneError(dataResp);
+                    }
+                    action = new BasicAttackGameAction(dataResp.get());
+                    break;
+                }
                 case PASS_ACTION: {
                     InternalResponseObject<PassGameActionData> dataResp = PassGameActionData.fillFromJSON(obj.getOriginalData());
                     if (!dataResp.isNormal()) {

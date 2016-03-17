@@ -33,7 +33,9 @@ public class PassGameAction implements GameAction {
             if (!(boardObj.get() instanceof Creature)) {
                 return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_OBJECT);
             } else {
-
+                if(!GameAction.isControlledByPlayer(boardObj.get(),player)){
+                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_CONTROLLER);
+                }
             }
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_OBJECT);
@@ -43,7 +45,7 @@ public class PassGameAction implements GameAction {
 
     @Override
     public void doGameAction(GameMap map, GameObjectCollection boardObjects) {
-        Creature c = (Creature)boardObjects.get(characterID);
+        Creature c = (Creature)boardObjects.getByID(characterID).get();
         c.drainActionPoints();
     }
 

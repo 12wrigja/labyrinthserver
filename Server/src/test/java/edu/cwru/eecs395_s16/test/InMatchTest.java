@@ -102,12 +102,18 @@ public abstract class InMatchTest extends SerializationTest {
 
     public void forceSetCharacterLocation(UUID characterID, Location loc) {
         updateMatchState();
+        Optional<GameObject> objOpt = currentMatchState.getBoardObjects().getByID(characterID);
+        if(objOpt.isPresent()){
+            objOpt.get().setLocation(loc);
+        } else {
+            //The object is not on the board. Return
+            return;
+        }
         try {
             JSONObject snapshot = new JSONObject(objMapper.writeValueAsString(currentMatchState.getJSONRepresentation()));
-            currentMatchState.getBoardObjects().get(characterID).setLocation(loc);
             currentMatchState.takeAndCommitSnapshot(snapshot, "Forced snapshot for movement.");
             updateMatchState();
-            Location newLoc = currentMatchState.getBoardObjects().get(characterID).getLocation();
+            Location newLoc = currentMatchState.getBoardObjects().getByID(characterID).get().getLocation();
             assertEquals(newLoc, loc);
         } catch (JSONException e) {
             fail("Unable to build new JSON object from string.");
@@ -130,7 +136,7 @@ public abstract class InMatchTest extends SerializationTest {
             fail("Incorrect response while moving. ERROR:" + response.getMessage());
         }
         updateMatchState();
-        Hero newHeroState = (Hero) currentMatchState.getBoardObjects().get(characterID);
+        Hero newHeroState = (Hero) currentMatchState.getBoardObjects().getByID(characterID).get();
         Location newHeroLocation = newHeroState.getLocation();
         if (failTestOnFailure) {
             assertEquals(path.get(path.size() - 1), newHeroLocation);
@@ -152,7 +158,7 @@ public abstract class InMatchTest extends SerializationTest {
             fail("Incorrect response while moving. ERROR:" + response.getMessage());
         }
         updateMatchState();
-        Hero myHero = (Hero) currentMatchState.getBoardObjects().get(character.getGameObjectID());
+        Hero myHero = (Hero) currentMatchState.getBoardObjects().getByID(character.getGameObjectID()).get();
         int newAP = myHero.getActionPoints();
         if (failTestOnFailure) {
             assertEquals(0, newAP);

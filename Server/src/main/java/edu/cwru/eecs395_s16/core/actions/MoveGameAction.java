@@ -34,7 +34,6 @@ public class MoveGameAction implements GameAction {
 
     public List<Location> actualPath = new ArrayList<>();
 
-
     @Override
     public InternalResponseObject<Boolean> checkCanDoAction(GameMap map, GameObjectCollection boardObjects, Player player) {
         //Check and see if the character has enough movement to move that far.
@@ -45,7 +44,7 @@ public class MoveGameAction implements GameAction {
             } else {
                 Creature creature = (Creature) boardObj.get();
                 if (creature.getControllerID().isPresent() && !creature.getControllerID().get().equals(player.getUsername())) {
-                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_GAME_ACTION, "You do not have permission to control that character.");
+                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_CONTROLLER);
                 }
                 //Check action points. Should be 0, 1, or 2
                 if (creature.getActionPoints() <= 0) {

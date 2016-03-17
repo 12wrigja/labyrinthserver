@@ -38,10 +38,6 @@ public class GameObjectCollection implements Jsonable {
         return allObjects.containsKey(gameObjectID);
     }
 
-    public GameObject get(UUID key) {
-        return allObjects.get(key);
-    }
-
     public GameObject add(GameObject value) {
         return allObjects.put(value.getGameObjectID(), value);
     }

@@ -15,4 +15,12 @@ public interface GameAction extends Jsonable {
 
     void doGameAction(GameMap map, GameObjectCollection boardObjects);
 
+    static boolean isControlledByPlayer(GameObject object, Player p){
+        return object.getControllerID().isPresent() && object.getControllerID().get().equals(p.getUsername());
+    }
+
+    static boolean isControlledByOpponent(GameObject object, Player p){
+        return object.getControllerID().isPresent() && !object.getControllerID().get().equals(p.getUsername());
+    }
+
 }

@@ -45,6 +45,8 @@ public enum InternalErrorCode {
 
     //Character Action Errors
     NO_ACTION_POINTS("The given creature is exhausted."),
+    NOT_CONTROLLER("You are not the controller for the given object."),
+    FRIENDLY_FIRE("You are targeting a friendly unit."),
 
     //Movement errors
     PATH_TOO_LONG("The path is longer than the movement value."),
