@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class HeroBuilder {
-    private Weapon weapon;
+    private Optional<Weapon> weapon = Optional.empty();
     private int attack = 10;
     private int defense = 10;
     private int health = 50;
@@ -27,13 +27,18 @@ public class HeroBuilder {
     private Optional<String> controllerID = Optional.empty();
     private UUID objectID = UUID.randomUUID();
     private int level = 1;
+    private long exp = 0;
     private int databaseIdentifier = -1;
     private HeroType heroType = HeroType.WARRIOR;
     private GameObject.TYPE type = GameObject.TYPE.HERO;
 
-    public HeroBuilder setWeapon(Weapon weapon) {
+    public HeroBuilder setWeapon(Optional<Weapon> weapon) {
         this.weapon = weapon;
         return this;
+    }
+
+    public void setExp(long exp) {
+        this.exp = exp;
     }
 
     public HeroBuilder setAttack(int attack) {
@@ -120,6 +125,8 @@ public class HeroBuilder {
         setHeroType(HeroType.valueOf(obj.getString(Hero.HERO_TYPE_KEY).toUpperCase()));
         //Level
         setLevel(obj.getInt(Hero.LEVEL_KEY));
+        //Experience
+        setExp(obj.getLong(Hero.EXP_KEY));
         //Location
         setLocation(new Location(obj.getInt(Location.X_KEY),obj.getInt(Location.Y_KEY)));
         //Attack
@@ -136,7 +143,7 @@ public class HeroBuilder {
         setActionPoints(obj.getInt(Creature.ACTION_POINTS_KEY));
         //TODO implement setting weapon from ID
         //Weapon
-//        String weaponID = obj.getString(Hero.WEAPON_ID_KEY);
+//        String weaponID = obj.getString(Hero.);
         //Abilities
         //TODO set abilities
         //Statuses
@@ -145,7 +152,7 @@ public class HeroBuilder {
     }
 
     public Hero createHero() {
-        return new Hero(objectID, databaseIdentifier, ownerID, controllerID, heroType, level, location, attack, defense, health, movement, vision, actionPoints, weapon, abilities, new ArrayList<>());
+        return new Hero(objectID, databaseIdentifier, ownerID, controllerID, heroType, level, exp, location, attack, defense, health, movement, vision, actionPoints, weapon, abilities, new ArrayList<>());
     }
 
     public void setGameObjectType(GameObject.TYPE type) {

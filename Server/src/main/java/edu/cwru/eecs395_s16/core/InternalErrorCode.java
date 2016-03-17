@@ -51,7 +51,11 @@ public enum InternalErrorCode {
     //Movement errors
     PATH_TOO_LONG("The path is longer than the movement value."),
     PATH_OBSTRUCTED("The path is obstructed."),
-    PATH_SKIP("The path has gaps in it.");
+    PATH_SKIP("The path has gaps in it."),
+
+    //Combat/Abilities (Common errors)
+    TOO_MANY_TARGETS("There are too many targets for this action"),
+    NOT_IN_RANGE("The target is not in range.");
 
 
 

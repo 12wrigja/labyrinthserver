@@ -259,6 +259,11 @@ public class Match implements Jsonable {
         } else if (gameState == GameState.ARCHITECT_TURN) {
             gameState = GameState.HERO_TURN;
         }
+        boardObjects.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
+            Creature c = (Creature)obj;
+            c.resetActionPoints();
+            c.triggerPassive(gameMap, boardObjects);
+        });
     }
 
     /**

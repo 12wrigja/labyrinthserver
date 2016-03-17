@@ -9,7 +9,9 @@ import org.json.JSONObject;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by james on 2/21/16.
@@ -99,5 +101,17 @@ public class GameObjectCollection implements Jsonable {
             }
         }
         return repr;
+    }
+
+    public void forEach(Consumer<? super GameObject> action) {
+        allObjects.values().forEach(action);
+    }
+
+    public Stream<GameObject> parallelStream() {
+        return allObjects.values().parallelStream();
+    }
+
+    public Stream<GameObject> stream() {
+        return allObjects.values().stream();
     }
 }
