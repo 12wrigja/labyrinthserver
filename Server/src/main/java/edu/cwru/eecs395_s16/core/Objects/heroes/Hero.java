@@ -20,6 +20,7 @@ public class Hero extends Creature implements DatabaseObject {
     public static final String HERO_TYPE_KEY = "hero_type";
     public static final String LEVEL_KEY = "level";
     public static final String EXP_KEY = "experience";
+    public static final String WEAPON_KEY = "weapon";
     private final HeroType type;
     private Optional<Weapon> weapon;
     private int level = 1;
@@ -90,6 +91,7 @@ public class Hero extends Creature implements DatabaseObject {
             representation.put(LEVEL_KEY, getLevel());
             representation.put(EXP_KEY, getExp());
             //TODO add in weapons
+            representation.put(WEAPON_KEY, getWeapon().isPresent()?getWeapon().get().getJSONRepresentation():null);
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }

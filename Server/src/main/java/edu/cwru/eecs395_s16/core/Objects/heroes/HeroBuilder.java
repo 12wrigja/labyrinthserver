@@ -1,10 +1,8 @@
 package edu.cwru.eecs395_s16.core.objects.heroes;
 
+import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.interfaces.objects.Ability;
-import edu.cwru.eecs395_s16.interfaces.objects.Creature;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
-import edu.cwru.eecs395_s16.interfaces.objects.Weapon;
+import edu.cwru.eecs395_s16.interfaces.objects.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -143,7 +141,10 @@ public class HeroBuilder {
         setActionPoints(obj.getInt(Creature.ACTION_POINTS_KEY));
         //TODO implement setting weapon from ID
         //Weapon
-//        String weaponID = obj.getString(Hero.);
+        JSONObject weaponObj = obj.getJSONObject(Hero.WEAPON_KEY);
+        int weaponID = weaponObj.getInt(DatabaseObject.DATABASE_ID_KEY);
+        Optional<Weapon> weapon = GameEngine.instance().services.weaponRepository.getWeaponForId(weaponID);
+        setWeapon(weapon);
         //Abilities
         //TODO set abilities
         //Statuses

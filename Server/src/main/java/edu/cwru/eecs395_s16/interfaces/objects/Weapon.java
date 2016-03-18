@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.interfaces.objects;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,18 +14,19 @@ import java.util.Map;
  */
 public class Weapon implements DatabaseObject, Jsonable {
 
-    private final int databaseID;
     public static final String IMAGE_KEY = "image";
-    private final String image;
     public static final String NAME_KEY = "name";
-    private final String name;
     public static final String DESCRIPTION_KEY = "description";
-    private final String description;
     public static final String DAMAGE_MOD_KEY = "damage_mod";
-    private final int damageModifier;
     public static final String RANGE_KEY = "range";
-    private final int range;
     public static final String DAMAGE_MAP_KEY = "damage_map";
+    public static final String DAMAGE_PERCENT_KEY = "damage_percent";
+    private final int databaseID;
+    private final String image;
+    private final String name;
+    private final String description;
+    private final int damageModifier;
+    private final int range;
     private final Map<Location,Float> damageDistributionMap;
 
     public Weapon(int databaseID, String image, String name, String description, int damageModifier, int range, Map<Location, Float> damageDistributionMap) {
@@ -83,9 +85,16 @@ public class Weapon implements DatabaseObject, Jsonable {
             representation.put(DESCRIPTION_KEY,getDescription());
             representation.put(DAMAGE_MOD_KEY,getDamageModifier());
             representation.put(RANGE_KEY,getRange());
-
+            JSONArray arr = new JSONArray();
+            for(Map.Entry<Location,Float> pair : damageDistributionMap.entrySet()){
+                JSONObject obj = pair.getKey().getJSONRepresentation();
+                obj.put(DAMAGE_PERCENT_KEY,pair.getValue());
+                arr.put(obj);
+            }
+            representation.put(DAMAGE_MAP_KEY,arr);
         } catch (JSONException e){
             //This should never happen - all keys are not null
         }
+        return representation;
     }
 }

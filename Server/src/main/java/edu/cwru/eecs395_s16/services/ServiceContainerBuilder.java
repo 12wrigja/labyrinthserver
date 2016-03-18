@@ -11,8 +11,7 @@ import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
 import edu.cwru.eecs395_s16.services.herorepository.InMemoryHeroRepository;
 import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository;
-
-import java.util.Timer;
+import edu.cwru.eecs395_s16.services.weaponrepository.InMemoryWeaponRepository;
 
 public class ServiceContainerBuilder {
 
@@ -22,6 +21,7 @@ public class ServiceContainerBuilder {
     private HeroRepository heroRepository = new HeroRepositoryBotWrapper(new InMemoryHeroRepository());
     private SessionRepository sessionRepository = new SessionRepositoryBotWrapper(new InMemorySessionRepository());
     private PlayerRepository playerRepository = new PlayerRepositoryBotWrapper(new InMemoryPlayerRepository());
+    private WeaponRepository weaponRepository = new InMemoryWeaponRepository();
 
     public ServiceContainerBuilder setMapRepository(MapRepository mapRepository) {
         this.mapRepository = mapRepository;
@@ -36,6 +36,10 @@ public class ServiceContainerBuilder {
     public ServiceContainerBuilder setCacheService(CacheService cacheService) {
         this.cacheService = cacheService;
         return this;
+    }
+
+    public void setWeaponRepository(WeaponRepository weaponRepository) {
+        this.weaponRepository = weaponRepository;
     }
 
     public ServiceContainerBuilder setMatchService(MatchmakingService matchService) {
@@ -54,6 +58,6 @@ public class ServiceContainerBuilder {
     }
 
     public ServiceContainer createServiceContainer() {
-        return new ServiceContainer(mapRepository, heroRepository, cacheService, matchService, sessionRepository, playerRepository);
+        return new ServiceContainer(mapRepository, heroRepository, cacheService, matchService, sessionRepository, playerRepository, weaponRepository);
     }
 }
