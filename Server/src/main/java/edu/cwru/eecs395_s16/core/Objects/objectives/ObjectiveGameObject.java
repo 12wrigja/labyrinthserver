@@ -10,7 +10,7 @@ import java.util.UUID;
  */
 public class ObjectiveGameObject extends GameObject {
 
-    protected ObjectiveGameObject(UUID objectID) {
+    public ObjectiveGameObject(UUID objectID) {
         super(objectID, Optional.empty(), Optional.empty(), TYPE.OBJECTIVE);
     }
 }

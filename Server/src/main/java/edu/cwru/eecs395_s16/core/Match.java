@@ -6,6 +6,7 @@ import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
+import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import edu.cwru.eecs395_s16.interfaces.objects.Creature;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
@@ -210,8 +211,28 @@ public class Match implements Jsonable {
             return InternalResponseObject.cloneError(architectHeroResponse);
         }
         List<Hero> architectHeroes = architectHeroResponse.get();
-        this.boardObjects.addAll(architectHeroes);
+        int numArchitectHeroes = architectHeroes.size();
+        List<Location> architectSpawnLocations = gameMap.getArchitectCreatureSpawnLocations();
+        int numArchitectObjectLocations = architectSpawnLocations.size();
+        numIterations = Math.min(numArchitectHeroes, numArchitectObjectLocations);
+        Collections.shuffle(architectHeroes);
+        for(int i=0; i<numIterations; i++){
+            Creature obj = architectHeroes.get(i);
+            Location spawnLoc = architectSpawnLocations.get(i);
+            obj.setLocation(spawnLoc);
+            this.boardObjects.add(obj);
+        }
 
+        //Add in an objective if the map calls for one
+        List<Location> objectiveSpawnLocations = gameMap.getObjectiveSpawnLocations();
+        if(objectiveSpawnLocations.size() > 0) {
+            ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID());
+            Random r = new Random();
+            int index = r.nextInt(objectiveSpawnLocations.size());
+            obj.setLocation(objectiveSpawnLocations.get(index));
+            this.boardObjects.add(obj);
+        }
+        
         //Take initial snapshots and store them.
         setCurrentSequence(this.gameSequenceID);
         JSONObject matchBaseline = this.getJSONRepresentation();
