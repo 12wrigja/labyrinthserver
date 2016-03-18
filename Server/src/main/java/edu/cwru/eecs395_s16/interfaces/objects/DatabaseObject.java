@@ -5,6 +5,7 @@ package edu.cwru.eecs395_s16.interfaces.objects;
  */
 public interface DatabaseObject {
 
+    String DATABASE_ID_KEY = "database_id";
     int getDatabaseID();
 
 }

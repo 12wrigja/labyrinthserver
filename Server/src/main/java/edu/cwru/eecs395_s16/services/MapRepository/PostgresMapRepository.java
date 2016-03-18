@@ -78,10 +78,12 @@ public class PostgresMapRepository implements MapRepository {
                     int x = r.getInt("x");
                     int y = r.getInt("y");
                     boolean isHeroSpawnTile = r.getBoolean("is_hero_spawn");
+                    boolean isArchitectSpawnTile = r.getBoolean("is_architect_spawn");
+                    boolean isObjectiveSpawnTile = r.getBoolean("is_objective_spawn");
                     int rotation = r.getInt("rotation");
                     int tileID = r.getInt("tile_id");
                     TileType tileType = tileTypeMap.get(tileID);
-                    MapTile tile = new MapTile(x,y,tileType,rotation, isHeroSpawnTile);
+                    MapTile tile = new MapTile(x,y,tileType,rotation, isHeroSpawnTile, isArchitectSpawnTile, isObjectiveSpawnTile);
                     mp.setTile(x,y,tile);
                 }
                 if(!(count == (mp.getSizeX()*mp.getSizeY()))){

@@ -13,12 +13,16 @@ public class MapTile extends Location implements Jsonable {
     private MapRepository.TileType tileType;
     private final int rotation;
     private final boolean isHeroSpawn;
+    private final boolean isArchitectSpawn;
+    private final boolean isObjectiveSpawn;
 
-    public MapTile(int x, int y, MapRepository.TileType tileType, int rotation, boolean isHeroSpawn) {
+    public MapTile(int x, int y, MapRepository.TileType tileType, int rotation, boolean isHeroSpawn, boolean isArchitectSpawn, boolean isObjectiveSpawn) {
         super(x, y);
         this.tileType = tileType;
         this.rotation = rotation;
         this.isHeroSpawn = isHeroSpawn;
+        this.isArchitectSpawn = isArchitectSpawn;
+        this.isObjectiveSpawn = isObjectiveSpawn;
     }
 
     @Override
@@ -42,5 +46,13 @@ public class MapTile extends Location implements Jsonable {
 
     public boolean isHeroSpawn() {
         return isHeroSpawn;
+    }
+
+    public boolean isArchitectSpawn() {
+        return isArchitectSpawn;
+    }
+
+    public boolean isObjectiveSpawn() {
+        return isObjectiveSpawn;
     }
 }

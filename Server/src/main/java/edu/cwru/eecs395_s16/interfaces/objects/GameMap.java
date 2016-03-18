@@ -91,4 +91,8 @@ public interface GameMap extends Jsonable {
 
     List<Location> getHeroSpawnLocations();
 
+    List<Location> getArchitectCreatureSpawnLocations();
+
+    List<Location> getObjectiveSpawnLocations();
+
 }

@@ -88,4 +88,14 @@ public class FromDatabaseMap implements DatabaseObject, GameMap {
     public List<Location> getHeroSpawnLocations() {
         return this.heroSpawnLocations;
     }
+
+    @Override
+    public List<Location> getArchitectCreatureSpawnLocations() {
+        return null;
+    }
+
+    @Override
+    public List<Location> getObjectiveSpawnLocations() {
+        return null;
+    }
 }

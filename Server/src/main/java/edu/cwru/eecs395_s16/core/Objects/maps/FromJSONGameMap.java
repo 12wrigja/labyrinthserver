@@ -1,7 +1,6 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
@@ -38,7 +37,7 @@ public class FromJSONGameMap implements GameMap {
             int tileX = tile.getInt("x");
             int tileY = tile.getInt("y");
             int rotation = tile.getInt("rotation");
-            MapTile t = new MapTile(tileX, tileY, tileType, rotation, false);
+            MapTile t = new MapTile(tileX, tileY, tileType, rotation, false, false, false);
             this.tiles[tileX][tileY] = t;
         }
     }
@@ -77,8 +76,21 @@ public class FromJSONGameMap implements GameMap {
         return heroCapacity;
     }
 
+
+    //TODO see if these three lists matter at all
+    //They probably don't as these locations are only needed when making a match
     @Override
     public List<Location> getHeroSpawnLocations() {
+        return null;
+    }
+
+    @Override
+    public List<Location> getArchitectCreatureSpawnLocations() {
+        return null;
+    }
+
+    @Override
+    public List<Location> getObjectiveSpawnLocations() {
         return null;
     }
 }

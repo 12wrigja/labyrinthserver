@@ -1,16 +1,12 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by james on 2/23/16.
@@ -21,6 +17,8 @@ public class AlmostBlankMap implements GameMap {
     private int y;
     private MapTile[][] tiles;
     private List<Location> heroSpawnLocations;
+    private List<Location> architectSpawnLocations;
+    private List<Location> objectiveSpawnLocations;
 
     public AlmostBlankMap(int x, int y) {
         this(x,y,GameEngine.instance().services.mapRepository.getTileTypeMap());
@@ -29,22 +27,33 @@ public class AlmostBlankMap implements GameMap {
     public AlmostBlankMap(int x, int y, Map<String,MapRepository.TileType> tileMap){
         tiles = new MapTile[x][y];
         this.heroSpawnLocations = new ArrayList<>();
+        this.architectSpawnLocations = new ArrayList<>();
+        this.objectiveSpawnLocations = new ArrayList<>();
         MapRepository.TileType wallType = tileMap.get("wall");
         MapRepository.TileType dirtType = tileMap.get("dirt");
         this.x = x;
         this.y = y;
+        Random r = new Random();
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 MapTile t;
                 boolean isHeroSpawnPoint = (i>=0 && i<=2 && j >= 0 && j <= 2);
+                boolean isArchitectSpawnPoint = (i>=0 && i >= x-2 && i < x && j>=0 && j>=y-2 && j < y);
+                boolean isObjectiveSpawnPoint = isArchitectSpawnPoint && r.nextInt(100) < 30;
                 if (i % 4 == 0 && i != 0 && y >= 2 && j >= 2 && j <= y-2) {
-                    t = new MapTile(i, j, wallType, 0, isHeroSpawnPoint);
+                    t = new MapTile(i, j, wallType, 0, isHeroSpawnPoint, isArchitectSpawnPoint, isObjectiveSpawnPoint);
                 } else {
-                    t = new MapTile(i, j, dirtType, 0, isHeroSpawnPoint);
+                    t = new MapTile(i, j, dirtType, 0, isHeroSpawnPoint, isArchitectSpawnPoint, isObjectiveSpawnPoint);
                 }
                 tiles[i][j] = t;
                 if(isHeroSpawnPoint){
                     heroSpawnLocations.add(t);
+                }
+                if(isArchitectSpawnPoint){
+                    architectSpawnLocations.add(t);
+                }
+                if(isObjectiveSpawnPoint){
+                    objectiveSpawnLocations.add(t);
                 }
             }
         }
@@ -87,5 +96,15 @@ public class AlmostBlankMap implements GameMap {
     @Override
     public List<Location> getHeroSpawnLocations() {
         return heroSpawnLocations;
+    }
+
+    @Override
+    public List<Location> getArchitectCreatureSpawnLocations() {
+        return architectSpawnLocations;
+    }
+
+    @Override
+    public List<Location> getObjectiveSpawnLocations() {
+        return objectiveSpawnLocations;
     }
 }
