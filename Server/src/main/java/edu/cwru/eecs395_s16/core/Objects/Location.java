@@ -77,4 +77,5 @@ public class Location implements Jsonable {
     public Location locationRelativeTo(Location otherLocation){
         return new Location(otherLocation.x-this.x,otherLocation.y-this.y);
     }
+
 }

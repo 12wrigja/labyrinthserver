@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.services.weaponrepository;
 
+import edu.cwru.eecs395_s16.core.objects.AttackPattern;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.Weapon;
 import edu.cwru.eecs395_s16.interfaces.repositories.WeaponRepository;
@@ -18,12 +19,9 @@ public class InMemoryWeaponRepository implements WeaponRepository {
     public InMemoryWeaponRepository() {
         //Add in default weapons
         weaponMap = new HashMap<>();
-
-        Map<Location,Float> locs = new HashMap<>();
-        locs.put(new Location(0,1),1.0f);
-        Weapon basicMeleeWeapon = new Weapon(0,"sword","Basic Sword","A basic sword. Does no damage scaling.",1,0,locs);
+        Weapon basicMeleeWeapon = new Weapon(0,"sword","Basic Sword","A basic sword. Does no damage scaling.", 1, 1, AttackPattern.singleTargetPattern);
         weaponMap.put(basicMeleeWeapon.getDatabaseID(),basicMeleeWeapon);
-        Weapon basicRangedWeapon = new Weapon(1,"bow","Basic Bow","A basic bow. Does no damage scaling.",1,3,locs);
+        Weapon basicRangedWeapon = new Weapon(1,"bow","Basic Bow","A basic bow. Does no damage scaling.", 3, 1, AttackPattern.singleTargetPattern);
         weaponMap.put(basicRangedWeapon.getDatabaseID(),basicRangedWeapon);
     }
 

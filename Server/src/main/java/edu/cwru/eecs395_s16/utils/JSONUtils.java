@@ -1,10 +1,14 @@
 package edu.cwru.eecs395_s16.utils;
 
+import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Created by james on 2/22/16.
@@ -178,5 +182,22 @@ public class JSONUtils {
     public static boolean isEquivalent(JSONObject obj1, JSONObject obj2) {
         JSONDiff diff = getDiff(obj1, obj2);
         return !diff.hasChanges();
+    }
+
+
+    public static <T extends  Jsonable> JSONArray listify(List<T> list){
+        JSONArray arr = new JSONArray();
+        list.forEach(t -> arr.put(t.getJSONRepresentation()));
+        return arr;
+    }
+
+    public interface Reducer<K,V> {
+        JSONObject reduce(Map.Entry<K,V> entry);
+    }
+
+    public static <K,V> JSONArray listify(Map<K,V> map, Reducer<K,V> reducer){
+        JSONArray arr = new JSONArray();
+        map.entrySet().forEach(entry -> arr.put(reducer.reduce(entry)));
+        return arr;
     }
 }

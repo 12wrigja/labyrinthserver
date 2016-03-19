@@ -37,7 +37,7 @@ public class GameActionBaseRequest implements RequestData {
         try {
             type = ACTION_TYPE.valueOf(obj.getString("type").toUpperCase()+ENUM_APPEND);
         } catch (JSONException e) {
-            type = ACTION_TYPE.PASS_ACTION;
+            throw new InvalidDataException("type");
         }
     }
 

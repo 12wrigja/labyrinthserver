@@ -112,9 +112,7 @@ public class Creature extends GameObject {
     }
 
     public void attackTarget(Creature target, int computedDamage) {
-        float percentageOfDamage = weapon.getDamagePercentageForLocation(target.getLocation());
-        int actualDamage = (int) Math.floor(percentageOfDamage * computedDamage);
-        target.takeDamage(actualDamage);
+        target.takeDamage(computedDamage);
     }
 
     public void takeDamage(int damage) {

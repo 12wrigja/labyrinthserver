@@ -76,6 +76,10 @@ public class AuthenticationMiddleware {
                 }
                 if (p.isPresent()) {
                     p.get().setClient(Optional.of(client));
+                    //Check to see if you need to re-join the client room
+                    if(p.get().getCurrentMatchID().isPresent()){
+                        client.joinRoom(p.get().getCurrentMatchID().toString());
+                    }
                     //We are all good. Invoke the next method.
                     response = (Response) next.invoke(instance, obj, p.get());
                 }

@@ -1,12 +1,12 @@
 package edu.cwru.eecs395_s16.core.objects.heroes;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.objects.AttackPattern;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.cert.PKIXRevocationChecker;
 import java.util.*;
 
 public class HeroBuilder {
@@ -26,11 +26,7 @@ public class HeroBuilder {
     private int vision = 4;
     private int actionPoints = 2;
     private int maxActionPoints = 2;
-    private Weapon weapon = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, new HashMap<Location, Float>() {
-        {
-            put(new Location(0, 0), 1.0f);
-        }
-    });
+    private Weapon weapon = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, AttackPattern.singleTargetPattern);
     private List<Ability> abilities = new ArrayList<>();
     private List<GameObjectStatus> statuses = new ArrayList<>();
 
