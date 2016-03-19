@@ -15,11 +15,13 @@ public class InMemoryCacheService implements CacheService {
 
     @Override
     public void storeString(String key, String str) {
+        System.out.println("InMemory Cache: Storing for key: "+key);
         stringStorage.put(key,str);
     }
 
     @Override
     public Optional<String> getString(String key) {
+        System.out.println("InMemory Cache: Getting for key: "+key);
         if(stringStorage.keySet().contains(key)) {
             return Optional.ofNullable(stringStorage.get(key));
         } else {

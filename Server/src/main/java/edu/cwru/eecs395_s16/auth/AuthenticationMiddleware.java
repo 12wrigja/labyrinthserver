@@ -71,7 +71,7 @@ public class AuthenticationMiddleware {
                     if(pResp.isNormal()){
                         p = Optional.of(pResp.get());
                     } else {
-                        response = pResp;
+                        response = new InternalResponseObject<>(WebStatusCode.UNAUTHENTICATED);
                     }
                 }
                 if (p.isPresent()) {

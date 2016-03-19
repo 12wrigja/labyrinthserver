@@ -31,14 +31,14 @@ public class PassGameAction implements GameAction {
         Optional<GameObject> boardObj = boardObjects.getByID(characterID);
         if (boardObj.isPresent()) {
             if (!(boardObj.get() instanceof Creature)) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_OBJECT);
-            } else {
-                if(!GameAction.isControlledByPlayer(boardObj.get(),player)){
-                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_CONTROLLER);
-                }
+                return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT);
+            } else if(!GameAction.isControlledByPlayer(boardObj.get(),player)){
+                    return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER);
+            } else if (((Creature)boardObj.get()).getActionPoints() == 0){
+                return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS);
             }
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_OBJECT);
+            return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_OBJECT);
         }
         return new InternalResponseObject<>(true, "valid");
     }

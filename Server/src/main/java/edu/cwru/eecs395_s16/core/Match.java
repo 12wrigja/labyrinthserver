@@ -312,6 +312,7 @@ public class Match implements Jsonable {
     }
 
     public void takeAndCommitSnapshot(JSONObject originalState, Object actionReason) {
+        System.out.println("Snapshotting "+this.gameSequenceID+" for reason"+actionReason.toString());
         JSONObject diff = takeSnapshot(originalState, actionReason);
         storeSnapshotForSequence(this.gameSequenceID, diff);
     }

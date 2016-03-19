@@ -20,7 +20,7 @@ public class Creature extends GameObject {
     public static final String ATTACK_KEY = "attack";
     public static final String DEFENSE_KEY = "defense";
     public static final String HEALTH_KEY = "health";
-    public static final String MAX_HEALTH_KEY = "health";
+    public static final String MAX_HEALTH_KEY = "max_health";
     public static final String MOVEMENT_KEY = "movement";
     public static final String VISION_KEY = "vision";
     public static final String ABILITIES_KEY = "abilities";

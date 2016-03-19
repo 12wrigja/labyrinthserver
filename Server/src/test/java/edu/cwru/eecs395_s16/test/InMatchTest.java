@@ -58,14 +58,14 @@ public abstract class InMatchTest extends SerializationTest {
         architectBot.disconnect();
     }
 
-    public List<Hero> getHeroesForHero(Player hero){
+    public List<Hero> getHeroesForHero(Player hero) {
         Hero h = new HeroBuilder().setOwnerID(Optional.of(hero.getUsername())).createHero();
         List<Hero> heroes = new ArrayList<>();
         heroes.add(h);
         return heroes;
     }
 
-    public List<GameObject> getObjectsForArchitect(Player architect){
+    public List<GameObject> getObjectsForArchitect(Player architect) {
         Hero hero = new HeroBuilder().setOwnerID(Optional.of(architect.getUsername())).createHero();
         List<GameObject> gameObjects = new ArrayList<>();
         gameObjects.add(hero);
@@ -100,23 +100,15 @@ public abstract class InMatchTest extends SerializationTest {
     public void forceSetCharacterLocation(UUID characterID, Location loc) {
         updateMatchState();
         Optional<GameObject> objOpt = currentMatchState.getBoardObjects().getByID(characterID);
-        if(objOpt.isPresent()){
-            objOpt.get().setLocation(loc);
+        if (objOpt.isPresent()) {
+            currentMatchState.doAndSnapshot("Forced snapshot for movement",()->objOpt.get().setLocation(loc), true);
         } else {
-            //The object is not on the board. Return
+            fail("Your trying to force set a character that doesn exist. STOP.");
             return;
         }
-        try {
-            JSONObject snapshot = new JSONObject(objMapper.writeValueAsString(currentMatchState.getJSONRepresentation()));
-            currentMatchState.takeAndCommitSnapshot(snapshot, "Forced snapshot for movement.");
-            updateMatchState();
-            Location newLoc = currentMatchState.getBoardObjects().getByID(characterID).get().getLocation();
-            assertEquals(newLoc, loc);
-        } catch (JSONException e) {
-            fail("Unable to build new JSON object from string.");
-        } catch (JsonProcessingException e) {
-            fail("Unable to stringify json object.");
-        }
+        updateMatchState();
+        Location newLoc = currentMatchState.getBoardObjects().getByID(characterID).get().getLocation();
+        assertEquals(loc, newLoc);
     }
 
     public InternalResponseObject<Boolean> moveCharacter(Player p, UUID characterID, List<Location> path, boolean failTestOnFailure) {
