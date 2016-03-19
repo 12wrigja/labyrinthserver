@@ -310,6 +310,7 @@ public class Match implements Jsonable {
             //should never happen - keys are non-null
         }
         storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
+        broadcastToAllParties("game_update",gameUpdate);
     }
 
     private void swapSides() {

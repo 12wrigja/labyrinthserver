@@ -8,7 +8,7 @@ import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by james on 2/18/16.
@@ -74,6 +74,39 @@ public interface GameAction extends Jsonable {
         }
 
         return true;
+    }
+
+    static Set<Location> floodFill(GameMap map, Location start, int radius, boolean includeDiagonals){
+        Queue<BFSNode> openList = new ArrayDeque<>();
+        openList.add(new BFSNode(start,0));
+        Set<Location> closedList = new HashSet<>();
+        while(!openList.isEmpty()){
+            BFSNode node = openList.poll();
+            if(node.dist <= radius){
+                closedList.add(node.loc);
+            }
+            if(node.dist < radius){
+                List<Location> neighbours = map.getTileNeighbours(node.loc);
+                for(Location neighbour : neighbours){
+                    if(node.loc.isNeighbourOf(neighbour,includeDiagonals) && !map.getTile(neighbour).get().isObstructionTileType()){
+                        if(!openList.contains(neighbour) || closedList.contains(neighbour)){
+                            openList.add(new BFSNode(neighbour,node.dist+1));
+                        }
+                    }
+                }
+            }
+        }
+        return closedList;
+    }
+
+    class BFSNode {
+        Location loc;
+        int dist;
+
+        public BFSNode(Location loc, int dist) {
+            this.loc = loc;
+            this.dist = dist;
+        }
     }
 
 }

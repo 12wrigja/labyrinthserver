@@ -9,6 +9,9 @@ import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.services.maprepository.InMemoryMapRepository;
 import org.junit.Test;
 
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -82,6 +85,69 @@ public class LineOfSightTests {
         objects.add(h2);
         objects.add(h3);
         assertFalse(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
+    }
+
+
+    @Test
+    public void testFloodFill(){
+        Set<Location> locs = GameAction.floodFill(map,new Location(0,0),3,true);
+        assertEquals(16,locs.size());
+        assertTrue(locs.contains(new Location(0,0)));
+        assertTrue(locs.contains(new Location(1,1)));
+        assertTrue(locs.contains(new Location(2,2)));
+        assertTrue(locs.contains(new Location(3,3)));
+        assertTrue(locs.contains(new Location(0,1)));
+        assertTrue(locs.contains(new Location(0,2)));
+        assertTrue(locs.contains(new Location(0,3)));
+        assertTrue(locs.contains(new Location(1,0)));
+        assertTrue(locs.contains(new Location(1,2)));
+        assertTrue(locs.contains(new Location(1,3)));
+        assertTrue(locs.contains(new Location(2,0)));
+        assertTrue(locs.contains(new Location(2,1)));
+        assertTrue(locs.contains(new Location(2,3)));
+        assertTrue(locs.contains(new Location(3,0)));
+        assertTrue(locs.contains(new Location(3,1)));
+        assertTrue(locs.contains(new Location(3,2)));
+    }
+
+    @Test
+    public void testFloodFillNoDiagonals(){
+        Set<Location> locs = GameAction.floodFill(map,new Location(0,0),3,false);
+        assertEquals(10,locs.size());
+        assertTrue(locs.contains(new Location(0,0)));
+        assertTrue(locs.contains(new Location(1,1)));
+        assertTrue(locs.contains(new Location(0,1)));
+        assertTrue(locs.contains(new Location(0,2)));
+        assertTrue(locs.contains(new Location(0,3)));
+        assertTrue(locs.contains(new Location(1,0)));
+        assertTrue(locs.contains(new Location(1,2)));
+        assertTrue(locs.contains(new Location(2,0)));
+        assertTrue(locs.contains(new Location(2,1)));
+        assertTrue(locs.contains(new Location(3,0)));
+    }
+
+    @Test
+    public void testFloodFillObeysObstructionTiles(){
+        Set<Location> locs = GameAction.floodFill(map,new Location(3,2),3,false);
+        assertEquals(18,locs.size());
+        assertTrue(locs.contains(new Location(3,0)));
+        assertTrue(locs.contains(new Location(3,1)));
+        assertTrue(locs.contains(new Location(3,2)));
+        assertTrue(locs.contains(new Location(3,3)));
+        assertTrue(locs.contains(new Location(3,4)));
+        assertTrue(locs.contains(new Location(3,5)));
+        assertTrue(locs.contains(new Location(2,0)));
+        assertTrue(locs.contains(new Location(2,1)));
+        assertTrue(locs.contains(new Location(2,2)));
+        assertTrue(locs.contains(new Location(2,3)));
+        assertTrue(locs.contains(new Location(2,4)));
+        assertTrue(locs.contains(new Location(1,1)));
+        assertTrue(locs.contains(new Location(1,2)));
+        assertTrue(locs.contains(new Location(1,3)));
+        assertTrue(locs.contains(new Location(0,2)));
+        assertTrue(locs.contains(new Location(4,0)));
+        assertTrue(locs.contains(new Location(4,1)));
+        assertTrue(locs.contains(new Location(5,1)));
     }
 
 }
