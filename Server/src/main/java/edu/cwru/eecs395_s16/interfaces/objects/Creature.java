@@ -50,6 +50,7 @@ public class Creature extends GameObject {
         this.currentActionPoints = currentActionPoints;
         this.abilities = abilities;
         this.statuses = statuses;
+        this.weapon = weapon;
     }
 
     public static final String WEAPON_KEY = "weapon";
@@ -108,15 +109,6 @@ public class Creature extends GameObject {
 
     public void resetActionPoints() {
         currentActionPoints = maxActionPoints;
-    }
-
-    public InternalResponseObject<Boolean> validListOfBasicAttackTargets(List<Location> targets) {
-        for (Location target : targets) {
-            if (!weapon.isAttackLocationValid(this, target)) {
-                return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
-            }
-        }
-        return new InternalResponseObject<>(true, "valid");
     }
 
     public void attackTarget(Creature target, int computedDamage) {

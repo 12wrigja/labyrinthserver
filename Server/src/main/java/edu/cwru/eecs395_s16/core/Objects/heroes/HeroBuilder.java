@@ -7,10 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.cert.PKIXRevocationChecker;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class HeroBuilder {
     private UUID objectID = UUID.randomUUID();
@@ -20,7 +17,7 @@ public class HeroBuilder {
     private HeroType type = HeroType.WARRIOR;
     private int level = 1;
     private long exp = 0;
-    private Location location = new Location(0,0);
+    private Location location = new Location(0, 0);
     private int attack = 10;
     private int defense = 0;
     private int health = 50;
@@ -29,7 +26,11 @@ public class HeroBuilder {
     private int vision = 4;
     private int actionPoints = 2;
     private int maxActionPoints = 2;
-    private Optional<Weapon> weapon = Optional.empty();
+    private Weapon weapon = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, new HashMap<Location, Float>() {
+        {
+            put(new Location(0, 0), 1.0f);
+        }
+    });
     private List<Ability> abilities = new ArrayList<>();
     private List<GameObjectStatus> statuses = new ArrayList<>();
 
@@ -113,7 +114,7 @@ public class HeroBuilder {
         return this;
     }
 
-    public HeroBuilder setWeapon(Optional<Weapon> weapon) {
+    public HeroBuilder setWeapon(Weapon weapon) {
         this.weapon = weapon;
         return this;
     }
@@ -160,11 +161,11 @@ public class HeroBuilder {
         setActionPoints(obj.getInt(Creature.ACTION_POINTS_KEY));
         setMaxActionPoints(obj.getInt(Creature.MAX_ACTION_POINTS_KEY));
         //Weapon 
-        if(obj.has(Hero.WEAPON_KEY)) {
-            JSONObject weaponObj = obj.getJSONObject(Hero.WEAPON_KEY);
-            int weaponID = weaponObj.getInt(DatabaseObject.DATABASE_ID_KEY);
-            Optional<Weapon> weapon = GameEngine.instance().services.weaponRepository.getWeaponForId(weaponID);
-            setWeapon(weapon);
+        JSONObject weaponObj = obj.getJSONObject(Hero.WEAPON_KEY);
+        int weaponID = weaponObj.getInt(DatabaseObject.DATABASE_ID_KEY);
+        Optional<Weapon> weapon = GameEngine.instance().services.weaponRepository.getWeaponForId(weaponID);
+        if (weapon.isPresent()) {
+            setWeapon(weapon.get());
         }
         //Abilities 
         //TODO set abilities 

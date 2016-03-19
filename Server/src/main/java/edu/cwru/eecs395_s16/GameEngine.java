@@ -4,17 +4,12 @@ import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.interfaces.repositories.*;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
-import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.ServiceContainer;
-import edu.cwru.eecs395_s16.services.ServiceContainerBuilder;
 import edu.cwru.eecs395_s16.services.bots.BotClientService;
-import edu.cwru.eecs395_s16.services.bots.PlayerRepositoryBotWrapper;
-import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 
 import java.io.IOException;
