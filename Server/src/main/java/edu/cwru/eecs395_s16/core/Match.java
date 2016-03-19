@@ -325,7 +325,7 @@ public class Match implements Jsonable {
         GameEngine.instance().services.cacheService.storeString(this.matchIdentifier + GAME_SEQUENCE_KEY + sequenceNumber, snapshot.toString());
     }
 
-    private boolean isPlayerTurn(Player p) {
+    public boolean isPlayerTurn(Player p) {
         return ((p.equals(heroPlayer) && gameState == GameState.HERO_TURN)
                 ||
                 (p.equals(architectPlayer) && gameState == GameState.ARCHITECT_TURN));

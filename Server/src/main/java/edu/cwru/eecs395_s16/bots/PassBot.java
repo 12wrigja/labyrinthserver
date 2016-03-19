@@ -34,11 +34,13 @@ public class PassBot extends GameBot {
                 @SuppressWarnings("unchecked")
                 InternalResponseObject<Match> actualResp = (InternalResponseObject<Match>)matchResp;
                 Match match = actualResp.get();
-                List<GameObject> myCreatures = match.getBoardObjects().getForPlayerOwner(this);
-                myCreatures.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
-                    PassGameActionData passData = new PassGameActionData(obj.getGameObjectID());
-                    sendEvent("game_action", passData.convertToJSON());
-                });
+                if(match.isPlayerTurn(this)) {
+                    List<GameObject> myCreatures = match.getBoardObjects().getForPlayerOwner(this);
+                    myCreatures.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
+                        PassGameActionData passData = new PassGameActionData(obj.getGameObjectID());
+                        sendEvent("game_action", passData.convertToJSON());
+                    });
+                }
             }
         }
     }
