@@ -34,7 +34,7 @@ public class MoveGameActionData {
         try {
             characterID = obj.getString("character_id");
         } catch (JSONException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The path is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The character_id is invalid.");
         }
 
         List<Location> path = new ArrayList<>();

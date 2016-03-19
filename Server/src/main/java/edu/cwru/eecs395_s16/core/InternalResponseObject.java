@@ -92,7 +92,7 @@ public class InternalResponseObject<T> extends Response {
      * @param message
      */
     public InternalResponseObject(InternalErrorCode code, String message) {
-        this(WebStatusCode.SERVER_ERROR, code, message);
+        this(WebStatusCode.UNPROCESSABLE_DATA, code, message);
     }
 
     /**

@@ -65,7 +65,9 @@ public class BasicAttackGameAction implements GameAction {
             } else {
                 //TODO potentially make this change based on the weapon equipped
                 //Check to see that the target point is within the weapon's range and that we have line of sight to that point
-                if (GameAction.floodFill(map, attacker.getLocation(), weapon.getRange(), true).contains(target) && GameAction.isLineOfSight(attacker.getLocation(), target, map, boardObjects)) {
+                if (!GameAction.floodFill(map, attacker.getLocation(), weapon.getRange(), true).contains(target)){
+                    return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
+                } else if (!GameAction.isLineOfSight(attacker.getLocation(), target, map, boardObjects)) {
                     return new InternalResponseObject<>(InternalErrorCode.NOT_VISIBLE);
                 }
             }
