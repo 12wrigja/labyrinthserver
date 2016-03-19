@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.interfaces.objects;
 
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +27,7 @@ public class Weapon implements DatabaseObject, Jsonable {
     private final String description;
     private final int damageModifier;
     private final int range;
-    private final Map<Location,Float> damageDistributionMap;
+    private final Map<Location, Float> damageDistributionMap;
 
     public Weapon(int databaseID, String image, String name, String description, int damageModifier, int range, Map<Location, Float> damageDistributionMap) {
         this.databaseID = databaseID;
@@ -64,12 +64,8 @@ public class Weapon implements DatabaseObject, Jsonable {
         return range;
     }
 
-    public boolean isAttackLocationValid(Hero hero, Creature target) {
-        return damageDistributionMap.containsKey(target.getLocation());
-    }
-
     public float getDamagePercentageForLocation(Location location) {
-        if(damageDistributionMap.containsKey(location)){
+        if (damageDistributionMap.containsKey(location)) {
             return damageDistributionMap.get(location);
         } else {
             return 0f;
@@ -79,20 +75,21 @@ public class Weapon implements DatabaseObject, Jsonable {
     @Override
     public JSONObject getJSONRepresentation() {
         JSONObject representation = new JSONObject();
-        try{
-            representation.put(IMAGE_KEY,getImage());
-            representation.put(NAME_KEY,getName());
-            representation.put(DESCRIPTION_KEY,getDescription());
-            representation.put(DAMAGE_MOD_KEY,getDamageModifier());
-            representation.put(RANGE_KEY,getRange());
+        try {
+            representation.put(IMAGE_KEY, getImage());
+            representation.put(DATABASE_ID_KEY, getDatabaseID());
+            representation.put(NAME_KEY, getName());
+            representation.put(DESCRIPTION_KEY, getDescription());
+            representation.put(DAMAGE_MOD_KEY, getDamageModifier());
+            representation.put(RANGE_KEY, getRange());
             JSONArray arr = new JSONArray();
-            for(Map.Entry<Location,Float> pair : damageDistributionMap.entrySet()){
+            for (Map.Entry<Location, Float> pair : damageDistributionMap.entrySet()) {
                 JSONObject obj = pair.getKey().getJSONRepresentation();
-                obj.put(DAMAGE_PERCENT_KEY,pair.getValue());
+                obj.put(DAMAGE_PERCENT_KEY, pair.getValue());
                 arr.put(obj);
             }
-            representation.put(DAMAGE_MAP_KEY,arr);
-        } catch (JSONException e){
+            representation.put(DAMAGE_MAP_KEY, arr);
+        } catch (JSONException e) {
             //This should never happen - all keys are not null
         }
         return representation;

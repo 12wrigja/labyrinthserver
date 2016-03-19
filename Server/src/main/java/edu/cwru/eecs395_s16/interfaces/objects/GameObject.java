@@ -5,7 +5,6 @@ import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,11 +24,12 @@ public abstract class GameObject implements Jsonable {
     private final Optional<String> controllerID;
     private Location location = new Location(0, 0);
 
-    protected GameObject(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType) {
+    protected GameObject(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType, Location location) {
         this.ownerID = ownerID;
         this.objectID = objectID;
         this.controllerID = controllerID;
         this.objectType = objectType;
+        this.location = location;
     }
 
     public TYPE getGameObjectType() {
@@ -77,6 +77,7 @@ public abstract class GameObject implements Jsonable {
         HERO,
         MONSTER,
         TRAP,
-        OBJECTIVE
+        OBJECTIVE,
+        UNKNOWN
     }
 }

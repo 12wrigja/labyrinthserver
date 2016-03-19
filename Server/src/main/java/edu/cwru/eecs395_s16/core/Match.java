@@ -1,7 +1,6 @@
 package edu.cwru.eecs395_s16.core;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.UnauthorizedActionException;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
@@ -226,13 +225,12 @@ public class Match implements Jsonable {
         //Add in an objective if the map calls for one
         List<Location> objectiveSpawnLocations = gameMap.getObjectiveSpawnLocations();
         if(objectiveSpawnLocations.size() > 0) {
-            ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID());
             Random r = new Random();
             int index = r.nextInt(objectiveSpawnLocations.size());
-            obj.setLocation(objectiveSpawnLocations.get(index));
+            ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID(), objectiveSpawnLocations.get(index));
             this.boardObjects.add(obj);
         }
-        
+
         //Take initial snapshots and store them.
         setCurrentSequence(this.gameSequenceID);
         JSONObject matchBaseline = this.getJSONRepresentation();
@@ -426,4 +424,5 @@ public class Match implements Jsonable {
     public GameMap getGameMap() {
         return gameMap;
     }
+
 }

@@ -4,17 +4,17 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
-import edu.cwru.eecs395_s16.interfaces.objects.Creature;
-import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.Location;
+import edu.cwru.eecs395_s16.interfaces.objects.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by james on 3/16/16.
@@ -47,24 +47,32 @@ public class BasicAttackGameAction implements GameAction {
             return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER, "You are not the controller of the attacker object");
         }
         attacker = (Creature)attackerObj;
+        Weapon weapon = attacker.getWeapon();
+        //Look at the list of attack locations, validate them, and
+        //pull out the creatures (if any) that are affected
+        for(Location target : data.getTargets()) {
 
-        targets = new ArrayList<>();
-        for(UUID targetID : data.getTargets()) {
-            Optional<GameObject> targetObjOpt = boardObjects.getByID(targetID);
-            if (!targetObjOpt.isPresent() || !(targetObjOpt.get() instanceof Creature)) {
-                return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "A target id is not a valid game object.");
-            } else if (GameAction.isControlledByPlayer(targetObjOpt.get(), player)) {
+            List<GameObject> targetObjs = boardObjects.getForLocation(target).stream().filter(obj->obj instanceof Creature).collect(Collectors.toList());
+            Creature c;
+            if(targetObjs.size() == 0){
+                continue;
+            } else {
+                c = (Creature)targetObjs.get(0);
+            }
+
+            if (weapon.getRange() == 0 && !attacker.getLocation().isNeighbourOf(target, true)) {
+                return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
+            }
+            //TODO potentially make this change based on the weapon equipped
+            if(!GameAction.isLineOfSight(attacker.getLocation(),target,map,boardObjects)){
+                return new InternalResponseObject<>(InternalErrorCode.NOT_VISIBLE);
+            }
+
+            if(GameAction.isControlledByPlayer(c, player)) {
                 //Check and see if the player is trying to target a friendly unit with their attacker
                 return new InternalResponseObject<>(InternalErrorCode.FRIENDLY_FIRE, "A target game object is controlled by you.");
-            }else {
-                targets.add((Creature)targetObjOpt.get());
             }
-        }
-
-        //Check that for a specific attacker the list of targets is valid.
-        InternalResponseObject<Boolean> validationResp = attacker.validListOfBasicAttackTargets(targets);
-        if(!validationResp.isNormal()){
-            return validationResp;
+            targets.add(c);
         }
         return new InternalResponseObject<>(true, "valid");
     }
@@ -87,6 +95,14 @@ public class BasicAttackGameAction implements GameAction {
 
     @Override
     public JSONObject getJSONRepresentation() {
-        return null;
+        JSONObject representation = new JSONObject();
+        try {
+            representation.put("type","basic_attack");
+            representation.put("attacker_id",attacker.getGameObjectID());
+            representation.put("targets",targets);
+        } catch (JSONException e){
+            //Should not happen - all keys are nonnull
+        }
+        return representation;
     }
 }

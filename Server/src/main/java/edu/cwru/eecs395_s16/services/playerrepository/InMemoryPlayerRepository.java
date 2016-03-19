@@ -43,7 +43,7 @@ public class InMemoryPlayerRepository implements PlayerRepository {
             if (p.checkPassword(password)) {
                 return new InternalResponseObject<>(p);
             } else {
-                return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
+                return new InternalResponseObject<>(InternalErrorCode.INVALID_PASSWORD);
             }
         }
     }

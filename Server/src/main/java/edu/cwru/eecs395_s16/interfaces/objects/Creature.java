@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.interfaces.objects;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,14 +20,17 @@ public class Creature extends GameObject {
     public static final String ATTACK_KEY = "attack";
     public static final String DEFENSE_KEY = "defense";
     public static final String HEALTH_KEY = "health";
+    public static final String MAX_HEALTH_KEY = "health";
     public static final String MOVEMENT_KEY = "movement";
     public static final String VISION_KEY = "vision";
     public static final String ABILITIES_KEY = "abilities";
     public static final String STATUSES_KEY = "statuses";
     public static final String ACTION_POINTS_KEY = "action_points";
+    public static final String MAX_ACTION_POINTS_KEY = "max_action_points";
     private int attack = 10;
     private int defense = 10;
     private int health = 50;
+    private final int maxHealth;
     private int movement = 3;
     private int vision = 5;
     private int maxActionPoints = 2;
@@ -34,16 +38,29 @@ public class Creature extends GameObject {
     private List<Ability> abilities = new ArrayList<>();
     private List<GameObjectStatus> statuses = new ArrayList<>();
 
-    public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType, int attack, int defense, int health, int movement, int vision, int actionPoints, List<Ability> abilities, List<GameObjectStatus> statuses) {
-        super(objectID, ownerID, controllerID, objectType);
+    public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int currentActionPoints, int maxActionPoints, List<Ability> abilities, List<GameObjectStatus> statuses, Location location, Weapon weapon) {
+        super(objectID, ownerID, controllerID, objectType, location);
         this.attack = attack;
         this.defense = defense;
-        this.health = health;
+        this.health = currentHealth;
+        this.maxHealth = maxHealth;
         this.movement = movement;
         this.vision = vision;
-        this.maxActionPoints = actionPoints;
+        this.maxActionPoints = maxActionPoints;
+        this.currentActionPoints = currentActionPoints;
         this.abilities = abilities;
         this.statuses = statuses;
+    }
+
+    public static final String WEAPON_KEY = "weapon";
+    private Weapon weapon;
+
+    public Weapon getWeapon() {
+        return this.weapon;
+    }
+
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
     }
 
     public int getAttack() {
@@ -93,22 +110,19 @@ public class Creature extends GameObject {
         currentActionPoints = maxActionPoints;
     }
 
-    public int getBasicAttackDamage() {
-        return attack;
-    }
-
-    public InternalResponseObject<Boolean> validListOfBasicAttackTargets(List<Creature> targets){
-        if(targets.size() != 1){
-            return new InternalResponseObject<>(InternalErrorCode.TOO_MANY_TARGETS);
-        } else if (targets.get(0).getLocation().isNeighbourOf(getLocation(),true)){
-            return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
-        } else {
-            return new InternalResponseObject<>(true,"valid");
+    public InternalResponseObject<Boolean> validListOfBasicAttackTargets(List<Location> targets) {
+        for (Location target : targets) {
+            if (!weapon.isAttackLocationValid(this, target)) {
+                return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
+            }
         }
+        return new InternalResponseObject<>(true, "valid");
     }
 
-    public void attackTarget(Creature target, int computedDamage){
-        target.takeDamage(computedDamage);
+    public void attackTarget(Creature target, int computedDamage) {
+        float percentageOfDamage = weapon.getDamagePercentageForLocation(target.getLocation());
+        int actualDamage = (int) Math.floor(percentageOfDamage * computedDamage);
+        target.takeDamage(actualDamage);
     }
 
     public void takeDamage(int damage) {
@@ -128,16 +142,11 @@ public class Creature extends GameObject {
             representation.put(ABILITIES_KEY, getAbilities());
             representation.put(STATUSES_KEY, getStatuses());
             representation.put(ACTION_POINTS_KEY, getActionPoints());
+            representation.put(MAX_ACTION_POINTS_KEY, maxActionPoints);
+            representation.put(MAX_HEALTH_KEY, maxHealth);
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }
         return representation;
-    }
-
-    enum ATTACK_TYPE {
-        SINGLE_ADJACENT_POINT,
-        SINGLE_POINT,
-        MULTIPLE_ADJACENT_POINT,
-        MULTIPLE_POINT
     }
 }

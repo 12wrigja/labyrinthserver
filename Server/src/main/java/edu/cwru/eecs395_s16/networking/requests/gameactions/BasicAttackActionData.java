@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.networking.requests.gameactions;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.RequestData;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,16 +19,16 @@ import java.util.UUID;
 public class BasicAttackActionData {
 
     private UUID attacker;
-    private List<UUID> targets;
+    private List<Location> targets;
 
-    public BasicAttackActionData(UUID attacker, List<UUID> targets) {
+    public BasicAttackActionData(UUID attacker, List<Location> targets) {
         this.attacker = attacker;
         this.targets = targets;
     }
 
     public static InternalResponseObject<BasicAttackActionData> fillFromJSON(JSONObject obj) {
         UUID attackerID;
-        List<UUID> targets = new ArrayList<>();
+        List<Location> targets = new ArrayList<>();
         try {
             attackerID = RequestData.getUUID(obj, "attacker_id");
         } catch (InvalidDataException e) {
@@ -38,9 +39,10 @@ public class BasicAttackActionData {
             JSONArray arr = obj.getJSONArray("targets");
             try {
                 for (int i = 0; i < arr.length(); i++) {
-                    String target = arr.getString(i);
-                    UUID targetID = UUID.fromString(target);
-                    targets.add(targetID);
+                    JSONObject target = arr.getJSONObject(i);
+                    int x = target.getInt(Location.X_KEY);
+                    int y = target.getInt(Location.Y_KEY);
+                    targets.add(new Location(x,y));
                 }
             } catch (IllegalArgumentException e) {
                 return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "One of the target identifiers is invalid.");
@@ -67,7 +69,7 @@ public class BasicAttackActionData {
         return attacker;
     }
 
-    public List<UUID> getTargets() {
+    public List<Location> getTargets() {
         return targets;
     }
 }

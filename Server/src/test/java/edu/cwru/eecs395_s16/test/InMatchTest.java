@@ -2,7 +2,6 @@ package edu.cwru.eecs395_s16.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.cwru.eecs395_s16.bots.GameBot;
-import edu.cwru.eecs395_s16.bots.PassBot;
 import edu.cwru.eecs395_s16.bots.TestBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
@@ -14,7 +13,6 @@ import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.objects.Creature;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
-import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.requests.GameActionBaseRequest;
 import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
@@ -22,7 +20,6 @@ import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
 
 import java.util.ArrayList;
 import java.util.List;

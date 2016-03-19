@@ -55,29 +55,14 @@ public enum InternalErrorCode {
 
     //Combat/Abilities (Common errors)
     TOO_MANY_TARGETS("There are too many targets for this action"),
-    NOT_IN_RANGE("The target is not in range.");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    NOT_IN_RANGE("The target is not in range."),
+    NOT_VISIBLE("Target is not visible to character. This could be because the character is blocked by either another character or an obstruction tile.");
 
 
 
     public final String message;
-    InternalErrorCode(String message){
+
+    InternalErrorCode(String message) {
         this.message = message;
     }
 }
