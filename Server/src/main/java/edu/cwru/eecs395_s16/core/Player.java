@@ -19,17 +19,20 @@ public class Player implements DatabaseObject{
 
     private Optional<GameClient> client;
 
+    private final boolean isDev;
+
     //Match local storage and caching
     private static final String PLAYER_CURRENT_MATCH_KEY = ":CurrentMatch";
     private Optional<UUID> currentMatchID;
 
     private int databaseIdentifier;
 
-    public Player(int databaseIdentifier, String username, String password) {
+    public Player(int databaseIdentifier, String username, String password, boolean isDev) {
         this.username = username;
         this.password = password;
         this.databaseIdentifier = databaseIdentifier;
         this.client = Optional.empty();
+        this.isDev = isDev;
     }
 
     public boolean checkPassword(String password) {
@@ -98,5 +101,9 @@ public class Player implements DatabaseObject{
     @Override
     public int getDatabaseID() {
         return this.databaseIdentifier;
+    }
+
+    public boolean isDev() {
+        return isDev;
     }
 }

@@ -40,7 +40,7 @@ public class InMemoryStorageTests {
     @Test
     public void testInMemorySessionRepository(){
         SessionRepository repo = new InMemorySessionRepository();
-        Player p = new Player(-1,USERNAME,PASSWORD);
+        Player p = new Player(-1,USERNAME,PASSWORD, false);
         final UUID sessionID = UUID.randomUUID();
         repo.storePlayer(sessionID,p);
 

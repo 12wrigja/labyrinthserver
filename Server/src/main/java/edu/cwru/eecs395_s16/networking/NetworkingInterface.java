@@ -22,7 +22,9 @@ import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.NewMapResponse;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import org.json.JSONObject;
 
+import java.security.cert.PKIXRevocationChecker;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -205,6 +207,25 @@ public class NetworkingInterface {
             if (match.isNormal()) {
                 match.get().end("Player " + p.getUsername() + " left the match.");
                 return new InternalResponseObject<>(true, "left_match");
+            } else {
+                return InternalResponseObject.cloneError(match);
+            }
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
+        }
+    }
+
+    @NetworkEvent(description = "Dev only. Allows you to modify parts of the state of your current match. Does no validation on the state, so if you fuck it up your on your own.")
+    public InternalResponseObject<Boolean> adjustMatch(JSONObject stateChanges, Player p){
+        if(!p.isDev()){
+            return new InternalResponseObject<>(WebStatusCode.UNAUTHORIZED);
+        }
+        Optional<UUID> m = p.getCurrentMatchID();
+        if(m.isPresent()){
+            InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
+            if(match.isNormal()){
+                match.get().modify(stateChanges);
+                return new InternalResponseObject<>(true,"updated");
             } else {
                 return InternalResponseObject.cloneError(match);
             }

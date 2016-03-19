@@ -1,7 +1,5 @@
 package edu.cwru.eecs395_s16.services.playerrepository;
 
-import edu.cwru.eecs395_s16.auth.exceptions.InvalidPasswordException;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
@@ -9,7 +7,6 @@ import edu.cwru.eecs395_s16.core.Player;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by james on 1/19/16.
@@ -29,7 +26,8 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         if (playerMap.containsKey(username)) {
             return new InternalResponseObject<>(InternalErrorCode.DUPLICATE_USERNAME);
         } else {
-            Player p = new Player(-1,username, password);
+            //TODO change this back. Probably.
+            Player p = new Player(-1,username, password, true);
             playerMap.put(username, p);
             return new InternalResponseObject<>(p);
         }

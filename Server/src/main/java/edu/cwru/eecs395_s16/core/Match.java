@@ -272,6 +272,46 @@ public class Match implements Jsonable {
         }
     }
 
+    public void modify(JSONObject input){
+        String reason = "manual_modification";
+        JSONObject currentState = this.getJSONRepresentation();
+        JSONObject modifiedState = this.getJSONRepresentation();
+        //Manually modify the JSON
+        String key;
+        Iterator keyIterator = input.keys();
+        while(keyIterator.hasNext()){
+            key = (String)keyIterator.next();
+            UUID keyID;
+            try{
+                keyID = UUID.fromString(key);
+            } catch (IllegalArgumentException e){
+                continue;
+            }
+            Optional<GameObject> obj = boardObjects.getByID(keyID);
+            if(obj.isPresent()){
+                try {
+                    JSONObject objSnapshot = obj.get().getJSONRepresentation();
+                    JSONDiff diff = new JSONDiff(new JSONObject(), new JSONObject(), input.getJSONObject(key));
+                    JSONObject newRepresentation = JSONUtils.patch(objSnapshot,diff);
+                    modifiedState.getJSONObject(BOARD_COLLECTION_KEY).put(key,newRepresentation);
+                } catch (JSONException e) {
+                }
+            }
+        }
+        this.gameSequenceID++;
+        setCurrentSequence(this.gameSequenceID);
+        //Compute diffs and store as a snapshot
+        JSONObject matchDiff = JSONUtils.getDiff(currentState,modifiedState).asJSONObject();
+        JSONObject gameUpdate = new JSONObject();
+        try {
+            gameUpdate.put("action",reason);
+            gameUpdate.put("new_state",matchDiff);
+        } catch (JSONException e) {
+            //should never happen - keys are non-null
+        }
+        storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
+    }
+
     private void swapSides() {
         if (gameState == GameState.HERO_TURN) {
             gameState = GameState.ARCHITECT_TURN;
@@ -309,12 +349,6 @@ public class Match implements Jsonable {
             //This should never happen as all the keys are not null
         }
         return gameUpdate;
-    }
-
-    public void takeAndCommitSnapshot(JSONObject originalState, Object actionReason) {
-        System.out.println("Snapshotting "+this.gameSequenceID+" for reason"+actionReason.toString());
-        JSONObject diff = takeSnapshot(originalState, actionReason);
-        storeSnapshotForSequence(this.gameSequenceID, diff);
     }
 
     private void setCurrentSequence(int sequence) {

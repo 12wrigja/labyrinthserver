@@ -49,7 +49,7 @@ public class InMemoryHeroRepository implements HeroRepository {
 
     @Override
     public InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p) {
-        Hero h = new HeroBuilder().setWeapon(GameEngine.instance().services.weaponRepository.getWeaponForId(0).get()).setOwnerID(Optional.of(p.getUsername())).setMovement(20).createHero();
+        Hero h = new HeroBuilder().setWeapon(GameEngine.instance().services.weaponRepository.getWeaponForId(0).get()).setOwnerID(Optional.of(p.getUsername())).createHero();
         InternalResponseObject<Boolean> resp = saveHeroForPlayer(p,h);
         if(!resp.isNormal()){
             return resp;

@@ -118,7 +118,7 @@ public abstract class PlayerRepositoryBaseTest {
 
     @Before
     public void cleanupPlayer() {
-        Player p = new Player(-1, TEST_USERNAME, TEST_PASSWORD);
+        Player p = new Player(-1, TEST_USERNAME, TEST_PASSWORD, false);
         //Check to see if the player exists first.
         InternalResponseObject<Player> p1 = getRepositoryImplementation().findPlayer(TEST_USERNAME);
         if(p1.isPresent()) {

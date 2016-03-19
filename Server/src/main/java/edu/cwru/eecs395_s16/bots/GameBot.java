@@ -24,7 +24,7 @@ public abstract class GameBot extends Player implements GameClient {
     final List<GameObject> architectObjects;
 
     public GameBot(String botTypeName, UUID botID) {
-        super(-1, botTypeName+"_"+botID.toString(), "");
+        super(-1, botTypeName+"_"+botID.toString(), "", false);
         this.botID = botID;
         setClient(Optional.of(this));
         GameEngine.instance().botService.register(this);

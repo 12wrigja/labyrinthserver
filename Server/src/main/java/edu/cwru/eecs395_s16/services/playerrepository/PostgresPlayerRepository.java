@@ -1,8 +1,6 @@
 package edu.cwru.eecs395_s16.services.playerrepository;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
@@ -10,7 +8,6 @@ import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.sql.*;
-import java.util.Optional;
 
 /**
  * Created by james on 2/15/16.
@@ -58,7 +55,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 while (newKeys.next()) {
                     playerDBID = newKeys.getInt(1);
                 }
-                Player p = new Player(playerDBID, username, password);
+                Player p = new Player(playerDBID, username, password, false);
                 return new InternalResponseObject<>(p,"player");
             }
         } catch (SQLException e) {
@@ -89,7 +86,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                     id = rst2.getInt("id");
                 }
                 if (id >= 0) {
-                    Player p = new Player(id, username, password);
+                    Player p = new Player(id, username, password, false);
                     return new InternalResponseObject<>(p,"player");
                 } else {
                     return new InternalResponseObject<>(InternalErrorCode.INVALID_PASSWORD);
@@ -123,7 +120,7 @@ public class PostgresPlayerRepository implements PlayerRepository {
                 rst2.next();
                 int id = rst2.getInt("id");
                 String password = rst2.getString("password");
-                Player p = new Player(id, username, password);
+                Player p = new Player(id, username, password, false);
                 return new InternalResponseObject<>(p,"player");
             } else {
                 return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);

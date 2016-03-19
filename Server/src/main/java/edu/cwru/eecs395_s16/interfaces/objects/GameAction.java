@@ -55,7 +55,7 @@ public interface GameAction extends Jsonable {
                 return false;
             }
             Location loc = new Location(x,y);
-            if(loc != loc1 && loc != loc2 && boardObjects.getForLocation(new Location(x,y)).size() > 0){
+            if(!loc.equals(loc1) && !loc.equals(loc2) && boardObjects.getForLocation(new Location(x,y)).size() > 0){
                 return false;
             }
 
