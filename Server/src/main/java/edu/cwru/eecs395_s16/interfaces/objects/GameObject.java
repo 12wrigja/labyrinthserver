@@ -73,6 +73,22 @@ public abstract class GameObject implements Jsonable {
         return representation;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GameObject)) return false;
+
+        GameObject object = (GameObject) o;
+
+        return objectID.equals(object.objectID);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return objectID.hashCode();
+    }
+
     public enum TYPE {
         HERO,
         MONSTER,

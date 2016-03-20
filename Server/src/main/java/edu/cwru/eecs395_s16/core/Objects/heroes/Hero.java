@@ -55,22 +55,6 @@ public class Hero extends Creature implements DatabaseObject {
     }
 
     @Override
-    public int hashCode() {
-        return getGameObjectID().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Hero hero = (Hero) o;
-
-        return getGameObjectID().equals(hero.getGameObjectID());
-
-    }
-
-    @Override
     public JSONObject getJSONRepresentation() {
         //Setup json representation
         JSONObject representation = super.getJSONRepresentation();

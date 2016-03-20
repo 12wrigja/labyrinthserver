@@ -31,11 +31,12 @@ public class Location implements Jsonable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Location)) return false;
 
         Location location = (Location) o;
 
-        return getX() == location.getX() && getY() == location.getY();
+        if (getX() != location.getX()) return false;
+        return getY() == location.getY();
 
     }
 

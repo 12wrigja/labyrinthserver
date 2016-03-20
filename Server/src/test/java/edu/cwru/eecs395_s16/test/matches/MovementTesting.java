@@ -155,6 +155,22 @@ public class MovementTesting extends InMatchTest {
         assertEquals(InternalErrorCode.NO_ACTION_POINTS, resp.getInternalErrorCode());
     }
 
+    @Test
+    public void testMoveOntoObject() throws JSONException {
+        //Get character for hero
+        List<GameObject> heroChars = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
+        assertTrue(heroChars.size() > 0);
+        Hero h = (Hero) heroChars.get(0);
+        UUID heroID = h.getGameObjectID();
+
+        //Try and move to the location of an existing character.
+        List<Location> pathToMove = new ArrayList<>();
+        pathToMove.add(new Location(0,0));
+        InternalResponseObject<Boolean> resp = moveCharacter(heroBot, heroID, pathToMove, false);
+        assertFalse(resp.isNormal());
+        assertEquals(InternalErrorCode.PATH_OBSTRUCTED,resp.getInternalErrorCode());
+    }
+
     //TODO write tests for triggering traps
     //Maybe those belong in a different test? (Probably)
 
