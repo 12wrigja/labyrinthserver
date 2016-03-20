@@ -8,7 +8,11 @@ import edu.cwru.eecs395_s16.services.cache.RedisCacheService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 import edu.cwru.eecs395_s16.services.herorepository.PostgresHeroRepository;
 import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
+import edu.cwru.eecs395_s16.services.reposets.InMemoryRepositorySet;
+import edu.cwru.eecs395_s16.services.reposets.PersistantRepositorySet;
+import edu.cwru.eecs395_s16.services.reposets.RepositorySet;
 import edu.cwru.eecs395_s16.services.sessionrepository.RedisSessionRepository;
+import edu.cwru.eecs395_s16.utils.CoreDataParser;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
@@ -28,6 +32,15 @@ public class mainUI {
 
     private static Scanner scan;
 
+    private static final String DEFAULT_DATA_FILE_NAME = "new_base_data.data";
+
+    public static final String JDBC_CONN_STRING = "jdbc:postgresql:vagrant";
+    public static final String DB_USERNAME = "vagrant";
+    public static final String DB_PASSWORD = "vagrant";
+    public static Connection getDBConnection() throws SQLException {
+        return DriverManager.getConnection(JDBC_CONN_STRING, DB_USERNAME, DB_PASSWORD);
+    }
+
     public static void main(String[] args) {
 
         System.out.println("Welcome to Labyrinth Server UI");
@@ -43,13 +56,14 @@ public class mainUI {
             public void run() {
                 if (activeEngine == null) {
                     ServiceContainerBuilder containerBuilder = new ServiceContainerBuilder();
+                    RepositorySet set;
                     String persistText = getOption("persist");
                     boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
                         //TODO update this so it uses persistent storage
                         Connection dbConnection;
                         try {
-                            dbConnection = DriverManager.getConnection("jdbc:postgresql:vagrant","vagrant","vagrant");
+                            dbConnection = getDBConnection();
                         } catch (SQLException e) {
                             System.err.println("Unable to create connection to Postgres Database.");
                             if(enableTrace){
@@ -58,13 +72,13 @@ public class mainUI {
                             return;
                         }
                         JedisPool jedisPool = new JedisPool("localhost");
-                        PlayerRepository playerRepo = new PostgresPlayerRepository(dbConnection);
-                        containerBuilder.setPlayerRepository(playerRepo);
-                        containerBuilder.setSessionRepository(new RedisSessionRepository(jedisPool, playerRepo));
-                        containerBuilder.setCacheService(new RedisCacheService(jedisPool));
-                        containerBuilder.setHeroRepository(new PostgresHeroRepository(dbConnection));
-                        containerBuilder.setMapRepository(new PostgresMapRepository(dbConnection));
+                        set = new PersistantRepositorySet(dbConnection,jedisPool);
+                    } else {
+                        set = new InMemoryRepositorySet();
                     }
+                    String file = "new_base_data.data";
+                    set.initialize(CoreDataParser.parse(file));
+                    containerBuilder.useRepositorySet(set);
                     GameEngine engine = new GameEngine(enableTrace, containerBuilder.createServiceContainer());
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
@@ -204,12 +218,37 @@ public class mainUI {
             }
         };
 
+        ConsoleCommand seedDBCommand = new ConsoleCommand("seed","Seeds the database with initial data. WILL DROP ALL EXISTING DATA.","dataFile") {
+            @Override
+            public void run() {
+                String dataFile;
+                if(getOption("dataFile") != null){
+                    dataFile = getOption("dataFile");
+                } else {
+                    dataFile = DEFAULT_DATA_FILE_NAME;
+                }
+                List<CoreDataParser.CoreDataEntry> coreData = CoreDataParser.parse(dataFile);
+                Connection dbConnection;
+                try {
+                    dbConnection = getDBConnection();
+                } catch (SQLException e) {
+                    System.err.println("Unable to create connection to Postgres Database.");
+                    e.printStackTrace();
+                    return;
+                }
+                JedisPool jedisPool = new JedisPool("localhost");
+                RepositorySet set = new PersistantRepositorySet(dbConnection,jedisPool);
+                set.resetToDefaultData(coreData);
+            }
+        };
+
         cmds.add(startCMD);
         cmds.add(stopCMD);
         cmds.add(helpCommand);
         cmds.add(exitCommand);
         cmds.add(describeSpecificFunction);
         cmds.add(listAllFunctionsCommand);
+        cmds.add(seedDBCommand);
 
         for (ConsoleCommand cmd : cmds) {
             cmdMap.put(cmd.phrase, cmd);

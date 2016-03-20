@@ -15,8 +15,8 @@ public class CoreDataParser {
     public static final Pattern startDataSetPattern = Pattern.compile("start (.*)?\\r?\\n?",Pattern.CASE_INSENSITIVE);
     public static final Pattern endDataSetPattern = Pattern.compile("end (.*)\\r?\\n?",Pattern.CASE_INSENSITIVE);
 
-    public static Map<String,List<String>> parse(String fileName){
-        Map<String,List<String>> data = new HashMap<>();
+    public static List<CoreDataEntry> parse(String fileName){
+        Map<String, CoreDataEntry> entries = new HashMap<>();
         Scanner scan = null;
         try{
             scan = new Scanner(new BufferedReader(new FileReader(fileName)));
@@ -25,12 +25,12 @@ public class CoreDataParser {
                 Matcher startMatcher = startDataSetPattern.matcher(line);
                 if(startMatcher.matches()){
                     String dataSetName = startMatcher.group(1);
-                    List<String> dataStore;
-                    if(!data.containsKey(dataSetName)){
-                        dataStore = new ArrayList<>();
-                        data.put(dataSetName,dataStore);
+                    CoreDataEntry dataStore;
+                    if(!entries.containsKey(dataSetName)){
+                        dataStore = new CoreDataEntry(entries.size()+1,dataSetName);
+                        entries.put(dataSetName,dataStore);
                     } else {
-                        dataStore = data.get(dataSetName);
+                        dataStore = entries.get(dataSetName);
                     }
                     boolean seenEndOfDataset = false;
                     while(scan.hasNextLine()){
@@ -39,7 +39,7 @@ public class CoreDataParser {
                             seenEndOfDataset = true;
                             break;
                         } else {
-                            dataStore.add(innerLine);
+                            dataStore.addEntry(innerLine);
                         }
                     }
                     if(!seenEndOfDataset){
@@ -49,20 +49,37 @@ public class CoreDataParser {
             }
 
         } catch (Exception e){
+            e.printStackTrace();
             throw new IllegalArgumentException("Something is wrong with the core data file or format.");
         } finally {
             if(scan != null){
                 scan.close();
             }
         }
-        return data;
+        return new ArrayList<>(entries.values());
+    }
+
+    public static class CoreDataEntry {
+        public final int order;
+        public final String name;
+        public final List<String> entries;
+
+        public CoreDataEntry(int order, String name) {
+            this.order = order;
+            this.name = name;
+            this.entries = new ArrayList<>();
+        }
+
+        public void addEntry(String entry){
+            entries.add(entry);
+        }
     }
 
     public static void main(String[] args){
         String file = "new_base_data.data";
-        Map<String,List<String>> data = CoreDataParser.parse(file);
-        for(String key : data.keySet()){
-            System.out.println(key);
+        List<CoreDataEntry> data = CoreDataParser.parse(file);
+        for(CoreDataEntry key : data){
+            System.out.println(key.name);
         }
     }
 

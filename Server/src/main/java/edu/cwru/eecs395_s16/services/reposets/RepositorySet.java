@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.services.reposets;
 
 import edu.cwru.eecs395_s16.services.ServiceContainerBuilder;
+import edu.cwru.eecs395_s16.utils.CoreDataParser;
 
 import java.util.List;
 import java.util.Map;
@@ -10,8 +11,8 @@ import java.util.Map;
  */
 public interface RepositorySet {
 
-    void initialize(Map<String,List<String>> baseData);
+    void initialize(List<CoreDataParser.CoreDataEntry> baseData);
     ServiceContainerBuilder addServicesToContainer(ServiceContainerBuilder scb);
-    void resetToDefaultData();
+    void resetToDefaultData(List<CoreDataParser.CoreDataEntry> baseData);
 
 }

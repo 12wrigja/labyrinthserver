@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.services.maprepository.PostgresMapRepository;
 import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
 import edu.cwru.eecs395_s16.services.sessionrepository.RedisSessionRepository;
 import edu.cwru.eecs395_s16.services.weaponrepository.InMemoryWeaponRepository;
+import edu.cwru.eecs395_s16.utils.CoreDataParser;
 import redis.clients.jedis.JedisPool;
 
 import java.io.BufferedReader;
@@ -35,16 +36,18 @@ public class PersistantRepositorySet implements RepositorySet {
     }
 
     @Override
-    public void initialize(Map<String, List<String>> baseData) {
+    public void initialize(List<CoreDataParser.CoreDataEntry> baseData) {
         //Initialize all data here to defaults.
-        List<String> nonexistantTables = baseData.keySet().stream().filter(key -> !schemaInitialized(key)).collect(Collectors.toList());
+        List<String> nonexistantTables = baseData.stream().filter(key -> !schemaInitialized(key.name)).map(entry -> entry.name).collect(Collectors.toList());
         if(nonexistantTables.size() > 0)
         {
+            System.out.println("Initializing the persistent repository set.");
             if(!runSQL("create_schema.sql")){
                 return;
             }
-            for(String tableName : nonexistantTables){
-                initializeSchemaData(tableName, baseData.get(tableName));
+            baseData.sort((o1,o2)-> Integer.compare(o1.order,o2.order));
+            for(CoreDataParser.CoreDataEntry entry : baseData){
+                initializeSchemaData(entry.name,entry.entries);
             }
         }
     }
@@ -62,8 +65,28 @@ public class PersistantRepositorySet implements RepositorySet {
     }
 
     @Override
-    public void resetToDefaultData() {
+    public void resetToDefaultData(List<CoreDataParser.CoreDataEntry> baseData) {
+        dropAllTables();
+        initialize(baseData);
+    }
 
+    private boolean dropAllTables(){
+        try {
+            PreparedStatement stmt = postgresConnection.prepareStatement("select 'drop table if exists \"' || tablename || '\" cascade;' from pg_tables where schemaname = 'public';");
+            ResultSet rslts = stmt.executeQuery();
+            List<String> dropQueries = new ArrayList<>();
+            while(rslts.next()){
+                dropQueries.add(rslts.getString(1));
+            }
+            for(String query : dropQueries){
+                stmt = postgresConnection.prepareStatement(query);
+                stmt.executeUpdate();
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private boolean initializeSchemaData(String schemaName, List<String> data) {
@@ -75,13 +98,15 @@ public class PersistantRepositorySet implements RepositorySet {
             isb.append("(").append(dataLine).append(")");
             isb.append((lineCount == data.size())?";":",");
         }
-        PreparedStatement stmt;
-    }
-
-    private List<String> sqlCSVSplit(String line){
-        char[] characters = line.toCharArray();
-        List<String> parts = new ArrayList<>();
-        StringBuilder pb = new StringBuilder();
+        try {
+            String stmtAsString = isb.toString();
+            PreparedStatement stmt = postgresConnection.prepareStatement(stmtAsString);
+            int results = stmt.executeUpdate();
+            return results == lineCount;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private boolean schemaInitialized(String schemaName) {
@@ -125,7 +150,10 @@ public class PersistantRepositorySet implements RepositorySet {
         } catch (SQLException e) {
             return false;
         } finally {
-            if (st != null) st.close();
+            try {
+                if (st != null) st.close();
+            } catch (SQLException e){
+            }
         }
         return true;
     }

@@ -10,6 +10,7 @@ import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
 import edu.cwru.eecs395_s16.services.herorepository.InMemoryHeroRepository;
 import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.reposets.RepositorySet;
 import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository;
 import edu.cwru.eecs395_s16.services.weaponrepository.InMemoryWeaponRepository;
 
@@ -22,6 +23,11 @@ public class ServiceContainerBuilder {
     private SessionRepository sessionRepository = new SessionRepositoryBotWrapper(new InMemorySessionRepository());
     private PlayerRepository playerRepository = new PlayerRepositoryBotWrapper(new InMemoryPlayerRepository());
     private WeaponRepository weaponRepository = new InMemoryWeaponRepository();
+
+    public ServiceContainerBuilder useRepositorySet(RepositorySet set){
+        set.addServicesToContainer(this);
+        return this;
+    }
 
     public ServiceContainerBuilder setMapRepository(MapRepository mapRepository) {
         this.mapRepository = mapRepository;
