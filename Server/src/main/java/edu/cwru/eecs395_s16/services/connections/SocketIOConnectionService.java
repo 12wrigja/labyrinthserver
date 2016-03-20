@@ -10,6 +10,8 @@ import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Match;
+import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.Response;
 import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
@@ -84,6 +86,18 @@ public class SocketIOConnectionService implements ClientConnectionService {
         });
         gameSocket.addDisconnectListener(client -> {
             System.out.println("Client disconnected: " + client.getSessionId());
+            //TODO modify this when the UI catches up
+            InternalResponseObject<Player> p = GameEngine.instance().services.sessionRepository.findPlayer(client.getSessionId());
+            if(p.isNormal()){
+                Player player = p.get();
+                if(player.getCurrentMatchID().isPresent()){
+                    InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(player.getCurrentMatchID().get());
+                    if(match.isNormal()){
+                        Match m = match.get();
+                        m.end("Player "+player.getUsername()+" disconnected.");
+                    }
+                }
+            }
             GameEngine.instance().services.sessionRepository.expirePlayerSession(client.getSessionId());
         });
 
