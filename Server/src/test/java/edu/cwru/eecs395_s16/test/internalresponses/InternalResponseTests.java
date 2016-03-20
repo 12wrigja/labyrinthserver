@@ -203,7 +203,7 @@ public class InternalResponseTests {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
             assertEquals(2,JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.SERVER_ERROR.code,json.getInt("status"));
+            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code,json.getInt("status"));
             assertTrue(json.has("message"));
             assertEquals(message,json.getString("message"));
         } catch (JSONException e) {
