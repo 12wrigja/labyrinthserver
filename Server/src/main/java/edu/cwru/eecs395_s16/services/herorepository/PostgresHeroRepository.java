@@ -24,7 +24,8 @@ import java.util.Optional;
 public class PostgresHeroRepository implements HeroRepository {
 
     private Connection conn;
-    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level) (select id as hero_id,? as player_id, 1 as level from heroes)";
+    private static final int NUM_NEW_HEROES = 6;
+    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into hero_player (hero_id, player_id, level, weapon_id, equipment_id) (select id as hero_id,? as player_id, 1 as level, default_weapon as weapon_id , 4 from heroes)";
     private static final String DROP_ALL_PLAYER_HEROES = "delete from hero_player where player_id = ?";
     private static final String GET_HEROES_QUERY = "select * from hero_player inner join heroes on hero_player.hero_id = heroes.id where player_id = ?";
 
@@ -73,7 +74,10 @@ public class PostgresHeroRepository implements HeroRepository {
 
             stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
             stmt.setInt(1, p.getDatabaseID());
-            stmt.executeUpdate();
+            int results = stmt.executeUpdate();
+            if(!(results == NUM_NEW_HEROES)){
+                return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL);
+            }
         } catch (SQLException e){
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
