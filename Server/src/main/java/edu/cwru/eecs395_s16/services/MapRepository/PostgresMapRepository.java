@@ -1,38 +1,43 @@
 package edu.cwru.eecs395_s16.services.maprepository;
 
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.MapTile;
 import edu.cwru.eecs395_s16.core.objects.maps.FromDatabaseMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.interfaces.repositories.DBRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by james on 3/1/16.
  */
-public class PostgresMapRepository implements MapRepository {
+public class PostgresMapRepository extends DBRepository implements MapRepository {
 
-    private static final String GET_MAP_QUERY = "select * from maps inner join players on maps.creator_id = players.id where id = ?";
-    private static final String Get_TILES_QUERY = "select * from tile_map where map_id = ?";
+    public static final String MAPS_TABLE = "maps";
+    private static final String GET_MAP_QUERY = "select * from " + MAPS_TABLE + " inner join players on maps.creator_id = players.id where id = ?";
+    public static final String TILE_MAP_TABLE = "tile_map";
+    private static final String GET_MAP_TILES_QUERY = "select * from " + TILE_MAP_TABLE + " where map_id = ?";
 
-    private static final String GET_TILE_TYPES = "select * from tiles";
+    public static final String TILES_TABLE = "tiles";
+    private static final String GET_TILE_TYPES = "select * from " + TILES_TABLE;
 
-    final Connection conn;
     final Map<Integer, TileType> tileTypeMap;
     final Map<String, TileType> tileTypeStringMap;
 
     public PostgresMapRepository(Connection conn) {
-        this.conn = conn;
+        super(conn, CoreDataUtils.defaultCoreData());
         tileTypeMap = new HashMap<>();
         tileTypeStringMap = new HashMap<>();
         try {
@@ -67,8 +72,8 @@ public class PostgresMapRepository implements MapRepository {
                 FromDatabaseMap mp = new FromDatabaseMap(id, name, creatorID, width, height, heroCapacity);
 
                 //Get tiles for map
-                PreparedStatement tileStmt = conn.prepareStatement(GET_TILE_TYPES);
-                tileStmt.setInt(0, id);
+                PreparedStatement tileStmt = conn.prepareStatement(GET_MAP_TILES_QUERY);
+                tileStmt.setInt(1, id);
                 r = tileStmt.executeQuery();
                 int count = 0;
                 while (r.next()) {
@@ -107,5 +112,16 @@ public class PostgresMapRepository implements MapRepository {
     @Override
     public Map<String, TileType> getTileTypeMap() {
         return tileTypeStringMap;
+    }
+
+    @Override
+    protected List<String> getTables() {
+        return new ArrayList<String>(){
+            {
+                add(TILE_MAP_TABLE);
+                add(TILES_TABLE);
+                add(MAPS_TABLE);
+            }
+        };
     }
 }

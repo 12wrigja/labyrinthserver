@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by james on 2/18/16.
  */
-public interface HeroRepository {
+public interface HeroRepository extends Repository {
 
     InternalResponseObject<List<Hero>> getPlayerHeroes(Player p);
 

@@ -3,27 +3,30 @@ package edu.cwru.eecs395_s16.services.playerrepository;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.interfaces.repositories.DBRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by james on 2/15/16.
  */
-public class PostgresPlayerRepository implements PlayerRepository {
+public class PostgresPlayerRepository extends DBRepository implements PlayerRepository {
 
-    private static final String GET_PLAYER_QUERY = "select * from players where username = ?";
-    private static final String INSERT_PLAYER_QUERY = "insert into players (username, password, currency, is_dev) VALUES (?,?,?,false)";
-    private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from players where username = ?";
-    private static final String VALID_LOGIN_QUERY = "select * from players where username = ? AND password = ?";
-    private static final String DELETE_PLAYER_QUERY = "delete from players where id = ?";
-
-    final Connection conn;
+    public static final String PLAYERS_TABLE = "players";
+    private static final String GET_PLAYER_QUERY = "select * from " + PLAYERS_TABLE + " where username = ?";
+    private static final String INSERT_PLAYER_QUERY = "insert into " + PLAYERS_TABLE + " (username, password, currency, is_dev) VALUES (?,?,?,false)";
+    private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from " + PLAYERS_TABLE + " where username = ?";
+    private static final String VALID_LOGIN_QUERY = "select * from " + PLAYERS_TABLE + " where username = ? AND password = ?";
+    private static final String DELETE_PLAYER_QUERY = "delete from " + PLAYERS_TABLE + " where id = ?";
 
     public PostgresPlayerRepository(Connection dbConnection) {
-        this.conn = dbConnection;
+        super(dbConnection, CoreDataUtils.defaultCoreData());
     }
 
     @Override
@@ -172,5 +175,14 @@ public class PostgresPlayerRepository implements PlayerRepository {
         } else {
             return false;
         }
+    }
+
+    @Override
+    protected List<String> getTables() {
+        return new ArrayList<String>(){
+            {
+                add(PLAYERS_TABLE);
+            }
+        };
     }
 }

@@ -1,9 +1,8 @@
 package edu.cwru.eecs395_s16.services.cache;
 
-import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.services.CacheService;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Optional;
 

@@ -1,11 +1,11 @@
 package edu.cwru.eecs395_s16.test.services.herorepo;
 
-import edu.cwru.eecs395_s16.services.ServiceContainer;
-import edu.cwru.eecs395_s16.services.ServiceContainerBuilder;
-import edu.cwru.eecs395_s16.services.herorepository.PostgresHeroRepository;
-import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
+import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import redis.clients.jedis.JedisPool;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,28 +17,23 @@ import java.sql.SQLException;
 public class PostgresHeroRepositoryTest extends HeroRepositoryBaseTest {
 
     private static Connection conn;
-    private static PostgresHeroRepository hRepo;
-    private static PostgresPlayerRepository pRepo;
-
+    private static JedisPool jedisPool;
     @BeforeClass
-    public static void setupDBConnection() throws SQLException {
+    public static void setupPersistenceConnections() throws SQLException {
         conn = DriverManager.getConnection("jdbc:postgresql:vagrant", "vagrant", "vagrant");
-        hRepo = new PostgresHeroRepository(conn);
-        pRepo = new PostgresPlayerRepository(conn);
+        jedisPool = new JedisPool("localhost");
     }
 
     @Override
     public ServiceContainer buildContainer() {
-        ServiceContainerBuilder scb = new ServiceContainerBuilder();
-        scb.setHeroRepository(hRepo);
-        scb.setPlayerRepository(pRepo);
-        return scb.createServiceContainer();
+        return ServiceContainer.buildPersistantContainer(CoreDataUtils.defaultCoreData(),conn,jedisPool,new BasicMatchmakingService());
     }
 
     @AfterClass
-    public static void teardownDBConnection() throws SQLException {
+    public static void teardownPersistenceConnections() throws SQLException {
         if (conn != null) {
             conn.close();
         }
+        jedisPool.destroy();
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by james on 3/1/16.
  */
-public interface MapRepository {
+public interface MapRepository extends Repository {
 
     InternalResponseObject<GameMap> getMapByID(int id);
 

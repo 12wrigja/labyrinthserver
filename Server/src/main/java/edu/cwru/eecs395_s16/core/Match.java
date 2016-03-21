@@ -11,7 +11,7 @@ import edu.cwru.eecs395_s16.interfaces.objects.Creature;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
-import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.services.CacheService;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.utils.JSONDiff;
 import edu.cwru.eecs395_s16.utils.JSONUtils;

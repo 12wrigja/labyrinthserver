@@ -1,20 +1,13 @@
 package edu.cwru.eecs395_s16.ui;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.interfaces.repositories.*;
-import edu.cwru.eecs395_s16.services.*;
-import edu.cwru.eecs395_s16.services.maprepository.PostgresMapRepository;
-import edu.cwru.eecs395_s16.services.cache.RedisCacheService;
+import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
-import edu.cwru.eecs395_s16.services.herorepository.PostgresHeroRepository;
-import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
-import edu.cwru.eecs395_s16.services.reposets.InMemoryRepositorySet;
-import edu.cwru.eecs395_s16.services.reposets.PersistantRepositorySet;
-import edu.cwru.eecs395_s16.services.reposets.RepositorySet;
-import edu.cwru.eecs395_s16.services.sessionrepository.RedisSessionRepository;
-import edu.cwru.eecs395_s16.utils.CoreDataParser;
+import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import redis.clients.jedis.JedisPool;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.UnknownHostException;
@@ -55,8 +48,10 @@ public class mainUI {
             @Override
             public void run() {
                 if (activeEngine == null) {
-                    RepositorySet set;
+                    String file = "new_base_data.data";
+                    Map<String, CoreDataUtils.CoreDataEntry> data = CoreDataUtils.parse(file);
                     String persistText = getOption("persist");
+                    ServiceContainer container;
                     boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
                         Connection dbConnection;
@@ -70,15 +65,11 @@ public class mainUI {
                             return;
                         }
                         JedisPool jedisPool = new JedisPool("localhost");
-                        set = new PersistantRepositorySet(dbConnection,jedisPool);
+                        container = ServiceContainer.buildPersistantContainer(data,dbConnection,jedisPool, new BasicMatchmakingService());
                     } else {
-                        set = new InMemoryRepositorySet();
+                        container = ServiceContainer.buildInMemoryContainer(data,new BasicMatchmakingService());
                     }
-                    String file = "new_base_data.data";
-                    ServiceContainerBuilder containerBuilder = new ServiceContainerBuilder();
-                    set.initialize(CoreDataParser.parse(file));
-                    containerBuilder.useRepositorySet(set);
-                    GameEngine engine = new GameEngine(enableTrace, containerBuilder.createServiceContainer());
+                    GameEngine engine = new GameEngine(enableTrace, container);
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {
@@ -220,13 +211,14 @@ public class mainUI {
         ConsoleCommand seedDBCommand = new ConsoleCommand("seed","Seeds the database with initial data. WILL DROP ALL EXISTING DATA.","dataFile") {
             @Override
             public void run() {
+                System.out.println(new File(".").getAbsolutePath());
                 String dataFile;
                 if(getOption("dataFile") != null){
                     dataFile = getOption("dataFile");
                 } else {
                     dataFile = DEFAULT_DATA_FILE_NAME;
                 }
-                Map<String,CoreDataParser.CoreDataEntry> coreData = CoreDataParser.parse(dataFile);
+                Map<String,CoreDataUtils.CoreDataEntry> coreData = CoreDataUtils.parse(dataFile);
                 Connection dbConnection;
                 try {
                     dbConnection = getDBConnection();
@@ -236,8 +228,7 @@ public class mainUI {
                     return;
                 }
                 JedisPool jedisPool = new JedisPool("localhost");
-                RepositorySet set = new PersistantRepositorySet(dbConnection,jedisPool);
-                set.resetToDefaultData(coreData);
+                ServiceContainer.buildPersistantContainer(coreData,dbConnection,jedisPool,new BasicMatchmakingService());
             }
         };
 

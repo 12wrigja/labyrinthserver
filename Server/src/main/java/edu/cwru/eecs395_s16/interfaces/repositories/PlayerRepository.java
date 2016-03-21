@@ -6,7 +6,7 @@ import edu.cwru.eecs395_s16.core.Player;
 /**
  * Created by james on 1/21/16.
  */
-public interface PlayerRepository {
+public interface PlayerRepository extends Repository {
 
     InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm);
 

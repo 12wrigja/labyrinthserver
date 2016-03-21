@@ -6,7 +6,10 @@ import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 import edu.cwru.eecs395_s16.services.maprepository.InMemoryMapRepository;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Set;
@@ -19,8 +22,16 @@ import static org.junit.Assert.assertTrue;
  * Created by james on 3/19/16.
  */
 public class LineOfSightTests {
-    public static GameMap map = new InMemoryMapRepository().getMapByID(0).get();
-    public static GameObjectCollection objects = new GameObjectCollection();
+
+    public static GameMap map;
+    public GameObjectCollection objects = new GameObjectCollection();
+
+    @BeforeClass
+    public static void initMapRepo(){
+        MapRepository mRepo = new InMemoryMapRepository();
+        mRepo.initialize(CoreDataUtils.defaultCoreData());
+        map = mRepo.getMapByID(1).get();
+    }
 
     @Test
     public void testBasicLineOfSight() {

@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.interfaces.repositories;
+package edu.cwru.eecs395_s16.interfaces.services;
 
 import java.util.Optional;
 

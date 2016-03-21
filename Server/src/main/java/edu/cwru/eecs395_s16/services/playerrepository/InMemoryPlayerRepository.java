@@ -4,6 +4,7 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -66,10 +67,19 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         return true;
     }
 
-    public void initialize(List<List<String>> players) {
+    @Override
+    public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        List<List<String>> players = CoreDataUtils.splitEntries(baseData.get("players"));
         for(List<String> playerData : players){
             Player p = new Player(-1,playerData.get(1),playerData.get(2),Boolean.parseBoolean(playerData.get(4)));
             playerMap.put(p.getUsername(),p);
         }
     }
+
+    @Override
+    public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        playerMap.clear();
+        initialize(baseData);
+    }
+
 }

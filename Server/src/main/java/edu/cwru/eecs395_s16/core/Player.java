@@ -2,7 +2,7 @@ package edu.cwru.eecs395_s16.core;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.interfaces.objects.DatabaseObject;
-import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.services.CacheService;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 
 import java.util.Optional;

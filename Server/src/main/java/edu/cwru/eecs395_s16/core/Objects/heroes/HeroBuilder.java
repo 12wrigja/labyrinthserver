@@ -159,7 +159,7 @@ public class HeroBuilder {
         //Weapon 
         JSONObject weaponObj = obj.getJSONObject(Hero.WEAPON_KEY);
         int weaponID = weaponObj.getInt(DatabaseObject.DATABASE_ID_KEY);
-        Optional<Weapon> weapon = GameEngine.instance().services.weaponRepository.getWeaponForId(weaponID);
+        Optional<Weapon> weapon = GameEngine.instance().services.heroItemRepository.getWeaponForId(weaponID);
         if (weapon.isPresent()) {
             setWeapon(weapon.get());
         }

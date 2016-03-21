@@ -7,8 +7,10 @@ import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.heroes.LevelReward;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by james on 3/16/16.
@@ -51,5 +53,15 @@ public class HeroRepositoryBotWrapper implements HeroRepository {
     @Override
     public List<LevelReward> getLevelRewards(HeroType type, int level) {
         return actualRepo.getLevelRewards(type,level);
+    }
+
+    @Override
+    public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        actualRepo.initialize(baseData);
+    }
+
+    @Override
+    public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        actualRepo.resetToDefaultData(baseData);
     }
 }

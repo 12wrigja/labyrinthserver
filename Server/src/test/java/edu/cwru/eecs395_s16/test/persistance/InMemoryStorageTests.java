@@ -2,7 +2,7 @@ package edu.cwru.eecs395_s16.test.persistance;
 
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.repositories.CacheService;
+import edu.cwru.eecs395_s16.interfaces.services.CacheService;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
 import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;

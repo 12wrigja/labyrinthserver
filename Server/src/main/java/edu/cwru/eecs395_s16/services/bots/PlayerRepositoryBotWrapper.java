@@ -1,13 +1,14 @@
 package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
 import edu.cwru.eecs395_s16.bots.GameBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -59,5 +60,15 @@ public class PlayerRepositoryBotWrapper implements PlayerRepository {
     @Override
     public boolean deletePlayer(Player p) {
         return !(p instanceof GameBot) && actualRepo.deletePlayer(p);
+    }
+
+    @Override
+    public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        actualRepo.initialize(baseData);
+    }
+
+    @Override
+    public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        actualRepo.resetToDefaultData(baseData);
     }
 }

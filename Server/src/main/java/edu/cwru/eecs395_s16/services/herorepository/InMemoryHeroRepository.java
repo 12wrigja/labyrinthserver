@@ -9,8 +9,8 @@ import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.heroes.LevelReward;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
-import edu.cwru.eecs395_s16.interfaces.repositories.WeaponRepository;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,11 +22,6 @@ public class InMemoryHeroRepository implements HeroRepository {
 
     final Map<String, Set<Hero>> playerHeroMap = new ConcurrentHashMap<>();
     List<List<String>> heroTemplateData;
-
-    public void initialize(List<List<String>> heroData) {
-        heroTemplateData = heroData;
-        playerHeroMap.clear();
-    }
 
     @Override
     public InternalResponseObject<List<Hero>> getPlayerHeroes(Player p) {
@@ -66,7 +61,7 @@ public class InMemoryHeroRepository implements HeroRepository {
                     .setMaxHealth(Integer.parseInt(lst.get(4)))
                     .setMovement(Integer.parseInt(lst.get(5)))
                     .setVision(Integer.parseInt(lst.get(6)))
-                    .setWeapon(GameEngine.instance().services.weaponRepository.getWeaponForId(Integer.parseInt(lst.get(7))).get())
+                    .setWeapon(GameEngine.instance().services.heroItemRepository.getWeaponForId(Integer.parseInt(lst.get(7))).get())
                     .setOwnerID(Optional.of(p.getUsername()))
                     .setControllerID(Optional.of(p.getUsername()))
                     .setDatabaseIdentifier(-1);
@@ -81,5 +76,16 @@ public class InMemoryHeroRepository implements HeroRepository {
     @Override
     public List<LevelReward> getLevelRewards(HeroType type, int level) {
         return null;
+    }
+
+    @Override
+    public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        heroTemplateData = CoreDataUtils.splitEntries(baseData.get("heroes"));
+    }
+
+    @Override
+    public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+        playerHeroMap.clear();
+        initialize(baseData);
     }
 }
