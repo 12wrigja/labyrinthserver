@@ -6,6 +6,7 @@ import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,4 +66,10 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         return true;
     }
 
+    public void initialize(List<List<String>> players) {
+        for(List<String> playerData : players){
+            Player p = new Player(-1,playerData.get(1),playerData.get(2),Boolean.parseBoolean(playerData.get(4)));
+            playerMap.put(p.getUsername(),p);
+        }
+    }
 }

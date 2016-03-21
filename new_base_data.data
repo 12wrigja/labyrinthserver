@@ -13,19 +13,10 @@ default,'mythic'
 end rarities
 
 start hero_items
-default, 'Basic Sword','base','weapon',1,0,0,0,0,1,1,1
-end hero_items
-
-start hero_items
-default, 'Basic Bow','base','weapon',1,0,0,0,0,1,1,1
-end hero_items
-
-start hero_items
-default, 'Basic Staff','base','weapon',1,0,0,0,0,1,1,1
-end hero_items
-
-start hero_items
-default, 'None','base','equipment',0,0,0,0,0,1,1,1
+default, 'Basic Sword','sword','A basic sword. Does no damage scaling', 'base','weapon',1,0,0,0,0,1,1,1
+default, 'Basic Bow','bow','A basic bow. Does no damage scaling','base','weapon',1,0,0,0,0,1,1,1
+default, 'Basic Staff','staff','A basic staff. Does no damage scaling','base','weapon',1,0,0,0,0,1,1,1
+default, 'None','blank','No item equipped.','base','equipment',0,0,0,0,0,1,1,1
 end hero_items
 
 start heroes

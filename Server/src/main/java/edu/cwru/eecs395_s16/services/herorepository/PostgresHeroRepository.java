@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.heroes.LevelReward;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
@@ -85,6 +86,11 @@ public class PostgresHeroRepository implements HeroRepository {
             return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL, "Unable to create default heroes for player.");
         }
         return new InternalResponseObject<>(true,"created");
+    }
+
+    @Override
+    public List<LevelReward> getLevelRewards(HeroType type, int level) {
+        return null;
     }
 
     private Hero heroFromResultSet(Player p, ResultSet r) throws SQLException {

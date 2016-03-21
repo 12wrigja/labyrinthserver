@@ -11,6 +11,8 @@ import java.util.Optional;
  */
 public class PostgresWeaponRepository implements WeaponRepository {
 
+    //TODO fill this out... and use it?
+
     Connection conn;
 
     public PostgresWeaponRepository(Connection conn) {

@@ -36,17 +36,18 @@ public class PersistantRepositorySet implements RepositorySet {
     }
 
     @Override
-    public void initialize(List<CoreDataParser.CoreDataEntry> baseData) {
+    public void initialize(Map<String,CoreDataParser.CoreDataEntry> baseData) {
         //Initialize all data here to defaults.
-        List<String> nonexistantTables = baseData.stream().filter(key -> !schemaInitialized(key.name)).map(entry -> entry.name).collect(Collectors.toList());
+        List<String> nonexistantTables = baseData.values().stream().filter(key -> !schemaInitialized(key.name)).map(entry -> entry.name).collect(Collectors.toList());
         if(nonexistantTables.size() > 0)
         {
             System.out.println("Initializing the persistent repository set.");
             if(!runSQL("create_schema.sql")){
                 return;
             }
-            baseData.sort((o1,o2)-> Integer.compare(o1.order,o2.order));
-            for(CoreDataParser.CoreDataEntry entry : baseData){
+            List<CoreDataParser.CoreDataEntry> data = new ArrayList<>(baseData.values());
+            data.sort((o1,o2)-> Integer.compare(o1.order,o2.order));
+            for(CoreDataParser.CoreDataEntry entry : data){
                 initializeSchemaData(entry.name,entry.entries);
             }
         }
@@ -65,7 +66,7 @@ public class PersistantRepositorySet implements RepositorySet {
     }
 
     @Override
-    public void resetToDefaultData(List<CoreDataParser.CoreDataEntry> baseData) {
+    public void resetToDefaultData(Map<String,CoreDataParser.CoreDataEntry> baseData) {
         dropAllTables();
         initialize(baseData);
     }

@@ -55,12 +55,10 @@ public class mainUI {
             @Override
             public void run() {
                 if (activeEngine == null) {
-                    ServiceContainerBuilder containerBuilder = new ServiceContainerBuilder();
                     RepositorySet set;
                     String persistText = getOption("persist");
                     boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
-                        //TODO update this so it uses persistent storage
                         Connection dbConnection;
                         try {
                             dbConnection = getDBConnection();
@@ -77,6 +75,7 @@ public class mainUI {
                         set = new InMemoryRepositorySet();
                     }
                     String file = "new_base_data.data";
+                    ServiceContainerBuilder containerBuilder = new ServiceContainerBuilder();
                     set.initialize(CoreDataParser.parse(file));
                     containerBuilder.useRepositorySet(set);
                     GameEngine engine = new GameEngine(enableTrace, containerBuilder.createServiceContainer());
@@ -227,7 +226,7 @@ public class mainUI {
                 } else {
                     dataFile = DEFAULT_DATA_FILE_NAME;
                 }
-                List<CoreDataParser.CoreDataEntry> coreData = CoreDataParser.parse(dataFile);
+                Map<String,CoreDataParser.CoreDataEntry> coreData = CoreDataParser.parse(dataFile);
                 Connection dbConnection;
                 try {
                     dbConnection = getDBConnection();

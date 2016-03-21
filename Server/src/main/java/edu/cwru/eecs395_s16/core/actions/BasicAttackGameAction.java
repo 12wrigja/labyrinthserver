@@ -8,7 +8,6 @@ import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.interfaces.objects.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
 import edu.cwru.eecs395_s16.utils.JSONUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,7 +50,7 @@ public class BasicAttackGameAction implements GameAction {
         attacker = (Creature) attackerObj;
         Weapon weapon = attacker.getWeapon();
 
-        if (data.getTargets().size() > weapon.getAttackPattern().getInputCount()) {
+        if (data.getTargets().size() > weapon.getUsePattern().getInputCount()) {
             return new InternalResponseObject<>(InternalErrorCode.TOO_MANY_TARGETS);
         }
 
@@ -74,7 +73,7 @@ public class BasicAttackGameAction implements GameAction {
 
             List<Creature> creaturesHit = new ArrayList<>();
             //Loop through pattern points
-            for (Location targetPoint : weapon.getAttackPattern().getDamageDistributionMap(target).keySet()) {
+            for (Location targetPoint : weapon.getUsePattern().getEffectDistributionMap(target).keySet()) {
                 List<GameObject> targetObjs = boardObjects.getForLocation(targetPoint).stream().filter(obj -> obj instanceof Creature).collect(Collectors.toList());
                 Creature c;
                 if (targetObjs.size() == 0) {
@@ -99,7 +98,7 @@ public class BasicAttackGameAction implements GameAction {
         //For each of the target points
         for (Location target : targets.keySet()) {
             for (Creature creatureHit : targets.get(target)) {
-                float percentageDamage = attacker.getWeapon().getAttackPattern().damageForLocation(creatureHit.getLocation().locationRelativeTo(target));
+                float percentageDamage = attacker.getWeapon().getUsePattern().effectPercentForLocation(creatureHit.getLocation().locationRelativeTo(target));
                 //Compute base damage here according to formula
                 int baseDamage = computeBaseDamage(attacker, creatureHit);
                 baseDamage *= percentageDamage;

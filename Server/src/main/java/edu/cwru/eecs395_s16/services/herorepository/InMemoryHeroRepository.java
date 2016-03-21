@@ -7,7 +7,9 @@ import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.heroes.LevelReward;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.WeaponRepository;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.util.*;
@@ -19,6 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryHeroRepository implements HeroRepository {
 
     final Map<String, Set<Hero>> playerHeroMap = new ConcurrentHashMap<>();
+    List<List<String>> heroTemplateData;
+
+    public void initialize(List<List<String>> heroData) {
+        heroTemplateData = heroData;
+        playerHeroMap.clear();
+    }
 
     @Override
     public InternalResponseObject<List<Hero>> getPlayerHeroes(Player p) {
@@ -36,7 +44,7 @@ public class InMemoryHeroRepository implements HeroRepository {
         Set<Hero> heroSet;
         if (!playerHeroMap.containsKey(p.getUsername())) {
             heroSet = new HashSet<>();
-            playerHeroMap.put(p.getUsername(),heroSet);
+            playerHeroMap.put(p.getUsername(), heroSet);
         } else {
             heroSet = playerHeroMap.get(p.getUsername());
         }
@@ -44,18 +52,34 @@ public class InMemoryHeroRepository implements HeroRepository {
             heroSet.remove(h);
         }
         heroSet.add(h);
-        return new InternalResponseObject<>(true,"saved");
+        return new InternalResponseObject<>(true, "saved");
     }
 
     @Override
     public InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p) {
-        Hero h = new HeroBuilder().setWeapon(GameEngine.instance().services.weaponRepository.getWeaponForId(0).get()).setOwnerID(Optional.of(p.getUsername())).createHero();
-        InternalResponseObject<Boolean> resp = saveHeroForPlayer(p,h);
-        if(!resp.isNormal()){
-            return resp;
+        for(List<String> lst : heroTemplateData){
+            HeroBuilder hb = new HeroBuilder()
+                    .setHeroType(HeroType.valueOf(lst.get(1).toUpperCase()))
+                    .setAttack(Integer.parseInt(lst.get(2)))
+                    .setDefense(Integer.parseInt(lst.get(3)))
+                    .setHealth(Integer.parseInt(lst.get(4)))
+                    .setMaxHealth(Integer.parseInt(lst.get(4)))
+                    .setMovement(Integer.parseInt(lst.get(5)))
+                    .setVision(Integer.parseInt(lst.get(6)))
+                    .setWeapon(GameEngine.instance().services.weaponRepository.getWeaponForId(Integer.parseInt(lst.get(7))).get())
+                    .setOwnerID(Optional.of(p.getUsername()))
+                    .setControllerID(Optional.of(p.getUsername()))
+                    .setDatabaseIdentifier(-1);
+            InternalResponseObject<Boolean> resp = saveHeroForPlayer(p,hb.createHero());
+            if(!resp.isNormal()){
+                return resp;
+            }
         }
-        Hero h2 = new HeroBuilder().setHeroType(HeroType.WARRIORROGUE).setWeapon(GameEngine.instance().services.weaponRepository.getWeaponForId(1).get()).setOwnerID(Optional.of(p.getUsername())).createHero();
-        resp = saveHeroForPlayer(p,h2);
-        return resp;
+        return new InternalResponseObject<>(true,"created");
+    }
+
+    @Override
+    public List<LevelReward> getLevelRewards(HeroType type, int level) {
+        return null;
     }
 }

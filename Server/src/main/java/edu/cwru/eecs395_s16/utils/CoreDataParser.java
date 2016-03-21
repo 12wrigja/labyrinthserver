@@ -15,7 +15,7 @@ public class CoreDataParser {
     public static final Pattern startDataSetPattern = Pattern.compile("start (.*)?\\r?\\n?",Pattern.CASE_INSENSITIVE);
     public static final Pattern endDataSetPattern = Pattern.compile("end (.*)\\r?\\n?",Pattern.CASE_INSENSITIVE);
 
-    public static List<CoreDataEntry> parse(String fileName){
+    public static Map<String,CoreDataEntry> parse(String fileName){
         Map<String, CoreDataEntry> entries = new HashMap<>();
         Scanner scan = null;
         try{
@@ -56,7 +56,7 @@ public class CoreDataParser {
                 scan.close();
             }
         }
-        return new ArrayList<>(entries.values());
+        return entries;
     }
 
     public static class CoreDataEntry {
@@ -77,8 +77,8 @@ public class CoreDataParser {
 
     public static void main(String[] args){
         String file = "new_base_data.data";
-        List<CoreDataEntry> data = CoreDataParser.parse(file);
-        for(CoreDataEntry key : data){
+        Map<String,CoreDataEntry> data = CoreDataParser.parse(file);
+        for(CoreDataEntry key : data.values()){
             System.out.println(key.name);
         }
     }
