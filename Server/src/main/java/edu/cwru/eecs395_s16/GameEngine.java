@@ -8,7 +8,7 @@ import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
-import edu.cwru.eecs395_s16.services.ServiceContainer;
+import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
 import edu.cwru.eecs395_s16.services.bots.BotClientService;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 

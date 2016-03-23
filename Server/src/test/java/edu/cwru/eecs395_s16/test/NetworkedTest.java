@@ -2,8 +2,10 @@ package edu.cwru.eecs395_s16.test;
 
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.services.*;
+import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
+import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -35,7 +37,7 @@ public abstract class NetworkedTest {
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
-        engine = new GameEngine(false, new ServiceContainerBuilder().createServiceContainer());
+        engine = new GameEngine(false, ServiceContainer.buildInMemoryContainer(CoreDataUtils.defaultCoreData(), new BasicMatchmakingService()));
         SocketIOConnectionService socketIO = new SocketIOConnectionService();
         socketIO.setServerPort(PORT);
         engine.addClientService(socketIO);

@@ -1,16 +1,13 @@
 package edu.cwru.eecs395_s16.ui;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.interfaces.repositories.*;
-import edu.cwru.eecs395_s16.services.*;
-import edu.cwru.eecs395_s16.services.maprepository.PostgresMapRepository;
-import edu.cwru.eecs395_s16.services.cache.RedisCacheService;
+import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
-import edu.cwru.eecs395_s16.services.herorepository.PostgresHeroRepository;
-import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
-import edu.cwru.eecs395_s16.services.sessionrepository.RedisSessionRepository;
+import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
+import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import redis.clients.jedis.JedisPool;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.UnknownHostException;
@@ -28,6 +25,15 @@ public class mainUI {
 
     private static Scanner scan;
 
+    private static final String DEFAULT_DATA_FILE_NAME = "new_base_data.data";
+
+    public static final String JDBC_CONN_STRING = "jdbc:postgresql:vagrant";
+    public static final String DB_USERNAME = "vagrant";
+    public static final String DB_PASSWORD = "vagrant";
+    public static Connection getDBConnection() throws SQLException {
+        return DriverManager.getConnection(JDBC_CONN_STRING, DB_USERNAME, DB_PASSWORD);
+    }
+
     public static void main(String[] args) {
 
         System.out.println("Welcome to Labyrinth Server UI");
@@ -42,14 +48,15 @@ public class mainUI {
             @Override
             public void run() {
                 if (activeEngine == null) {
-                    ServiceContainerBuilder containerBuilder = new ServiceContainerBuilder();
+                    String file = "new_base_data.data";
+                    Map<String, CoreDataUtils.CoreDataEntry> data = CoreDataUtils.parse(file);
                     String persistText = getOption("persist");
+                    ServiceContainer container;
                     boolean enableTrace = Boolean.parseBoolean(getOption("trace"));
                     if (persistText != null && Boolean.parseBoolean(persistText)) {
-                        //TODO update this so it uses persistent storage
                         Connection dbConnection;
                         try {
-                            dbConnection = DriverManager.getConnection("jdbc:postgresql:vagrant","vagrant","vagrant");
+                            dbConnection = getDBConnection();
                         } catch (SQLException e) {
                             System.err.println("Unable to create connection to Postgres Database.");
                             if(enableTrace){
@@ -58,14 +65,11 @@ public class mainUI {
                             return;
                         }
                         JedisPool jedisPool = new JedisPool("localhost");
-                        PlayerRepository playerRepo = new PostgresPlayerRepository(dbConnection);
-                        containerBuilder.setPlayerRepository(playerRepo);
-                        containerBuilder.setSessionRepository(new RedisSessionRepository(jedisPool, playerRepo));
-                        containerBuilder.setCacheService(new RedisCacheService(jedisPool));
-                        containerBuilder.setHeroRepository(new PostgresHeroRepository(dbConnection));
-                        containerBuilder.setMapRepository(new PostgresMapRepository(dbConnection));
+                        container = ServiceContainer.buildPersistantContainer(data,dbConnection,jedisPool, new BasicMatchmakingService());
+                    } else {
+                        container = ServiceContainer.buildInMemoryContainer(data,new BasicMatchmakingService());
                     }
-                    GameEngine engine = new GameEngine(enableTrace, containerBuilder.createServiceContainer());
+                    GameEngine engine = new GameEngine(enableTrace, container);
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
                     if (serverInterface != null) {
@@ -204,12 +208,38 @@ public class mainUI {
             }
         };
 
+        ConsoleCommand seedDBCommand = new ConsoleCommand("seed","Seeds the database with initial data. WILL DROP ALL EXISTING DATA.","dataFile") {
+            @Override
+            public void run() {
+                System.out.println(new File(".").getAbsolutePath());
+                String dataFile;
+                if(getOption("dataFile") != null){
+                    dataFile = getOption("dataFile");
+                } else {
+                    dataFile = DEFAULT_DATA_FILE_NAME;
+                }
+                Map<String,CoreDataUtils.CoreDataEntry> coreData = CoreDataUtils.parse(dataFile);
+                Connection dbConnection;
+                try {
+                    dbConnection = getDBConnection();
+                } catch (SQLException e) {
+                    System.err.println("Unable to create connection to Postgres Database.");
+                    e.printStackTrace();
+                    return;
+                }
+                JedisPool jedisPool = new JedisPool("localhost");
+                ServiceContainer c = ServiceContainer.buildPersistantContainer(coreData,dbConnection,jedisPool,new BasicMatchmakingService());
+                c.cleanAndInit(coreData);
+            }
+        };
+
         cmds.add(startCMD);
         cmds.add(stopCMD);
         cmds.add(helpCommand);
         cmds.add(exitCommand);
         cmds.add(describeSpecificFunction);
         cmds.add(listAllFunctionsCommand);
+        cmds.add(seedDBCommand);
 
         for (ConsoleCommand cmd : cmds) {
             cmdMap.put(cmd.phrase, cmd);

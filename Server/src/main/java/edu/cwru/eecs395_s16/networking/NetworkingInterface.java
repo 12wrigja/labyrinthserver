@@ -15,6 +15,7 @@ import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 import edu.cwru.eecs395_s16.interfaces.services.GameClient;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
@@ -49,6 +50,7 @@ public class NetworkingInterface {
         if(newPlayerResp.isNormal()){
             InternalResponseObject<Boolean> heroesCreatedResp = GameEngine.instance().services.heroRepository.createDefaultHeroesForPlayer(newPlayerResp.get());
             if(!heroesCreatedResp.isNormal()){
+                GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
                 return InternalResponseObject.cloneError(heroesCreatedResp);
             }
         }
@@ -57,8 +59,8 @@ public class NetworkingInterface {
 
     @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
     public InternalResponseObject<GameMap> map(NewMapRequest obj) {
-        GameMap m = new AlmostBlankMap(obj.getX(), obj.getY());
-        return new InternalResponseObject<>(m, "map");
+        MapRepository mRepo = GameEngine.instance().services.mapRepository;
+        return new InternalResponseObject<>(new AlmostBlankMap(obj.getX(), obj.getY(), mRepo.getTileTypeMap()),"map");
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")

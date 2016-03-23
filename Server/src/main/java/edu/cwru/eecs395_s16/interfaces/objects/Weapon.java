@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.interfaces.objects;
 
-import edu.cwru.eecs395_s16.core.objects.AttackPattern;
+import edu.cwru.eecs395_s16.core.objects.UsePattern;
 import edu.cwru.eecs395_s16.interfaces.Jsonable;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,16 +22,16 @@ public class Weapon implements DatabaseObject, Jsonable {
     private final String name;
     private final String description;
     private final int damageModifier;
-    private final AttackPattern attackPattern;
+    private final UsePattern usePattern;
 
-    public Weapon(int databaseID, String image, String name, String description, int range, int damageModifier, AttackPattern attackPattern) {
+    public Weapon(int databaseID, String image, String name, String description, int range, int damageModifier, UsePattern usePattern) {
         this.databaseID = databaseID;
         this.image = image;
         this.name = name;
         this.description = description;
         this.range = range;
         this.damageModifier = damageModifier;
-        this.attackPattern = attackPattern;
+        this.usePattern = usePattern;
     }
 
     @Override
@@ -59,8 +59,8 @@ public class Weapon implements DatabaseObject, Jsonable {
         return range;
     }
 
-    public AttackPattern getAttackPattern() {
-        return attackPattern;
+    public UsePattern getUsePattern() {
+        return usePattern;
     }
 
     @Override
@@ -73,7 +73,7 @@ public class Weapon implements DatabaseObject, Jsonable {
             representation.put(DESCRIPTION_KEY, getDescription());
             representation.put(RANGE_KEY,getRange());
             representation.put(DAMAGE_MOD_KEY, getDamageModifier());
-            representation.put(ATTACK_PATTERN_KEY, getAttackPattern().getJSONRepresentation());
+            representation.put(ATTACK_PATTERN_KEY, getUsePattern().getJSONRepresentation());
         } catch (JSONException e) {
             //This should never happen - all keys are not null
         }

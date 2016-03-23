@@ -11,10 +11,10 @@ import java.util.Map;
 /**
  * Created by james on 3/19/16.
  */
-public class AttackPattern implements Jsonable {
+public class UsePattern implements Jsonable {
 
-    public static final String DAMAGE_MAP_KEY = "damage_map";
-    public static final String DAMAGE_PERCENT_KEY = "damage_percent";
+    public static final String EFFECT_MAP_KEY = "effect_map";
+    public static final String EFFECT_PERCENT_KEY = "effect_percent";
     public static final String NUM_INPUT_KEY = "count";
     public static final String ROTATABLE_KEY = "rotatable";
     private final int inputCount;
@@ -22,15 +22,15 @@ public class AttackPattern implements Jsonable {
     private final boolean rotatable;
     private final Map<Location,Float> damageDistributionMap;
 
-    public static final AttackPattern singleTargetPattern;
+    public static final UsePattern singleTargetPattern;
 
     static {
         Map<Location,Float> locs = new HashMap<>();
         locs.put(new Location(0,0),1.0f);
-        singleTargetPattern = new AttackPattern(1,false,locs);
+        singleTargetPattern = new UsePattern(1,false,locs);
     }
 
-    public AttackPattern(int inputCount, boolean rotatable, Map<Location, Float> damageDistributionMap) {
+    public UsePattern(int inputCount, boolean rotatable, Map<Location, Float> damageDistributionMap) {
         this.inputCount = inputCount;
         this.rotatable = rotatable;
         this.damageDistributionMap = damageDistributionMap;
@@ -44,11 +44,11 @@ public class AttackPattern implements Jsonable {
         return rotatable;
     }
 
-    public Map<Location, Float> getDamageDistributionMap() {
+    public Map<Location, Float> getEffectDistributionMap() {
         return damageDistributionMap;
     }
 
-    public Map<Location,Float> getDamageDistributionMap(Location centeredAround){
+    public Map<Location,Float> getEffectDistributionMap(Location centeredAround){
         Map<Location,Float> newMap = new HashMap<>();
         for(Map.Entry<Location,Float> entry : damageDistributionMap.entrySet()){
             newMap.put(new Location(centeredAround.getX()+entry.getKey().getX(),centeredAround.getY()+entry.getKey().getY()),entry.getValue());
@@ -57,7 +57,7 @@ public class AttackPattern implements Jsonable {
     }
 
 
-    public float damageForLocation(Location loc){
+    public float effectPercentForLocation(Location loc){
         return damageDistributionMap.containsKey(loc)?damageDistributionMap.get(loc):0f;
     }
 
@@ -67,10 +67,10 @@ public class AttackPattern implements Jsonable {
         try {
             representation.put(ROTATABLE_KEY, isRotatable());
             representation.put(NUM_INPUT_KEY, getInputCount());
-            representation.put(DAMAGE_MAP_KEY, JSONUtils.listify(getDamageDistributionMap(), entry -> {
+            representation.put(EFFECT_MAP_KEY, JSONUtils.listify(getEffectDistributionMap(), entry -> {
                 JSONObject obj = entry.getKey().getJSONRepresentation();
                 try {
-                    obj.put(DAMAGE_PERCENT_KEY,entry.getValue());
+                    obj.put(EFFECT_PERCENT_KEY,entry.getValue());
                 } catch (JSONException e) {
                     //This should never happen - keys are all non-null.
                 }

@@ -55,4 +55,12 @@ public class MapTile extends Location implements Jsonable {
     public boolean isObjectiveSpawn() {
         return isObjectiveSpawn;
     }
+
+    public MapRepository.TileType getTileType() {
+        return tileType;
+    }
+
+    public int getRotation() {
+        return rotation;
+    }
 }
