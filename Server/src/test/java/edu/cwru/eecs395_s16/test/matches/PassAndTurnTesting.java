@@ -3,11 +3,11 @@ package edu.cwru.eecs395_s16.test.matches;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
-import edu.cwru.eecs395_s16.interfaces.objects.Creature;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.test.InMatchTest;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class PassAndTurnTesting extends InMatchTest {
     @Override
     public List<Hero> getHeroesForHero(Player hero) {
         List<Hero> defaultHeroes = super.getHeroesForHero(hero);
-        defaultHeroes.add(new HeroBuilder().setOwnerID(Optional.of(hero.getUsername())).setHeroType(HeroType.MAGE).createHero());
+        defaultHeroes.add(new HeroBuilder(hero.getUsername()).setHeroType(HeroType.MAGE).createHero());
         return defaultHeroes;
     }
 

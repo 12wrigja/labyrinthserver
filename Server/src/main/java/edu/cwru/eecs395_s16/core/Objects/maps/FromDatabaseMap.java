@@ -1,10 +1,7 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
-import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.MapTile;
-import edu.cwru.eecs395_s16.interfaces.objects.DatabaseObject;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
 
 import java.util.ArrayList;
 import java.util.List;

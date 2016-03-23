@@ -1,16 +1,12 @@
 package edu.cwru.eecs395_s16.test.services.sessionrepo;
 
-import com.corundumstudio.socketio.SocketIOClient;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
-import edu.cwru.eecs395_s16.interfaces.services.GameClient;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 import edu.cwru.eecs395_s16.test.NetworkedTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
-import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

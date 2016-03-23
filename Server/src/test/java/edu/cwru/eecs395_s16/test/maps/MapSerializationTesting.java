@@ -2,7 +2,7 @@ package edu.cwru.eecs395_s16.test.maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
 import edu.cwru.eecs395_s16.test.SerializationTest;
 import org.json.JSONArray;

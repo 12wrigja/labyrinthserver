@@ -2,9 +2,7 @@ package edu.cwru.eecs395_s16.core.objects.maps;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.MapTile;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
-import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
+import edu.cwru.eecs395_s16.services.maps.MapRepository;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

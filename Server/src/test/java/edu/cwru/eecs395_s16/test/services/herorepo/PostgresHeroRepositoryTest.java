@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.test.services.herorepo;
 
-import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import org.junit.AfterClass;

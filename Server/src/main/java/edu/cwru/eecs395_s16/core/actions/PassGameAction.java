@@ -4,12 +4,10 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
-import edu.cwru.eecs395_s16.interfaces.objects.Creature;
-import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
+import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
-import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONObject;
 
 import java.util.Optional;

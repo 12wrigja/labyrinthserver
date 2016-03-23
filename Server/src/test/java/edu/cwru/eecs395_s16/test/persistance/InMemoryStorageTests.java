@@ -2,12 +2,12 @@ package edu.cwru.eecs395_s16.test.persistance;
 
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.services.CacheService;
-import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.services.cache.CacheService;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
-import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
-import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository;
+import edu.cwru.eecs395_s16.services.players.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.sessions.InMemorySessionRepository;
 import org.junit.Test;
 
 import java.util.Optional;

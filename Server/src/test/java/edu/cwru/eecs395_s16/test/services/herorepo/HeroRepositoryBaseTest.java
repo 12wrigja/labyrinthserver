@@ -3,7 +3,7 @@ package edu.cwru.eecs395_s16.test.services.herorepo;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.junit.After;

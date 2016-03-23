@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.test.networking;
 
-import edu.cwru.eecs395_s16.bots.GameBot;
-import edu.cwru.eecs395_s16.bots.PassBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.test.NetworkedTest;
 import org.json.JSONException;

@@ -3,7 +3,7 @@ package edu.cwru.eecs395_s16.test.services.playerrepo;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
 import org.junit.Before;
 import org.junit.Test;
 

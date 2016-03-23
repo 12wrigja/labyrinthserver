@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.networking.responses;
 
-import edu.cwru.eecs395_s16.interfaces.Response;
+import edu.cwru.eecs395_s16.networking.Response;
 
 /**
  * Created by james on 2/28/16.

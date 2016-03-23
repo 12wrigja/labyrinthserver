@@ -2,17 +2,16 @@ package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
-import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.interfaces.Response;
-import edu.cwru.eecs395_s16.interfaces.services.ClientConnectionService;
-import edu.cwru.eecs395_s16.interfaces.services.GameClient;
+import edu.cwru.eecs395_s16.networking.Response;
+import edu.cwru.eecs395_s16.services.connections.ClientConnectionService;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -1,8 +1,8 @@
 package edu.cwru.eecs395_s16.test.persistance;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.bots.GameBot;
-import edu.cwru.eecs395_s16.bots.PassBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;

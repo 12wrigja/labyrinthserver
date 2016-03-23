@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.test.services.playerrepo;
 
-import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
-import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
+import edu.cwru.eecs395_s16.services.players.InMemoryPlayerRepository;
 
 /**
  * Created by james on 2/29/16.

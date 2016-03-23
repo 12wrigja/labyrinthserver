@@ -3,7 +3,7 @@ package edu.cwru.eecs395_s16.networking.requests.gameactions;
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.interfaces.RequestData;
+import edu.cwru.eecs395_s16.networking.RequestData;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.core.objects;
 
-import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import edu.cwru.eecs395_s16.networking.Jsonable;
 import org.json.JSONException;
 import org.json.JSONObject;
 

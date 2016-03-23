@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.test.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.json.JSONObject;
 import org.junit.Test;

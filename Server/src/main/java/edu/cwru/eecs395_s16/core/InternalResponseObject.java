@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.core;
 
-import edu.cwru.eecs395_s16.interfaces.Response;
+import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONException;
 import org.json.JSONObject;

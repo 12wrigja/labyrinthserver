@@ -4,10 +4,10 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.test.InMatchTest;
 import org.json.JSONException;
@@ -30,7 +30,7 @@ public class MovementTesting extends InMatchTest {
     @Override
     public List<Hero> getHeroesForHero(Player hero) {
         List<Hero> baseHeroes = super.getHeroesForHero(hero);
-        Hero h2 = new HeroBuilder().setHeroType(HeroType.MAGE).setOwnerID(Optional.of(hero.getUsername())).createHero();
+        Hero h2 = new HeroBuilder(hero.getUsername()).setHeroType(HeroType.MAGE).createHero();
         baseHeroes.add(h2);
         return baseHeroes;
     }

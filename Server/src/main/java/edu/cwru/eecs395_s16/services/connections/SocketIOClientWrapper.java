@@ -1,8 +1,7 @@
 package edu.cwru.eecs395_s16.services.connections;
 
 import com.corundumstudio.socketio.SocketIOClient;
-import edu.cwru.eecs395_s16.interfaces.Response;
-import edu.cwru.eecs395_s16.interfaces.services.GameClient;
+import edu.cwru.eecs395_s16.networking.Response;
 import org.json.JSONObject;
 
 import java.util.UUID;

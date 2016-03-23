@@ -1,7 +1,5 @@
 package edu.cwru.eecs395_s16.services.cache;
 
-import edu.cwru.eecs395_s16.interfaces.services.CacheService;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

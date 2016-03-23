@@ -1,14 +1,11 @@
 package edu.cwru.eecs395_s16.core.objects;
 
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.cert.PKIXRevocationChecker;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Created by james on 2/22/16.
@@ -20,8 +17,8 @@ public class GameObjectFactory {
         //TODO update this when we add in concrete classes for each of the hero, monster, trap, etc game objects
         switch(impl){
             case HERO: {
-                HeroBuilder hb = new HeroBuilder();
                 try {
+                    HeroBuilder hb = new HeroBuilder(obj.getString(GameObject.OWNER_ID_KEY));
                     return Optional.ofNullable(hb.fillFromJSON(obj).createHero());
                 } catch (JSONException e) {
                     return Optional.empty();

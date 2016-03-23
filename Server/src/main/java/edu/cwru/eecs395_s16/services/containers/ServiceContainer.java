@@ -1,29 +1,32 @@
 package edu.cwru.eecs395_s16.services.containers;
 
-import edu.cwru.eecs395_s16.interfaces.repositories.*;
-import edu.cwru.eecs395_s16.interfaces.services.CacheService;
-import edu.cwru.eecs395_s16.interfaces.services.MatchmakingService;
+import edu.cwru.eecs395_s16.services.cache.CacheService;
+import edu.cwru.eecs395_s16.services.matchmaking.MatchmakingService;
 import edu.cwru.eecs395_s16.services.bots.HeroRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.bots.PlayerRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.bots.SessionRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
 import edu.cwru.eecs395_s16.services.cache.RedisCacheService;
-import edu.cwru.eecs395_s16.services.herorepository.InMemoryHeroRepository;
-import edu.cwru.eecs395_s16.services.herorepository.PostgresHeroRepository;
-import edu.cwru.eecs395_s16.services.maprepository.InMemoryMapRepository;
-import edu.cwru.eecs395_s16.services.maprepository.PostgresMapRepository;
-import edu.cwru.eecs395_s16.services.playerrepository.InMemoryPlayerRepository;
-import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
-import edu.cwru.eecs395_s16.services.sessionrepository.InMemorySessionRepository;
-import edu.cwru.eecs395_s16.services.sessionrepository.RedisSessionRepository;
-import edu.cwru.eecs395_s16.services.weaponrepository.InMemoryHeroItemRepository;
-import edu.cwru.eecs395_s16.services.weaponrepository.PostgresHeroItemRepository;
+import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
+import edu.cwru.eecs395_s16.services.heroes.InMemoryHeroRepository;
+import edu.cwru.eecs395_s16.services.heroes.PostgresHeroRepository;
+import edu.cwru.eecs395_s16.services.maps.InMemoryMapRepository;
+import edu.cwru.eecs395_s16.services.maps.MapRepository;
+import edu.cwru.eecs395_s16.services.maps.PostgresMapRepository;
+import edu.cwru.eecs395_s16.services.players.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
+import edu.cwru.eecs395_s16.services.players.PostgresPlayerRepository;
+import edu.cwru.eecs395_s16.services.sessions.InMemorySessionRepository;
+import edu.cwru.eecs395_s16.services.sessions.RedisSessionRepository;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
+import edu.cwru.eecs395_s16.services.heroitems.HeroItemRepository;
+import edu.cwru.eecs395_s16.services.heroitems.InMemoryHeroItemRepository;
+import edu.cwru.eecs395_s16.services.heroitems.PostgresHeroItemRepository;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import redis.clients.jedis.JedisPool;
 
 import java.sql.Connection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by james on 3/13/16.

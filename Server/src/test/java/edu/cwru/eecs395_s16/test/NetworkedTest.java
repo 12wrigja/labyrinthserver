@@ -2,7 +2,7 @@ package edu.cwru.eecs395_s16.test;
 
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.networking.matchmaking.BasicMatchmakingService;
+import edu.cwru.eecs395_s16.services.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;

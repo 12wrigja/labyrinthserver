@@ -23,15 +23,25 @@ import java.util.Set;
 public class NetworkEventAnnotationProcessor extends AbstractProcessor {
 
     private Messager messager;
-    private Elements elementUtils;
     private Types typeUtils;
+
+    private static TypeMirror expectedReturnType;
+    private static TypeMirror expectedDataType;
+    private static TypeMirror jsonObjectDataType;
+    private static TypeMirror playerType;
+    private static TypeMirror clientType;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.messager = processingEnv.getMessager();
-        this.elementUtils = processingEnv.getElementUtils();
+        Elements elementUtils = processingEnv.getElementUtils();
         this.typeUtils = processingEnv.getTypeUtils();
+        expectedReturnType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.networking.Response").asType();
+        expectedDataType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.networking.RequestData").asType();
+        jsonObjectDataType = elementUtils.getTypeElement("org.json.JSONObject").asType();
+        playerType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.core.Player").asType();
+        clientType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.services.connections.GameClient").asType();
     }
 
     @Override
@@ -48,7 +58,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
                 }
 
                 //Check return type extends Response
-                TypeMirror expectedReturnType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.Response").asType();
+
                 TypeMirror currentMirror = networkedMethod.getReturnType();
                 while (true) {
                     //Get TypeKind and check for none - we have reached the top of the inheritance tree.
@@ -70,10 +80,7 @@ public class NetworkEventAnnotationProcessor extends AbstractProcessor {
 
                 //Check Method Parameters
                 List<? extends VariableElement> methodParams = networkedMethod.getParameters();
-                TypeMirror expectedDataType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.RequestData").asType();
-                TypeMirror jsonObjectDataType = elementUtils.getTypeElement("org.json.JSONObject").asType();
-                TypeMirror playerType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.core.Player").asType();
-                TypeMirror clientType = elementUtils.getTypeElement("edu.cwru.eecs395_s16.interfaces.services.GameClient").asType();
+
                 if(annotation.mustAuthenticate()){
                     //Check for the second parameter to be the Player type
                     switch(methodParams.size()){

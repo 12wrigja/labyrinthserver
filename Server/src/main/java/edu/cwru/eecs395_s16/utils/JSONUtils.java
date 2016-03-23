@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.utils;
 
-import edu.cwru.eecs395_s16.interfaces.Jsonable;
+import edu.cwru.eecs395_s16.networking.Jsonable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 /**
  * Created by james on 2/22/16.

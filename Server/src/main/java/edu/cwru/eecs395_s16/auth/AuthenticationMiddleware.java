@@ -1,14 +1,14 @@
 package edu.cwru.eecs395_s16.auth;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.JsonableException;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.RequestData;
-import edu.cwru.eecs395_s16.interfaces.Response;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
-import edu.cwru.eecs395_s16.interfaces.services.GameClient;
+import edu.cwru.eecs395_s16.networking.RequestData;
+import edu.cwru.eecs395_s16.networking.Response;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONObject;

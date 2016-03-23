@@ -1,11 +1,11 @@
 package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.util.Map;

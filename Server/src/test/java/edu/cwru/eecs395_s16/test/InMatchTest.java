@@ -1,24 +1,22 @@
 package edu.cwru.eecs395_s16.test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import edu.cwru.eecs395_s16.bots.GameBot;
-import edu.cwru.eecs395_s16.bots.TestBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.TestBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
-import edu.cwru.eecs395_s16.interfaces.objects.Creature;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
+import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.requests.GameActionBaseRequest;
 import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -59,14 +57,14 @@ public abstract class InMatchTest extends SerializationTest {
     }
 
     public List<Hero> getHeroesForHero(Player hero) {
-        Hero h = new HeroBuilder().setOwnerID(Optional.of(hero.getUsername())).createHero();
+        Hero h = new HeroBuilder(hero.getUsername()).createHero();
         List<Hero> heroes = new ArrayList<>();
         heroes.add(h);
         return heroes;
     }
 
     public List<GameObject> getObjectsForArchitect(Player architect) {
-        Hero hero = new HeroBuilder().setOwnerID(Optional.of(architect.getUsername())).createHero();
+        Hero hero = new HeroBuilder(architect.getUsername()).createHero();
         List<GameObject> gameObjects = new ArrayList<>();
         gameObjects.add(hero);
         return gameObjects;

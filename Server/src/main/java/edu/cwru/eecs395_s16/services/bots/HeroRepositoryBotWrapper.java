@@ -1,12 +1,12 @@
 package edu.cwru.eecs395_s16.services.bots;
 
-import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.heroes.HeroType;
-import edu.cwru.eecs395_s16.core.objects.heroes.LevelReward;
-import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.LevelReward;
+import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.util.List;
@@ -51,8 +51,13 @@ public class HeroRepositoryBotWrapper implements HeroRepository {
     }
 
     @Override
-    public List<LevelReward> getLevelRewards(HeroType type, int level) {
-        return actualRepo.getLevelRewards(type,level);
+    public List<LevelReward> getLevelRewards(HeroType type, long previousExperience, long level) {
+        return actualRepo.getLevelRewards(type, 0, level);
+    }
+
+    @Override
+    public InternalResponseObject<HeroType> getHeroTypeForId(int id) {
+        return actualRepo.getHeroTypeForId(id);
     }
 
     @Override

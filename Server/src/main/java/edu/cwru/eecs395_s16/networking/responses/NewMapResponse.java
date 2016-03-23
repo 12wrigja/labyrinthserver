@@ -1,8 +1,8 @@
 package edu.cwru.eecs395_s16.networking.responses;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.interfaces.Response;
-import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
+import edu.cwru.eecs395_s16.networking.Response;
+import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 

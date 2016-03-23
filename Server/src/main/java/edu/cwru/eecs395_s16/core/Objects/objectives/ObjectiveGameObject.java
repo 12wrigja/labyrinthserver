@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.core.objects.objectives;
 
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.interfaces.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 

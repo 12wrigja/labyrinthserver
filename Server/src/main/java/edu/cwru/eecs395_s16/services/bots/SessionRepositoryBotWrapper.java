@@ -1,11 +1,10 @@
 package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.auth.exceptions.UnknownUsernameException;
-import edu.cwru.eecs395_s16.bots.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.interfaces.repositories.SessionRepository;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 
 import java.util.Optional;
 import java.util.UUID;
