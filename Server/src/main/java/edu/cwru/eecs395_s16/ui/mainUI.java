@@ -228,7 +228,8 @@ public class mainUI {
                     return;
                 }
                 JedisPool jedisPool = new JedisPool("localhost");
-                ServiceContainer.buildPersistantContainer(coreData,dbConnection,jedisPool,new BasicMatchmakingService());
+                ServiceContainer c = ServiceContainer.buildPersistantContainer(coreData,dbConnection,jedisPool,new BasicMatchmakingService());
+                c.cleanAndInit(coreData);
             }
         };
 

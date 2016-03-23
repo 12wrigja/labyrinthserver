@@ -23,7 +23,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+    public final void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
         Set<String> tableNames = new HashSet<>(getTables());
         List<CoreDataUtils.CoreDataEntry> data = new ArrayList<>(baseData.values().stream().filter(entry -> getTables().contains(entry.name) && !CoreDataUtils.isSchemaInitialized(conn,entry.name)).collect(Collectors.toList()));
         data.sort((o1, o2) -> Integer.compare(o1.order, o2.order));
@@ -42,7 +42,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+    public final void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
         try {
             List<String> tables = getTables();
             StringBuilder sb = new StringBuilder();
@@ -55,10 +55,11 @@ public abstract class DBRepository implements Repository {
             }
             sb.append(" cascade;");
             PreparedStatement stmt = conn.prepareStatement(sb.toString());
-            ResultSet rslts = stmt.executeQuery();
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        initialize(baseData);
     }
 
 }

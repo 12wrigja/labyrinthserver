@@ -20,7 +20,7 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     @Override
     public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
         if(username == null || !username.matches("[a-zA-Z0-9]+")){
-            return new InternalResponseObject<Player>(InternalErrorCode.INVALID_USERNAME);
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME);
         }
         if(password == null || passwordConfirm == null || !password.equals(passwordConfirm)){
             return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
@@ -28,7 +28,7 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         if (playerMap.containsKey(username)) {
             return new InternalResponseObject<>(InternalErrorCode.DUPLICATE_USERNAME);
         } else {
-            //TODO change this back. Probably.
+            //TODO change this back. Probably. Need a different way to specify dev or not.
             Player p = new Player(-1,username, password, true);
             playerMap.put(username, p);
             return new InternalResponseObject<>(p);

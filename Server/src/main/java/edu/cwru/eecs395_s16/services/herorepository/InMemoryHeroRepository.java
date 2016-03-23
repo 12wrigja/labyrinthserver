@@ -86,6 +86,7 @@ public class InMemoryHeroRepository implements HeroRepository {
     @Override
     public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
         playerHeroMap.clear();
+        heroTemplateData.clear();
         initialize(baseData);
     }
 }

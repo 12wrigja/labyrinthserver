@@ -78,6 +78,23 @@ public class ServiceContainer {
         this.sessionRepository = sRepo;
     }
 
+    public void cleanAndInit(Map<String,CoreDataUtils.CoreDataEntry> initialData){
+        //Weapon Repository
+        this.heroItemRepository.resetToDefaultData(initialData);
+
+        //Hero Repository
+        this.heroRepository.resetToDefaultData(initialData);
+
+        //Player Repository
+        this.playerRepository.resetToDefaultData(initialData);
+
+        //Map Repository
+        this.mapRepository.initialize(initialData);
+
+        //Session Repository
+        //TODO implement expiring all sessions (potentially).
+    }
+
     public static ServiceContainer buildPersistantContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, Connection dbConnection, JedisPool jedisPool, MatchmakingService matchService) {
         CoreDataUtils.setCreateSchemaMap("create_schema.sql");
         PlayerRepository repo = new PostgresPlayerRepository(dbConnection);
