@@ -25,7 +25,7 @@ import java.util.Map;
 public class PostgresMapRepository extends DBRepository implements MapRepository {
 
     public static final String MAPS_TABLE = "maps";
-    private static final String GET_MAP_QUERY = "select * from " + MAPS_TABLE + " inner join players on maps.creator_id = players.id where id = ?";
+    private static final String GET_MAP_QUERY = "select maps.*, players.username as username from " + MAPS_TABLE + " inner join players on maps.creator_id = players.id where "+MAPS_TABLE+".id = ?";
     public static final String TILE_MAP_TABLE = "tile_map";
     private static final String GET_MAP_TILES_QUERY = "select * from " + TILE_MAP_TABLE + " where map_id = ?";
 
@@ -45,10 +45,9 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
     public InternalResponseObject<GameMap> getMapByID(int id) {
         try {
             PreparedStatement mapBase = conn.prepareStatement(GET_MAP_QUERY);
-            mapBase.setInt(0, id);
+            mapBase.setInt(1, id);
             ResultSet r = mapBase.executeQuery();
             if (r.next()) {
-                int dbID = r.getInt("id");
                 String name = r.getString("map_name");
                 String creatorID = r.getString("username");
                 int width = r.getInt("width");

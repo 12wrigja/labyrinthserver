@@ -4,6 +4,7 @@ import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.interfaces.objects.GameAction;
 import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
@@ -30,7 +31,7 @@ public class LineOfSightTests {
     public static void initMapRepo(){
         MapRepository mRepo = new InMemoryMapRepository();
         mRepo.initialize(CoreDataUtils.defaultCoreData());
-        map = mRepo.getMapByID(1).get();
+        map = mRepo.getMapByID(1).get();//new AlmostBlankMap(10,10,mRepo.getTileTypeMap());
     }
 
     @Test
