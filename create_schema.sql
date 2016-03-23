@@ -3,7 +3,7 @@
  */
 create table if not exists rarities (id serial primary key, display_name varchar(30));
 
-create table if not exists players (id serial primary key, username varchar(16), password varchar(255), currency int, is_dev boolean);
+create table if not exists players (id serial primary key, username varchar(16) unique, password varchar(255), currency int, is_dev boolean);
 
 create table if not exists use_patterns (id serial primary key, inputs int default 1, rotatable boolean default true);
 create table if not exists use_pattern_tiles (pattern_id int, x int, y int, effect int, primary key (pattern_id, x, y));

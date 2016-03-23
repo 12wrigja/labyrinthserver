@@ -38,14 +38,14 @@ public class ServiceContainer {
     public final MapRepository mapRepository;
     public final HeroItemRepository heroItemRepository;
 
-    protected ServiceContainer(Map<String,CoreDataUtils.CoreDataEntry> initialData, MapRepository mapRepository, HeroRepository heroRepository, CacheService cacheService, MatchmakingService matchService, SessionRepository sessionRepository, PlayerRepository playerRepository, HeroItemRepository heroItemRepository) {
+    protected ServiceContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, MapRepository mapRepository, HeroRepository heroRepository, CacheService cacheService, MatchmakingService matchService, SessionRepository sessionRepository, PlayerRepository playerRepository, HeroItemRepository heroItemRepository) {
         //Weapon Repository
         this.heroItemRepository = heroItemRepository;
         this.heroItemRepository.initialize(initialData);
 
         //Hero Repository
         HeroRepository hRepo = heroRepository;
-        if(!(hRepo instanceof HeroRepositoryBotWrapper)){
+        if (!(hRepo instanceof HeroRepositoryBotWrapper)) {
             hRepo = new HeroRepositoryBotWrapper(hRepo);
         }
         this.heroRepository = hRepo;
@@ -53,7 +53,7 @@ public class ServiceContainer {
 
         //Player Repository
         PlayerRepository pRepo = playerRepository;
-        if(!(pRepo instanceof PlayerRepositoryBotWrapper)){
+        if (!(pRepo instanceof PlayerRepositoryBotWrapper)) {
             pRepo = new PlayerRepositoryBotWrapper(pRepo);
         }
         this.playerRepository = pRepo;
@@ -72,23 +72,19 @@ public class ServiceContainer {
         //Autowrap various repositories
         //Session Repository
         SessionRepository sRepo = sessionRepository;
-        if(!(sRepo instanceof SessionRepositoryBotWrapper)){
+        if (!(sRepo instanceof SessionRepositoryBotWrapper)) {
             sRepo = new SessionRepositoryBotWrapper(sRepo);
         }
         this.sessionRepository = sRepo;
     }
 
-    public static ServiceContainer buildPersistantContainer(Map<String,CoreDataUtils.CoreDataEntry> initialData, Connection dbConnection, JedisPool jedisPool, MatchmakingService matchService){
-        if(CoreDataUtils.runSQL(dbConnection,"create_schema.sql")){
-            CoreDataUtils.insertIntoDB(dbConnection,initialData.values().stream().filter(entry -> entry.name.equals("rarities")).collect(Collectors.toList()));
-            PlayerRepository repo = new PostgresPlayerRepository(dbConnection);
-            return new ServiceContainer(initialData,new PostgresMapRepository(dbConnection),new PostgresHeroRepository(dbConnection),new RedisCacheService(jedisPool),matchService,new RedisSessionRepository(jedisPool,repo),repo,new PostgresHeroItemRepository(dbConnection));
-        } else {
-            throw new IllegalArgumentException("SQL in create_schema.sql is invalid.");
-        }
+    public static ServiceContainer buildPersistantContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, Connection dbConnection, JedisPool jedisPool, MatchmakingService matchService) {
+        CoreDataUtils.setCreateSchemaMap("create_schema.sql");
+        PlayerRepository repo = new PostgresPlayerRepository(dbConnection);
+        return new ServiceContainer(initialData, new PostgresMapRepository(dbConnection), new PostgresHeroRepository(dbConnection), new RedisCacheService(jedisPool), matchService, new RedisSessionRepository(jedisPool, repo), repo, new PostgresHeroItemRepository(dbConnection));
     }
 
-    public static ServiceContainer buildInMemoryContainer(Map<String,CoreDataUtils.CoreDataEntry> initialData, MatchmakingService matchService){
+    public static ServiceContainer buildInMemoryContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, MatchmakingService matchService) {
         return new ServiceContainer(initialData, new InMemoryMapRepository(), new InMemoryHeroRepository(), new InMemoryCacheService(), matchService, new InMemorySessionRepository(), new InMemoryPlayerRepository(), new InMemoryHeroItemRepository());
     }
 

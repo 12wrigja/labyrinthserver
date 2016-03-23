@@ -9,7 +9,6 @@ import edu.cwru.eecs395_s16.interfaces.objects.GameMap;
 import edu.cwru.eecs395_s16.interfaces.repositories.DBRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.MapRepository;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
-import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,23 +36,9 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
     final Map<String, TileType> tileTypeStringMap;
 
     public PostgresMapRepository(Connection conn) {
-        super(conn, CoreDataUtils.defaultCoreData());
+        super(conn);
         tileTypeMap = new HashMap<>();
         tileTypeStringMap = new HashMap<>();
-        try {
-            PreparedStatement tileTypeStmt = conn.prepareStatement(GET_TILE_TYPES);
-            ResultSet rst = tileTypeStmt.executeQuery();
-            while (rst.next()) {
-                int id = rst.getInt("id");
-                String type = rst.getString("tile_type");
-                boolean isObstruction = rst.getBoolean("is_obstruction");
-                TileType t = new TileType(id, type, isObstruction);
-                tileTypeMap.put(id, t);
-                tileTypeStringMap.put(type, t);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -111,6 +96,22 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
 
     @Override
     public Map<String, TileType> getTileTypeMap() {
+        if(tileTypeMap.size() == 0) {
+            try {
+                PreparedStatement tileTypeStmt = conn.prepareStatement(GET_TILE_TYPES);
+                ResultSet rst = tileTypeStmt.executeQuery();
+                while (rst.next()) {
+                    int id = rst.getInt("id");
+                    String type = rst.getString("tile_type");
+                    boolean isObstruction = rst.getBoolean("is_obstruction");
+                    TileType t = new TileType(id, type, isObstruction);
+                    tileTypeMap.put(id, t);
+                    tileTypeStringMap.put(type, t);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return tileTypeStringMap;
     }
 

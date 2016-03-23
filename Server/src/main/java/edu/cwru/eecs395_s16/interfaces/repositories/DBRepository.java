@@ -6,9 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -20,15 +18,27 @@ public abstract class DBRepository implements Repository {
 
     protected Connection conn;
 
-    protected DBRepository(Connection conn, Map<String, CoreDataUtils.CoreDataEntry> baseData) {
+    protected DBRepository(Connection conn) {
         this.conn = conn;
     }
 
     @Override
     public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
-        List<CoreDataUtils.CoreDataEntry> data = new ArrayList<>(baseData.values().stream().filter(entry-> getTables().contains(entry.name)).collect(Collectors.toList()));
+        Set<String> tableNames = new HashSet<>(getTables());
+        List<CoreDataUtils.CoreDataEntry> data = new ArrayList<>(baseData.values().stream().filter(entry -> getTables().contains(entry.name) && !CoreDataUtils.isSchemaInitialized(conn,entry.name)).collect(Collectors.toList()));
         data.sort((o1, o2) -> Integer.compare(o1.order, o2.order));
-        CoreDataUtils.insertIntoDB(conn,data);
+        data.forEach(entry -> {
+            if(!CoreDataUtils.createTableForData(conn, entry.name)){
+                System.err.println("Failed to make a table for : "+entry.name);
+            } else {
+                tableNames.remove(entry.name);
+            }
+        });
+        tableNames.stream().map(name ->{
+            boolean val = CoreDataUtils.createTableForData(conn,name);
+            return new AbstractMap.SimpleEntry<>(name, val);
+        }).filter(entry->!entry.getValue()).forEach(entry->System.err.println("Failed to make a table for: "+entry.getKey()));
+        CoreDataUtils.insertIntoDB(conn, data);
     }
 
     @Override
@@ -39,7 +49,7 @@ public abstract class DBRepository implements Repository {
             sb.append("drop table if exists ");
             for (int i = 0; i < tables.size(); i++) {
                 sb.append(tables.get(i));
-                if(i != tables.size()-1){
+                if (i != tables.size() - 1) {
                     sb.append(",");
                 }
             }

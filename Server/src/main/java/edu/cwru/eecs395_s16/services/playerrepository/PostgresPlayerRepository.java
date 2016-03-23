@@ -7,7 +7,6 @@ import edu.cwru.eecs395_s16.interfaces.repositories.DBRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.PlayerRepository;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
-import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
     private static final String DELETE_PLAYER_QUERY = "delete from " + PLAYERS_TABLE + " where id = ?";
 
     public PostgresPlayerRepository(Connection dbConnection) {
-        super(dbConnection, CoreDataUtils.defaultCoreData());
+        super(dbConnection);
     }
 
     @Override

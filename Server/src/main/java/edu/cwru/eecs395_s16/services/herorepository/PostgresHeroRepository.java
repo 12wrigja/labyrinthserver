@@ -11,6 +11,7 @@ import edu.cwru.eecs395_s16.core.objects.heroes.LevelReward;
 import edu.cwru.eecs395_s16.interfaces.repositories.DBRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroRepository;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.playerrepository.PostgresPlayerRepository;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.sql.Connection;
@@ -39,7 +40,7 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
     }
 
     public PostgresHeroRepository(Connection conn, Map<String, CoreDataUtils.CoreDataEntry> baseData) {
-        super(conn, baseData);
+        super(conn);
     }
 
     @Override
@@ -107,18 +108,9 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
             {
                 add(HEROES_TABLE);
                 add(HERO_PLAYER_TABLE);
+                add(PostgresPlayerRepository.PLAYERS_TABLE);
             }
         };
-    }
-
-    @Override
-    public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
-
-    }
-
-    @Override
-    public void resetToDefaultData(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
-
     }
 
     private Hero heroFromResultSet(Player p, ResultSet r) throws SQLException {

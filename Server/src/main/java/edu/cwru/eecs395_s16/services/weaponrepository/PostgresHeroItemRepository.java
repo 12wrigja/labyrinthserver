@@ -7,9 +7,7 @@ import edu.cwru.eecs395_s16.core.objects.UsePattern;
 import edu.cwru.eecs395_s16.interfaces.objects.Weapon;
 import edu.cwru.eecs395_s16.interfaces.repositories.DBRepository;
 import edu.cwru.eecs395_s16.interfaces.repositories.HeroItemRepository;
-import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
-import javax.jws.soap.SOAPBinding;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +20,7 @@ import java.util.*;
 public class PostgresHeroItemRepository extends DBRepository implements HeroItemRepository {
 
     public static final String HERO_ITEM_TABLE = "hero_items";
+    public static final String RARITY_ITEM_TABLE = "rarities";
     public static final String GET_WEAPON_QUERY = "select * from "+ HERO_ITEM_TABLE + " where type = 'weapon' and id = ?";
     public static final String GET_EQUIPMENT_QUERY = "select * from "+ HERO_ITEM_TABLE + " where type = 'equipment' and id = ?";
     public static final String USE_PATTERNS = "use_patterns";
@@ -33,7 +32,7 @@ public class PostgresHeroItemRepository extends DBRepository implements HeroItem
     private static Map<Integer, UsePattern> patternMap;
 
     public PostgresHeroItemRepository(Connection conn) {
-        super(conn, CoreDataUtils.defaultCoreData());
+        super(conn);
     }
 
     @Override
@@ -90,6 +89,7 @@ public class PostgresHeroItemRepository extends DBRepository implements HeroItem
                 add(HERO_ITEM_TABLE);
                 add(USE_PATTERNS);
                 add(USE_PATTERN_TILES);
+                add(RARITY_ITEM_TABLE);
             }
         };
     }

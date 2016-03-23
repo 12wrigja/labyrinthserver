@@ -49,6 +49,7 @@ public class NetworkingInterface {
         if(newPlayerResp.isNormal()){
             InternalResponseObject<Boolean> heroesCreatedResp = GameEngine.instance().services.heroRepository.createDefaultHeroesForPlayer(newPlayerResp.get());
             if(!heroesCreatedResp.isNormal()){
+                GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
                 return InternalResponseObject.cloneError(heroesCreatedResp);
             }
         }
