@@ -138,6 +138,9 @@ public class CoreDataUtils {
         if (!createSchemaMap.containsKey(tableName)) {
             return false;
         }
+        if(isSchemaInitialized(conn,tableName)){
+            return true;
+        }
         String createLine = createSchemaMap.get(tableName);
         try {
             Statement st = conn.createStatement();
