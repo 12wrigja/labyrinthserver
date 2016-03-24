@@ -59,6 +59,7 @@ public class BasicAttackActionData {
         try {
             repr.put("attacker_id", attacker.toString());
             repr.put("targets", targets);
+            repr.put("type","basic_attack");
         } catch (JSONException e) {
             //This should not happen - the keys are nonnull
         }

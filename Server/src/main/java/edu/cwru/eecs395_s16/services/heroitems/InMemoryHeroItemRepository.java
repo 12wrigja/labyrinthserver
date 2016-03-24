@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.services.heroitems;
 
+import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.core.objects.creatures.Equipment;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.UsePattern;
@@ -20,11 +21,6 @@ public class InMemoryHeroItemRepository implements HeroItemRepository {
 
     public InMemoryHeroItemRepository() {
         weaponMap = new HashMap<>();
-    }
-
-    public void initialize(List<List<String>> use_patterns,List<List<String>> use_pattern_tiles,List<List<String>> hero_items){
-        weaponMap.clear();
-
     }
 
     @Override
@@ -62,14 +58,19 @@ public class InMemoryHeroItemRepository implements HeroItemRepository {
             patternMap.put(id,p);
         }
         hero_items.stream().filter(lst -> lst.get(5).equals("weapon")).forEach(lst -> {
+            int id = weaponMap.size()+1;
             String name = lst.get(1);
             String image = lst.get(2);
             String description = lst.get(3);
             int attackModifier = Integer.parseInt(lst.get(6));
             int range = Integer.parseInt(lst.get(12));
             int patternID = Integer.parseInt(lst.get(11));
-            Weapon w = new Weapon(weaponMap.size()+1,image,name,description,range,attackModifier,patternMap.get(patternID));
-            weaponMap.put(weaponMap.size()+1,w);
+            UsePattern p = patternMap.get(patternID);
+            if(p == null){
+                throw new IllegalArgumentException("Use Pattern incorrectly configured for weapon with id: "+id);
+            }
+            Weapon w = new Weapon(id,image,name,description,range,attackModifier,p);
+            weaponMap.put(id,w);
         });
     }
 

@@ -1,9 +1,11 @@
 start use_patterns
 default,1,false
+default,2,false
 end use_patterns
 
 start use_pattern_tiles
 1,0,0,1
+2,0,0,1
 end use_pattern_tiles
 
 start rarities
@@ -14,9 +16,10 @@ end rarities
 
 start hero_items
 default, 'Basic Sword','sword','A basic sword. Does no damage scaling', 'base','weapon',1,0,0,0,0,1,1,1
-default, 'Basic Bow','bow','A basic bow. Does no damage scaling','base','weapon',1,0,0,0,0,1,1,1
-default, 'Basic Staff','staff','A basic staff. Does no damage scaling','base','weapon',1,0,0,0,0,1,1,1
+default, 'Basic Bow','bow','A basic bow. Does no damage scaling','base','weapon',1,0,0,0,0,1,3,1
+default, 'Basic Staff','staff','A basic staff. Does no damage scaling','base','weapon',1,0,0,0,0,1,2,1
 default, 'None','blank','No item equipped.','base','equipment',0,0,0,0,0,1,1,1
+default, 'Dual Shot Bow','bow','Shoots two arrows at once.','base','weapon',1,0,0,0,0,2,3,1
 end hero_items
 
 start heroes

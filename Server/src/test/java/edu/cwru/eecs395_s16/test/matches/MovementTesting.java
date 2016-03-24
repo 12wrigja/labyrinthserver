@@ -9,6 +9,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.test.AutoStartInMatchTest;
 import edu.cwru.eecs395_s16.test.InMatchTest;
 import org.json.JSONException;
 import org.junit.Test;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by james on 2/27/16.
  */
-public class MovementTesting extends InMatchTest {
+public class MovementTesting extends AutoStartInMatchTest {
 
     @Override
     public List<Hero> getHeroesForHero(Player hero) {

@@ -47,6 +47,7 @@ public enum InternalErrorCode {
     NO_ACTION_POINTS("The given creature is exhausted."),
     NOT_CONTROLLER("You are not the controller for the given object."),
     FRIENDLY_FIRE("You are targeting a friendly unit."),
+    INVALID_LOCATION("A given location was invalid."),
 
     //Movement errors
     PATH_TOO_LONG("The path is longer than the movement value."),
@@ -55,6 +56,7 @@ public enum InternalErrorCode {
 
     //Combat/Abilities (Common errors)
     TOO_MANY_TARGETS("There are too many targets for this action"),
+    TOO_FEW_TARGETS("There are too few targets for this action"),
     NOT_IN_RANGE("The target is not in range."),
     NOT_VISIBLE("Target is not visible to character. This could be because the character is blocked by either another character or an obstruction tile.");
 

@@ -15,7 +15,6 @@ public class HeroBuilder {
     private Optional<String> controllerID = Optional.empty();
     private HeroType type = HeroType.WARRIOR;
     private int level = 1;
-    private long previousExp = 0;
     private long exp = 0;
     private Location location = new Location(0, 0);
     private int attack = 10;
@@ -27,7 +26,7 @@ public class HeroBuilder {
     private int actionPoints = 2;
     private int maxActionPoints = 2;
     private boolean applyExpRewards = false;
-    private Weapon weapon = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, UsePattern.singleTargetPattern);
+    private Weapon weapon = Weapon.DEFAULT_NO_WEAPON;
     private List<Ability> abilities = new ArrayList<>();
     private List<CreatureStatus> statuses = new ArrayList<>();
 
@@ -172,7 +171,7 @@ public class HeroBuilder {
     public Hero createHero() {
         Hero h = new Hero(objectID, databaseIdentifier, ownerID, controllerID, type, level, exp, location, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, weapon, abilities, statuses);
         if(this.applyExpRewards){
-            List<LevelReward> rewards = GameEngine.instance().services.heroRepository.getLevelRewards(type, previousExp, exp);
+            List<LevelReward> rewards = GameEngine.instance().services.heroRepository.getLevelRewards(type, 0, exp);
             rewards.sort((r1,r2)->Integer.compare(r1.levelApplied,r2.levelApplied));
             for(LevelReward r: rewards){
                 r.apply(h);

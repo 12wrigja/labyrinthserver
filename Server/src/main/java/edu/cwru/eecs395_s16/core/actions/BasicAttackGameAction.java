@@ -51,14 +51,26 @@ public class BasicAttackGameAction implements GameAction {
         attacker = (Creature) attackerObj;
         Weapon weapon = attacker.getWeapon();
 
+        if(attacker.getActionPoints() == 0){
+            return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS, "The attacker has no action points remaining.");
+        }
+
         if (data.getTargets().size() > weapon.getUsePattern().getInputCount()) {
             return new InternalResponseObject<>(InternalErrorCode.TOO_MANY_TARGETS);
+        } else if (data.getTargets().size() < weapon.getUsePattern().getInputCount()){
+            return new InternalResponseObject<>(InternalErrorCode.TOO_FEW_TARGETS);
         }
 
         //Look at the list of attack locations, validate them, and
         //pull out the creatures (if any) that are affected
         for (Location target : data.getTargets()) {
+            if(!map.getTile(target).isPresent()){
+                return new InternalResponseObject<>(InternalErrorCode.INVALID_LOCATION);
+            }
             if (weapon.getRange() == 1) {
+                if(attacker.getLocation().equals(target)){
+                    return new InternalResponseObject<>(InternalErrorCode.FRIENDLY_FIRE);
+                }
                 if (!attacker.getLocation().isNeighbourOf(target, true)) {
                     return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
                 }
@@ -108,6 +120,7 @@ public class BasicAttackGameAction implements GameAction {
                 damageMap.put(creatureHit, baseDamage);
             }
         }
+        attacker.useActionPoint();
     }
 
     private int computeBaseDamage(Creature attacker, Creature target) {

@@ -12,6 +12,7 @@ public class Weapon implements DatabaseObject, Jsonable {
 
     public static final String IMAGE_KEY = "image";
     public static final String RANGE_KEY = "range";
+    public static final Weapon DEFAULT_NO_WEAPON = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, UsePattern.singleTargetPattern);
     private final int range;
     public static final String NAME_KEY = "name";
     public static final String DESCRIPTION_KEY = "description";
