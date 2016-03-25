@@ -96,6 +96,7 @@ public class Creature extends GameObject {
 
     protected void setMaxHealth(int maxHealth){
         this.maxHealth = maxHealth;
+        this.health = maxHealth;
     }
 
     public void setMovement(int movement) {

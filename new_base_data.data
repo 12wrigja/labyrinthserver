@@ -4,8 +4,8 @@ default,2,false
 end use_patterns
 
 start use_pattern_tiles
-1,0,0,1
-2,0,0,1
+1,0,0,100
+2,0,0,100
 end use_pattern_tiles
 
 start rarities

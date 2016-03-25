@@ -5,6 +5,7 @@ import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.actions.GameAction;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.services.maps.MapRepository;
 import edu.cwru.eecs395_s16.services.maps.InMemoryMapRepository;
@@ -36,8 +37,8 @@ public class LineOfSightTests {
 
     @Test
     public void testBasicLineOfSight() {
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(5, 9)).createHero();
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(8, 9)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(5, 9)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(8, 9)).createHero();
         objects.add(h1);
         objects.add(h2);
         assertTrue(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
@@ -45,8 +46,8 @@ public class LineOfSightTests {
 
     @Test
     public void testPureDiagonalLineOfSight(){
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(5, 6)).createHero();
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(8, 9)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(5, 6)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(8, 9)).createHero();
         objects.add(h1);
         objects.add(h2);
         assertTrue(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
@@ -54,8 +55,8 @@ public class LineOfSightTests {
 
     @Test
     public void testOffDiagonalLineOfSight(){
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(5, 8)).createHero();
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(8, 9)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(5, 8)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(8, 9)).createHero();
         objects.add(h1);
         objects.add(h2);
         assertTrue(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
@@ -63,8 +64,8 @@ public class LineOfSightTests {
 
     @Test
     public void testNotLineOfSight(){
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(7, 7)).createHero();
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(8, 9)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(7, 7)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(8, 9)).createHero();
         objects.add(h1);
         objects.add(h2);
         assertFalse(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
@@ -72,8 +73,8 @@ public class LineOfSightTests {
 
     @Test
     public void testStartNotLineOfSight(){
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(0, 0)).createHero();
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(8, 9)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(0, 0)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(8, 9)).createHero();
         objects.add(h1);
         objects.add(h2);
         assertFalse(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
@@ -81,8 +82,8 @@ public class LineOfSightTests {
 
     @Test
     public void testReversedLineOfSight(){
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(0, 0)).createHero();
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(8, 9)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(0, 0)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(8, 9)).createHero();
         objects.add(h1);
         objects.add(h2);
         assertFalse(GameAction.isLineOfSight(h1.getLocation(), h2.getLocation(), map, objects));
@@ -90,9 +91,9 @@ public class LineOfSightTests {
 
     @Test
     public void testBlockedByCharacter(){
-        Hero h2 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(0, 0)).createHero();
-        Hero h1 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(0, 2)).createHero();
-        Hero h3 = new HeroBuilder(TEST_USERNAME).setLocation(new Location(0, 1)).createHero();
+        Hero h2 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(0, 0)).createHero();
+        Hero h1 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(0, 2)).createHero();
+        Hero h3 = new HeroBuilder(TEST_USERNAME, HeroType.WARRIOR).setLocation(new Location(0, 1)).createHero();
         objects.add(h1);
         objects.add(h2);
         objects.add(h3);

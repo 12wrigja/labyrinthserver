@@ -4,6 +4,7 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
@@ -87,7 +88,7 @@ public abstract class GameBot extends Player implements GameClient {
     }
 
     protected void populate() {
-        heroes.add(new HeroBuilder(getUsername()).createHero());
-        architectObjects.add(new HeroBuilder(getUsername()).createHero());
+        heroes.add(new HeroBuilder(getUsername(), HeroType.WARRIOR).createHero());
+        architectObjects.add(new HeroBuilder(getUsername(), HeroType.WARRIOR).createHero());
     };
 }

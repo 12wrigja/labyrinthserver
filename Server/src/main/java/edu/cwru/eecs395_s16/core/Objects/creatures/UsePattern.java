@@ -63,6 +63,34 @@ public class UsePattern implements Jsonable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UsePattern that = (UsePattern) o;
+
+        if (getInputCount() != that.getInputCount()) return false;
+        if (isRotatable() != that.isRotatable()) return false;
+        for(Map.Entry<Location,Float> entry : damageDistributionMap.entrySet()){
+            if(!that.damageDistributionMap.containsKey(entry.getKey())){
+                return false;
+            }
+            if(!that.damageDistributionMap.get(entry.getKey()).equals(entry.getValue())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getInputCount();
+        result = 31 * result + (isRotatable() ? 1 : 0);
+        result = 31 * result + damageDistributionMap.hashCode();
+        return result;
+    }
+
+    @Override
     public JSONObject getJSONRepresentation() {
         JSONObject representation = new JSONObject();
         try {

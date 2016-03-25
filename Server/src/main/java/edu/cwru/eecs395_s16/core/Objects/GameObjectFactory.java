@@ -1,6 +1,8 @@
 package edu.cwru.eecs395_s16.core.objects;
 
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +20,8 @@ public class GameObjectFactory {
         switch(impl){
             case HERO: {
                 try {
-                    HeroBuilder hb = new HeroBuilder(obj.getString(GameObject.OWNER_ID_KEY));
+                    HeroType type = HeroType.valueOf(obj.getString(Hero.HERO_TYPE_KEY).toUpperCase());
+                    HeroBuilder hb = new HeroBuilder(obj.getString(GameObject.OWNER_ID_KEY), type);
                     return Optional.ofNullable(hb.fillFromJSON(obj).createHero());
                 } catch (JSONException e) {
                     return Optional.empty();

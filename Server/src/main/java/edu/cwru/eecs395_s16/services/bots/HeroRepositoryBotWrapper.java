@@ -52,12 +52,17 @@ public class HeroRepositoryBotWrapper implements HeroRepository {
 
     @Override
     public List<LevelReward> getLevelRewards(HeroType type, long previousExperience, long level) {
-        return actualRepo.getLevelRewards(type, 0, level);
+        return actualRepo.getLevelRewards(type, previousExperience, level);
     }
 
     @Override
-    public InternalResponseObject<HeroType> getHeroTypeForId(int id) {
-        return actualRepo.getHeroTypeForId(id);
+    public InternalResponseObject<HeroDefinition> getHeroDefinitionForId(int id) {
+        return actualRepo.getHeroDefinitionForId(id);
+    }
+
+    @Override
+    public InternalResponseObject<HeroDefinition> getHeroDefinitionForType(HeroType type) {
+        return actualRepo.getHeroDefinitionForType(type);
     }
 
     @Override

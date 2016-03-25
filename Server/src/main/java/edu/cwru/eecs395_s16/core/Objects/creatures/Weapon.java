@@ -65,6 +65,35 @@ public class Weapon implements DatabaseObject, Jsonable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Weapon weapon = (Weapon) o;
+
+        if (getRange() != weapon.getRange()) return false;
+        if (getDatabaseID() != weapon.getDatabaseID()) return false;
+        if (getDamageModifier() != weapon.getDamageModifier()) return false;
+        if (!getImage().equals(weapon.getImage())) return false;
+        if (!getName().equals(weapon.getName())) return false;
+        if (!getDescription().equals(weapon.getDescription())) return false;
+        return getUsePattern().equals(weapon.getUsePattern());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getRange();
+        result = 31 * result + getDatabaseID();
+        result = 31 * result + getImage().hashCode();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + getDescription().hashCode();
+        result = 31 * result + getDamageModifier();
+        result = 31 * result + getUsePattern().hashCode();
+        return result;
+    }
+
+    @Override
     public JSONObject getJSONRepresentation() {
         JSONObject representation = new JSONObject();
         try {

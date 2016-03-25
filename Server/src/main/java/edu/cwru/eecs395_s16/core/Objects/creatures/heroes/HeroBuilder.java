@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.core.objects.creatures.heroes;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.*;
 import edu.cwru.eecs395_s16.core.objects.creatures.*;
+import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,8 +31,24 @@ public class HeroBuilder {
     private List<Ability> abilities = new ArrayList<>();
     private List<CreatureStatus> statuses = new ArrayList<>();
 
-    public HeroBuilder(String ownerID) {
+    public HeroBuilder(String ownerID, HeroRepository.HeroDefinition heroDef) {
         this.ownerID = ownerID;
+        setInitialValuesFromHeroDefinition(heroDef);
+    }
+
+    public HeroBuilder(String ownerID, HeroType type){
+        this(ownerID,GameEngine.instance().services.heroRepository.getHeroDefinitionForType(type).get());
+    }
+
+    private void setInitialValuesFromHeroDefinition(HeroRepository.HeroDefinition def){
+        setAttack(def.startAttack);
+        setDefense(def.startDefense);
+        setHealth(def.startHealth);
+        setMaxHealth(def.startHealth);
+        setVision(def.startVision);
+        setMovement(def.startMovement);
+        setHeroType(def.type);
+        setWeapon(GameEngine.instance().services.heroItemRepository.getWeaponForId(def.defaultWeaponId).get());
     }
 
     public HeroBuilder setGameObjectID(UUID objectID) {

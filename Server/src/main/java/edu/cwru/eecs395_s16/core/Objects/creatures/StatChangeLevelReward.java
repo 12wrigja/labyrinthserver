@@ -61,26 +61,43 @@ public class StatChangeLevelReward extends LevelReward {
                 statChangeMap.put(stat,value);
             }
         }
+        if(statChangeMap.size() == 0){
+            throw new IllegalArgumentException("Unable to parse stat changes from that reward.");
+        }
     }
 
     @Override
     public void apply(Hero h) {
-        for(Map.Entry<StatChanged,Integer> entry : statChangeMap.entrySet()){
-            StatChanged stat = entry.getKey();
-            Integer change = entry.getValue();
-            switch(stat){
-                case ATTACK:
-                    h.setAttack(h.getAttack()+change);
-                case DEFENSE:
-                    h.setDefense(h.getDefense()+change);
-                case HEALTH:
-                    h.setMaxHealth(h.getHealth()+change);
-                case VISION:
-                    h.setVision(h.getVision()+change);
-                case MOVEMENT:
-                    h.setMovement(h.getMovement()+change);
+        if(h.getHeroType() == heroType && h.getExp() >= expThreshold) {
+            super.apply(h);
+            System.out.print("Applying level "+levelApplied+". Rewards: ");
+            for (Map.Entry<StatChanged, Integer> entry : statChangeMap.entrySet()) {
+                StatChanged stat = entry.getKey();
+                Integer change = entry.getValue();
+                switch (stat) {
+                    case ATTACK:
+                        System.out.print("Incrementing Attack by "+change+". ");
+                        h.setAttack(h.getAttack() + change);
+                        break;
+                    case DEFENSE:
+                        System.out.print("Incrementing Defense by "+change+". ");
+                        h.setDefense(h.getDefense() + change);
+                        break;
+                    case HEALTH:
+                        System.out.print("Incrementing Health by "+change+". ");
+                        h.setMaxHealth(h.getHealth() + change);
+                        break;
+                    case VISION:
+                        System.out.print("Incrementing Vision by "+change+". ");
+                        h.setVision(h.getVision() + change);
+                        break;
+                    case MOVEMENT:
+                        System.out.print("Incrementing Movement by "+change+". ");
+                        h.setMovement(h.getMovement() + change);
+                        break;
+                }
             }
-            h.setLevel(levelApplied);
+            System.out.println();
         }
     }
 }

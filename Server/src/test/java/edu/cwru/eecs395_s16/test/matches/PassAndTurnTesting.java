@@ -9,7 +9,6 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.test.AutoStartInMatchTest;
-import edu.cwru.eecs395_s16.test.InMatchTest;
 import org.junit.Test;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class PassAndTurnTesting extends AutoStartInMatchTest {
     @Override
     public List<Hero> getHeroesForHero(Player hero) {
         List<Hero> defaultHeroes = super.getHeroesForHero(hero);
-        defaultHeroes.add(new HeroBuilder(hero.getUsername()).setHeroType(HeroType.MAGE).createHero());
+        defaultHeroes.add(new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE).createHero());
         return defaultHeroes;
     }
 

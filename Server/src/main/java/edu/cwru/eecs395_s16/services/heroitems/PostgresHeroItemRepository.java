@@ -25,7 +25,7 @@ public class PostgresHeroItemRepository extends DBRepository implements HeroItem
     public static final String USE_PATTERNS = "use_patterns";
     public static final String GET_USE_PATTERN_QUERY = "select * from " + USE_PATTERNS + " where id = ?";
     public static final String USE_PATTERN_TILES = "use_pattern_tiles";
-    public static final String GET_USE_PATTERN_TILES_QUERY = "select * from " + USE_PATTERN_TILES + " where use_pattern_id = ?";
+    public static final String GET_USE_PATTERN_TILES_QUERY = "select * from " + USE_PATTERN_TILES + " where pattern_id = ?";
 
 
     private static Map<Integer, UsePattern> patternMap;
@@ -40,11 +40,11 @@ public class PostgresHeroItemRepository extends DBRepository implements HeroItem
             PreparedStatement stmt = conn.prepareStatement(GET_WEAPON_QUERY);
             stmt.setInt(1,id);
             ResultSet rslts = stmt.executeQuery();
-            while(rslts.next()){
+            if(rslts.next()){
                 String name = rslts.getString("name");
                 String image = rslts.getString("image");
                 String description = rslts.getString("description");
-                //TODO find the use for class
+                //TODO find the use for class column
                 int attack_change = rslts.getInt("attack_change");
                 int patternID = rslts.getInt("use_pattern_id");
                 int range = rslts.getInt("use_range");

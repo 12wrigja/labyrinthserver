@@ -24,14 +24,39 @@ public interface HeroRepository extends Repository {
 
     List<LevelReward> getLevelRewards(HeroType type, long previousExperience, long newExperience);
 
-    InternalResponseObject<HeroType> getHeroTypeForId(int id);
+    InternalResponseObject<HeroDefinition> getHeroDefinitionForId(int id);
 
-    default Optional<LevelReward> buildReward(HeroType type, int level, long experience, String rewardStr){
+    InternalResponseObject<HeroDefinition> getHeroDefinitionForType(HeroType type);
+
+    default LevelReward buildReward(HeroType type, int level, long experience, String rewardStr){
         //Here we differentiate between reward types
         try{
-            return Optional.of(new StatChangeLevelReward(level, experience,type, rewardStr));
+            return new StatChangeLevelReward(level, experience,type, rewardStr);
         } catch (IllegalArgumentException e){
-            return Optional.empty();
+            System.out.println("Failed to build a reward implementation for "+rewardStr);
+            return new LevelReward(level,experience,type);
+        }
+    }
+
+    class HeroDefinition {
+        protected final int id;
+        public final HeroType type;
+        public final int startAttack;
+        public final int startDefense;
+        public final int startHealth;
+        public final int startMovement;
+        public final int startVision;
+        public final int defaultWeaponId;
+
+        protected HeroDefinition(int id, HeroType type, int startAttack, int startDefense, int startHealth, int startMovement, int startVision, int defaultWeaponId) {
+            this.id = id;
+            this.type = type;
+            this.startAttack = startAttack;
+            this.startDefense = startDefense;
+            this.startHealth = startHealth;
+            this.startMovement = startMovement;
+            this.startVision = startVision;
+            this.defaultWeaponId = defaultWeaponId;
         }
     }
 

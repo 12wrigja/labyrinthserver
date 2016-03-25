@@ -50,7 +50,7 @@ public class InMemoryHeroItemRepository implements HeroItemRepository {
             Map<Location, Float> pattern = new HashMap<>();
             int id = patternMap.size()+1;
             use_pattern_tiles.stream().filter(lst -> Integer.parseInt(lst.get(0)) == id).forEach(lst -> {
-                pattern.put(new Location(Integer.parseInt(lst.get(1)),Integer.parseInt(lst.get(2))),100f/Integer.parseInt(lst.get(3)));
+                pattern.put(new Location(Integer.parseInt(lst.get(1)),Integer.parseInt(lst.get(2))),((float)Integer.parseInt(lst.get(3)))/100f);
             });
             int numInputs = Integer.parseInt(usePattern.get(1));
             boolean isRotatable = Boolean.parseBoolean(usePattern.get(2));

@@ -46,23 +46,25 @@ public class Hero extends Creature implements DatabaseObject {
         this.level = level;
     }
 
-    public void grantXP(long xp) {
+    public InternalResponseObject<Boolean> grantXP(long xp) {
         long previousExp = exp;
         long newExp = exp+xp;
         List<LevelReward> levels = GameEngine.instance().services.heroRepository.getLevelRewards(type,previousExp,newExp);
+        levels.sort((lr1,lr2)->Long.compare(lr1.expThreshold,lr2.expThreshold));
+        this.exp = newExp;
         for(LevelReward reward : levels){
             reward.apply(this);
         }
         //Save hero stuff here hopefully.
         InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer(getOwnerID().get());
         if(!playerResp.isNormal()){
-            return;
+            return InternalResponseObject.cloneError(playerResp);
         }
         InternalResponseObject<Boolean> saveResp = GameEngine.instance().services.heroRepository.saveHeroForPlayer(playerResp.get(),this);
         if(!saveResp.isNormal()){
-            return;
+            return saveResp;
         }
-        this.exp = newExp;
+        return new InternalResponseObject<>(true,"updated");
     }
 
     public long getExp() {
