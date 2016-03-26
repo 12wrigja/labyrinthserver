@@ -5,6 +5,8 @@ import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
+import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
+import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
 import edu.cwru.eecs395_s16.networking.Jsonable;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
@@ -65,6 +67,9 @@ public class Match implements Jsonable {
     private static final String TURN_NUMBER_KEY = "turn_number";
     private int turnNumber = 0;
 
+    private static final String MATCH_OBJECTIVE_KEY = "objective";
+    private final GameObjective objective;
+
     //Event Keys
     public static final String GAME_UPDATE_KEY = "game_update";
 
@@ -73,7 +78,7 @@ public class Match implements Jsonable {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
             UUID randMatchID = UUID.randomUUID();
-            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
+            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap, new DeathmatchGameObjective());
             InternalResponseObject<?> resp = m.startInitialGameTasks();
             if (!resp.isNormal()) {
                 return InternalResponseObject.cloneError(resp);
@@ -115,10 +120,13 @@ public class Match implements Jsonable {
                 //Retrieve Map
                 GameMap mp = new FromJSONGameMap((JSONObject) matchData.get("map"));
 
+                //Retrieve Game Objective
+                GameObjective objective = GameObjective.objectiveForKey(matchData.getJSONObject(MATCH_OBJECTIVE_KEY).getString(GameObjective.OBJECTIVE_TYPE_KEY));
+
                 //Build match as we have all the basics we need
                 Match m;
                 if (heroRetrievalResponse.isPresent() && architectRetrievalResponse.isPresent()) {
-                    m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp);
+                    m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp, objective);
                 } else {
                     return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MISSING_PLAYER, "One of the two players in the match are missing.");
                 }
@@ -149,11 +157,12 @@ public class Match implements Jsonable {
         return fromCacheWithMatchIdentifier(uuidID);
     }
 
-    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap) {
+    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap, GameObjective objective) {
         this.heroPlayer = heroPlayer;
         this.architectPlayer = architectPlayer;
         this.matchIdentifier = matchIdentifier;
         this.gameMap = gameMap;
+        this.objective = objective;
         this.boardObjects = new GameObjectCollection();
 
         pingTask = new TimerTask() {
@@ -251,10 +260,15 @@ public class Match implements Jsonable {
             }
             doAndSnapshot(action.getJSONRepresentation(), () ->
                     action.doGameAction(this.gameMap, this.boardObjects), true);
-            //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
-            long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
-            if (numNotExhausted == 0) {
-                doAndSnapshot("turn_end", this::swapSides, true);
+            GameObjective.GAME_WINNER winner = objective.checkForGameEnd(this);
+            if(winner != GameObjective.GAME_WINNER.NO_WINNER){
+                end(winner.toString().toLowerCase());
+            } else {
+                //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
+                long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
+                if (numNotExhausted == 0) {
+                    doAndSnapshot("turn_end", this::swapSides, true);
+                }
             }
             return resp;
         } else {
@@ -324,6 +338,14 @@ public class Match implements Jsonable {
             c.resetActionPoints();
             c.triggerPassive(gameMap, boardObjects);
         });
+    }
+
+    public Player getHeroPlayer() {
+        return heroPlayer;
+    }
+
+    public Player getArchitectPlayer() {
+        return architectPlayer;
     }
 
     /**
