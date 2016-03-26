@@ -16,6 +16,7 @@ public abstract class GameObject implements Jsonable {
     public static final String OWNER_ID_KEY = "owner_id";
     public static final String GAMEOBJECT_ID_KEY = "id";
     public static final String CONTROLLER_ID_KEY = "controller_id";
+    public static final String BLOCKS_MOVEMENT_KEY = "blocks_movement";
 
     private final TYPE objectType;
     private final Optional<String> ownerID;
@@ -59,6 +60,10 @@ public abstract class GameObject implements Jsonable {
         this.controllerID = controllerID;
     }
 
+    public boolean doesBlockMovement(){
+        return getGameObjectType()==TYPE.TRAP;
+    }
+
     @Override
     public JSONObject getJSONRepresentation() {
         //Setup json representation
@@ -70,6 +75,7 @@ public abstract class GameObject implements Jsonable {
             representation.put(GAMEOBJECT_TYPE_KEY, getGameObjectType().toString().toLowerCase());
             representation.put(OWNER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
             representation.put(CONTROLLER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
+            representation.put(BLOCKS_MOVEMENT_KEY,doesBlockMovement());
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }
