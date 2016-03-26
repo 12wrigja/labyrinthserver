@@ -11,6 +11,7 @@ import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.utils.JSONUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -121,7 +122,7 @@ public class MoveGameAction implements GameAction {
         try {
             repr.put("type", "move");
             repr.put("character", data.getCharacterID());
-            repr.put("path", this.actualPath);
+            repr.put("path", JSONUtils.listify(this.actualPath));
         } catch (JSONException e) {
             //This should never be hit because the keys are not null
         }

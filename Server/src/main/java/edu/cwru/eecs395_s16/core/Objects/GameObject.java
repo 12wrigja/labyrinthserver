@@ -61,7 +61,7 @@ public abstract class GameObject implements Jsonable {
     }
 
     public boolean doesBlockMovement(){
-        return getGameObjectType()==TYPE.TRAP;
+        return getGameObjectType()!=TYPE.TRAP;
     }
 
     @Override
