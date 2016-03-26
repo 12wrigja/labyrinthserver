@@ -54,6 +54,7 @@ public class PassAndTurnTesting extends AutoStartInMatchTest {
     @Test
     public void testTurnEndingDueToPassActions(){
         //Get a character for the hero
+        int currentTurnNumber = currentMatchState.getTurnNumber();
         List<GameObject> heroChars = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(heroChars.size() > 0);
         Hero h = (Hero) heroChars.get(0);
@@ -63,7 +64,8 @@ public class PassAndTurnTesting extends AutoStartInMatchTest {
         InternalResponseObject<Boolean> resp = passCharacter(heroBot,h,false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.NOT_YOUR_TURN,resp.getInternalErrorCode());
-
+        assertEquals(currentTurnNumber+1,currentMatchState.getTurnNumber());
+        currentTurnNumber = currentMatchState.getTurnNumber();
         List<GameObject> architectChars = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(architectChars.size() > 0);
         architectChars.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
@@ -75,6 +77,7 @@ public class PassAndTurnTesting extends AutoStartInMatchTest {
             InternalResponseObject<Boolean> resp1 = passCharacter(architectBot, creature, false);
             assertFalse(resp1.isNormal());
             assertEquals(InternalErrorCode.NOT_YOUR_TURN, resp1.getInternalErrorCode());
+            assertEquals(currentTurnNumber+1,currentMatchState.getTurnNumber());
         } else {
             fail("Unable to retrieve a creature to attempt passing again with.");
         }

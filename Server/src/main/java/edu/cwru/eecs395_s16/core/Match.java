@@ -324,6 +324,7 @@ public class Match implements Jsonable {
             c.resetActionPoints();
             c.triggerPassive(gameMap, boardObjects);
         });
+        this.turnNumber++;
     }
 
     /**
@@ -461,4 +462,7 @@ public class Match implements Jsonable {
         return gameMap;
     }
 
+    public int getTurnNumber() {
+        return turnNumber;
+    }
 }
