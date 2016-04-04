@@ -178,7 +178,7 @@ public abstract class InMatchTest extends SerializationTest {
                         .stream().filter(obj -> obj instanceof Creature)
                         .map(tmp -> (Creature) tmp).collect(Collectors.toList());
                 for (Creature c : creatures) {
-                    int baseDamage = ((100 - c.getDefense()) / 100) * character.getAttack();
+                    int baseDamage = (int)Math.floor(((100 - c.getDefense()) / 100f) * character.getAttack());
                     affectedCreatureDamageMap.put(c, Math.max(0, c.getHealth() - (int) ((float) baseDamage * entry.getValue())));
                 }
             }
