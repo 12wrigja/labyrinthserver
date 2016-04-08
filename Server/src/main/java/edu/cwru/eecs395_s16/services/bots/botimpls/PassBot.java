@@ -40,6 +40,8 @@ public class PassBot extends GameBot {
                     });
                 }
             }
+        } else if (event.equals(Match.MATCH_END_KEY)){
+            sendEvent("leave_match",new JSONObject());
         }
     }
 

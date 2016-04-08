@@ -125,7 +125,7 @@ public class BasicAttackGameAction implements GameAction {
 
     private int computeBaseDamage(Creature attacker, Creature target) {
         //This is the damage formula we agreed upon.
-        return ((100 - target.getDefense()) / 100) * attacker.getAttack();
+        return (int)Math.floor(((100 - target.getDefense()) / 100f) * attacker.getAttack());
     }
 
     @Override

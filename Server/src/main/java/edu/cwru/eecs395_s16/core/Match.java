@@ -27,6 +27,7 @@ import java.util.*;
  */
 public class Match implements Jsonable {
 
+    public static final String MATCH_END_KEY = "match_end";
     private final TimerTask pingTask;
 
     //Players
@@ -73,7 +74,7 @@ public class Match implements Jsonable {
     //Event Keys
     public static final String GAME_UPDATE_KEY = "game_update";
 
-    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
+    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
@@ -324,7 +325,7 @@ public class Match implements Jsonable {
             //should never happen - keys are non-null
         }
         storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
-        broadcastToAllParties("game_update",gameUpdate);
+        broadcastToAllParties(GAME_UPDATE_KEY,gameUpdate);
     }
 
     private void swapSides() {
@@ -417,6 +418,9 @@ public class Match implements Jsonable {
     }
 
     public void end(String reason) {
+        doAndSnapshot("match_end: "+reason,()->{
+            gameState = GameState.GAME_END;
+        },false);
         //TODO commit match data, update xp, currency, etc
         JSONObject reasonObj = new JSONObject();
         try {
@@ -426,11 +430,11 @@ public class Match implements Jsonable {
                 e.printStackTrace();
             }
         }
-        broadcastToAllParties("match_end", reasonObj);
-        this.heroPlayer.setCurrentMatch(Optional.empty());
-        this.architectPlayer.setCurrentMatch(Optional.empty());
-        spectators.forEach(this::removeSpectator);
-        pingTask.cancel();
+        broadcastToAllParties(MATCH_END_KEY, reasonObj);
+//        this.heroPlayer.setCurrentMatch(Optional.empty());
+//        this.architectPlayer.setCurrentMatch(Optional.empty());
+//        spectators.forEach(this::removeSpectator);
+//        pingTask.cancel();
     }
 
     @Override
@@ -460,6 +464,8 @@ public class Match implements Jsonable {
 
             //Current turn number
             obj.put(TURN_NUMBER_KEY, this.turnNumber);
+
+            obj.put(MATCH_OBJECTIVE_KEY, objective.getJSONRepresentation());
 
         } catch (JSONException e) {
             //Never will be thrown as the keys are never null

@@ -3,6 +3,7 @@ package edu.cwru.eecs395_s16.services.matchmaking;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.*;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
+import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 
 import java.util.ArrayDeque;
@@ -92,7 +93,7 @@ public class BasicMatchmakingService implements MatchmakingService {
                             //Deque Players and make match
                             Player heroPlayer = heroesQueue.poll();
                             Player architectPlayer = architectQueue.poll();
-                            Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10));
+                            Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10), new DeathmatchGameObjective());
                         }
                     }
                 mutex.readLock().unlock();

@@ -74,6 +74,10 @@ public class Creature extends GameObject {
         return health;
     }
 
+    public int getMaxHealth() {
+        return maxHealth;
+    }
+
     public int getMovement() {
         return movement;
     }
@@ -144,6 +148,10 @@ public class Creature extends GameObject {
 
     public void resetActionPoints() {
         currentActionPoints = maxActionPoints;
+    }
+
+    public int getMaxActionPoints() {
+        return maxActionPoints;
     }
 
     public void attackTarget(Creature target, int computedDamage) {

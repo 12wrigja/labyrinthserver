@@ -2,11 +2,9 @@ package edu.cwru.eecs395_s16.networking;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
+import edu.cwru.eecs395_s16.core.*;
+import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.core.InternalErrorCode;
-import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.core.Match;
-import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.actions.BasicAttackGameAction;
 import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
 import edu.cwru.eecs395_s16.core.actions.PassGameAction;
@@ -65,7 +63,7 @@ public class NetworkingInterface {
     public InternalResponseObject<Boolean> queueUpHeroes(QueueRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
             //TODO update this to pick a random map?
-            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(10, 10));
+            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(10, 10), new DeathmatchGameObjective());
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -79,7 +77,7 @@ public class NetworkingInterface {
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpArchitect(QueueRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
-            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(10, 10));
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(10, 10), new DeathmatchGameObjective());
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -205,7 +203,9 @@ public class NetworkingInterface {
         if (m.isPresent()) {
             InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
             if (match.isNormal()) {
-                match.get().end("Player " + p.getUsername() + " left the match.");
+                if(match.get().getGameState() != GameState.GAME_END) {
+                    match.get().end("Player " + p.getUsername() + " left the match.");
+                }
                 return new InternalResponseObject<>(true, "left_match");
             } else {
                 return InternalResponseObject.cloneError(match);
