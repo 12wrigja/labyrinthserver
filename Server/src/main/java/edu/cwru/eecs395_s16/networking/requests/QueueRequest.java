@@ -11,10 +11,14 @@ import org.json.JSONObject;
 public class QueueRequest implements RequestData {
 
     private boolean queueWithPassBot = false;
+    private int mapX = 10;
+    private int mapY = 10;
 
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         this.queueWithPassBot = obj.optBoolean("queue_with_passbot",false);
+        this.mapX = obj.optInt("map_x",10);
+        this.mapY = obj.optInt("map_y",10);
     }
 
     @Override
@@ -30,5 +34,13 @@ public class QueueRequest implements RequestData {
 
     public boolean shouldQueueWithPassBot() {
         return queueWithPassBot;
+    }
+
+    public int getMapX() {
+        return mapX;
+    }
+
+    public int getMapY() {
+        return mapY;
     }
 }

@@ -13,5 +13,9 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", ip: "192.168.60.10"
 
   config.vm.synced_folder ".", "/home/vagrant/LabyrinthServer"
-
+  config.vm.synced_folder "../HappyTweet/.", "/home/vagrant/HappyTweet"
+  
+  config.vm.provider "virtualbox" do |v|
+    v.memory=2048
+  end
 end
