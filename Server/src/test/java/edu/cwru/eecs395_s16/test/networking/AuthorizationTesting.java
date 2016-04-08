@@ -34,7 +34,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password", TEST_PASSWORD);
 
         //Test to make sure that registration fails if you try to register without matching passwords
-        JSONObject result = emitEventAndWaitForResult("register", registerData);
+        JSONObject result = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result.getInt("status"));
     }
 
@@ -45,7 +45,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password_confirm", TEST_PASSWORD);
 
         //Test to make sure that registration fails if you try to register without matching passwords
-        JSONObject result = emitEventAndWaitForResult("register", registerData);
+        JSONObject result = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result.getInt("status"));
     }
 
@@ -57,7 +57,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password", TEST_PASSWORD);
         registerData.put("password_confirm", TEST_PASSWORD + "BLAH");
         //Test to make sure that registration fails if you try to register without matching passwords
-        JSONObject result = emitEventAndWaitForResult("register", registerData);
+        JSONObject result = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result.getInt("status"));
     }
 
@@ -69,7 +69,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password_confirm", TEST_PASSWORD);
 
         //Test to make sure that registration fails if you try to register without matching passwords
-        JSONObject result = emitEventAndWaitForResult("register", registerData);
+        JSONObject result = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result.getInt("status"));
     }
 
@@ -81,7 +81,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password_confirm", TEST_PASSWORD);
 
         //Test to make sure that registration fails if you try to register without matching passwords
-        JSONObject result = emitEventAndWaitForResult("register", registerData);
+        JSONObject result = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(200, result.getInt("status"));
 
         cleanupPlayer();
@@ -95,10 +95,10 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password_confirm", TEST_PASSWORD);
 
         //Test to make sure that registration fails if you try to register without matching passwords
-        JSONObject result = emitEventAndWaitForResult("register", registerData);
+        JSONObject result = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(200, result.getInt("status"));
 
-        JSONObject result2 = emitEventAndWaitForResult("register", registerData);
+        JSONObject result2 = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result2.getInt("status"));
 
         cleanupPlayer();
@@ -111,7 +111,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password", TEST_PASSWORD);
         registerData.put("password_confirm", TEST_PASSWORD);
 
-        JSONObject result2 = emitEventAndWaitForResult("register", registerData);
+        JSONObject result2 = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result2.getInt("status"));
     }
 
@@ -125,7 +125,7 @@ public class AuthorizationTesting extends NetworkedTest {
         registerData.put("password", TEST_PASSWORD);
         registerData.put("password_confirm", TEST_PASSWORD);
 
-        JSONObject result2 = emitEventAndWaitForResult("register", registerData);
+        JSONObject result2 = emitEventAndWaitForResult(socket, "register", registerData, 10);
         assertEquals(422, result2.getInt("status"));
     }
 

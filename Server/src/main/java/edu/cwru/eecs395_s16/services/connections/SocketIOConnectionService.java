@@ -80,7 +80,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
         linkAllFunctionsToNetwork();
 
         gameSocket.addConnectListener(client -> {
-
+            System.out.println("Client connected: "+client.getSessionId());
         });
         gameSocket.addDisconnectListener(client -> {
             System.out.println("Client disconnected: " + client.getSessionId());

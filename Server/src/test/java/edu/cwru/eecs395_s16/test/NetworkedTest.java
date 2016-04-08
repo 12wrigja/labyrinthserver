@@ -34,6 +34,10 @@ public abstract class NetworkedTest {
 
     protected Socket socket;
 
+    protected boolean shouldInitNewEngine(){
+        return true;
+    }
+
     @BeforeClass
     public static void setUpGameEngine() throws Exception {
         System.out.println("Setting up game engine.");
@@ -70,7 +74,7 @@ public abstract class NetworkedTest {
             socket = IO.socket("http://localhost:"+PORT);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            fail("Unable to parse UIR.");
+            fail("Unable to parse URI.");
         }
         socket.connect();
         int try_count = 0;
@@ -98,7 +102,7 @@ public abstract class NetworkedTest {
         }
     }
 
-    public final JSONObject emitEventAndWaitForResult(String event, JSONObject data){
+    public static JSONObject emitEventAndWaitForResult(Socket socket, String event, JSONObject data, long waitTimeSeconds){
         final JSONObject[] response = {null};
         final Lock lock = new ReentrantLock();
         final Condition flag = lock.newCondition();
@@ -115,7 +119,7 @@ public abstract class NetworkedTest {
         });
         lock.lock();
         try {
-            flag.await(10, TimeUnit.SECONDS);
+            flag.await(waitTimeSeconds, TimeUnit.SECONDS);
         }catch(InterruptedException e){
             fail("Ran out of time on request.");
         }
@@ -124,6 +128,6 @@ public abstract class NetworkedTest {
             fail("No response was given for command "+event+" with data: "+data.toString());
         }
         return response[0];
-    };
+    }
 
 }

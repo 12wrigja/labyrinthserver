@@ -7,6 +7,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -23,6 +24,13 @@ public abstract class HeroRepositoryBaseTest extends EngineOnlyTest {
     private final String TEST_PASSWORD = "PASSWORDTEST";
 
     private Player createdPlayer = null;
+
+    @Override
+    public void setup() throws Exception {
+        super.setup();
+        Player p = new Player(-1,TEST_USERNAME,TEST_PASSWORD,false);
+        GameEngine.instance().services.playerRepository.deletePlayer(p);
+    }
 
     @Test
     public void testDoesCreateInitialHeroesOnRegistration(){

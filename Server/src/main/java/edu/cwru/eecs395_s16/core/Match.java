@@ -56,6 +56,7 @@ public class Match implements Jsonable {
     //Sequence Numbers for actions
     private static final String GAME_SEQUENCE_KEY = ":SEQUENCE:";
     private static final String CURRENT_SEQUENCE_CACHE_KEY = ":CURRENTSEQUENCE";
+    private static final String CURRENT_SNAPSHOT_CACHE_KEY = ":CURRENTSNAPSHOT";
     private static final String CURRENT_SEQUENCE_JSON_KEY = "current_sequence";
     private static final int INITIAL_SEQUENCE_NUMBER = 0;
     private int gameSequenceID = INITIAL_SEQUENCE_NUMBER;
@@ -87,20 +88,44 @@ public class Match implements Jsonable {
         //This method is used to retrieve the match from a cache
         CacheService cache = GameEngine.instance().services.cacheService;
         Optional<String> temp = cache.getString(id.toString() + CURRENT_SEQUENCE_CACHE_KEY);
-        Optional<String> base = cache.getString(id.toString() + GAME_SEQUENCE_KEY + INITIAL_SEQUENCE_NUMBER);
-        if (temp.isPresent() && base.isPresent()) {
-            int latestSequenceNumber = Integer.parseInt(temp.get());
-            JSONObject matchData;
-            try {
-                matchData = new JSONObject(base.get());
-                for (int i = INITIAL_SEQUENCE_NUMBER + 1; i <= latestSequenceNumber; i++) {
-                    Optional<String> snapshot = cache.getString(id.toString() + GAME_SEQUENCE_KEY + i);
-                    JSONObject jSnapshot = new JSONObject(snapshot.get());
-                    JSONObject stateChanges = (JSONObject) jSnapshot.get("new_state");
-                    JSONDiff jDiff = new JSONDiff((JSONObject) stateChanges.get("removed"), (JSONObject) stateChanges.get("added"), (JSONObject) stateChanges.get("changed"));
-                    matchData = JSONUtils.patch(matchData, jDiff);
-                }
 
+        JSONObject matchData;
+        if (temp.isPresent()) {
+            int latestSequenceNumber = Integer.parseInt(temp.get());
+            Optional<String> snapshot = cache.getString(id.toString() + CURRENT_SNAPSHOT_CACHE_KEY);
+            if(snapshot.isPresent()){
+                try {
+                    matchData = new JSONObject(snapshot.get());
+                } catch (JSONException e) {
+                    if (GameEngine.instance().IS_DEBUG_MODE) {
+                        e.printStackTrace();
+                    }
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
+                }
+            } else {
+                Optional<String> base = cache.getString(id.toString() + GAME_SEQUENCE_KEY + INITIAL_SEQUENCE_NUMBER);
+                if (base.isPresent()) {
+                    try {
+                        matchData = new JSONObject(base.get());
+                        for (int i = INITIAL_SEQUENCE_NUMBER + 1; i <= latestSequenceNumber; i++) {
+                            Optional<String> change = cache.getString(id.toString() + GAME_SEQUENCE_KEY + i);
+                            JSONObject jSnapshot = new JSONObject(change.get());
+                            JSONObject stateChanges = (JSONObject) jSnapshot.get("new_state");
+                            JSONDiff jDiff = new JSONDiff((JSONObject) stateChanges.get("removed"), (JSONObject) stateChanges.get("added"), (JSONObject) stateChanges.get("changed"));
+                            matchData = JSONUtils.patch(matchData, jDiff);
+                        }
+                    } catch (Exception e) {
+                        if (GameEngine.instance().IS_DEBUG_MODE) {
+                            e.printStackTrace();
+                        }
+                        return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
+                    }
+                } else {
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
+                }
+            }
+
+            try {
                 //Retrieve players
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
                 InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
@@ -109,7 +134,7 @@ public class Match implements Jsonable {
                 }
                 InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
                 if (!architectRetrievalResponse.isNormal()) {
-                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR,architectRetrievalResponse.getInternalErrorCode(), "Unable to find the architect player for the match");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, architectRetrievalResponse.getInternalErrorCode(), "Unable to find the architect player for the match");
                 }
 
                 //Retrieve Map
@@ -133,15 +158,16 @@ public class Match implements Jsonable {
                 m.boardObjects.fillFromJSONData(gameObjectCollectionData);
 
                 return new InternalResponseObject<>(m, "match");
-            } catch (Exception e) {
+            } catch (JSONException e){
                 if (GameEngine.instance().IS_DEBUG_MODE) {
                     e.printStackTrace();
                 }
                 return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
             }
         } else {
-            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MATCH_RETRIEVAL_ERROR);
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR);
         }
+
     }
 
     public static InternalResponseObject<Match> fromCacheWithMatchIdentifier(String id) {
@@ -215,7 +241,7 @@ public class Match implements Jsonable {
         int numArchitectObjectLocations = architectSpawnLocations.size();
         numIterations = Math.min(numArchitectHeroes, numArchitectObjectLocations);
         Collections.shuffle(architectHeroes);
-        for(int i=0; i<numIterations; i++){
+        for (int i = 0; i < numIterations; i++) {
             Creature obj = architectHeroes.get(i);
             Location spawnLoc = architectSpawnLocations.get(i);
             obj.setLocation(spawnLoc);
@@ -224,7 +250,7 @@ public class Match implements Jsonable {
 
         //Add in an objective if the map calls for one
         List<Location> objectiveSpawnLocations = gameMap.getObjectiveSpawnLocations();
-        if(objectiveSpawnLocations.size() > 0) {
+        if (objectiveSpawnLocations.size() > 0) {
             Random r = new Random();
             int index = r.nextInt(objectiveSpawnLocations.size());
             ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID(), objectiveSpawnLocations.get(index));
@@ -272,28 +298,28 @@ public class Match implements Jsonable {
         }
     }
 
-    public void modify(JSONObject input){
+    public void modify(JSONObject input) {
         String reason = "manual_modification";
         JSONObject currentState = this.getJSONRepresentation();
         JSONObject modifiedState = this.getJSONRepresentation();
         //Manually modify the JSON
         String key;
         Iterator keyIterator = input.keys();
-        while(keyIterator.hasNext()){
-            key = (String)keyIterator.next();
+        while (keyIterator.hasNext()) {
+            key = (String) keyIterator.next();
             UUID keyID;
-            try{
+            try {
                 keyID = UUID.fromString(key);
-            } catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 continue;
             }
             Optional<GameObject> obj = boardObjects.getByID(keyID);
-            if(obj.isPresent()){
+            if (obj.isPresent()) {
                 try {
                     JSONObject objSnapshot = obj.get().getJSONRepresentation();
                     JSONDiff diff = new JSONDiff(new JSONObject(), new JSONObject(), input.getJSONObject(key));
-                    JSONObject newRepresentation = JSONUtils.patch(objSnapshot,diff);
-                    modifiedState.getJSONObject(BOARD_COLLECTION_KEY).put(key,newRepresentation);
+                    JSONObject newRepresentation = JSONUtils.patch(objSnapshot, diff);
+                    modifiedState.getJSONObject(BOARD_COLLECTION_KEY).put(key, newRepresentation);
                 } catch (JSONException e) {
                 }
             }
@@ -301,16 +327,16 @@ public class Match implements Jsonable {
         this.gameSequenceID++;
         setCurrentSequence(this.gameSequenceID);
         //Compute diffs and store as a snapshot
-        JSONObject matchDiff = JSONUtils.getDiff(currentState,modifiedState).asJSONObject();
+        JSONObject matchDiff = JSONUtils.getDiff(currentState, modifiedState).asJSONObject();
         JSONObject gameUpdate = new JSONObject();
         try {
-            gameUpdate.put("action",reason);
-            gameUpdate.put("new_state",matchDiff);
+            gameUpdate.put("action", reason);
+            gameUpdate.put("new_state", matchDiff);
         } catch (JSONException e) {
             //should never happen - keys are non-null
         }
         storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
-        broadcastToAllParties("game_update",gameUpdate);
+        broadcastToAllParties("game_update", gameUpdate);
     }
 
     private void swapSides() {
@@ -320,7 +346,7 @@ public class Match implements Jsonable {
             gameState = GameState.HERO_TURN;
         }
         boardObjects.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
-            Creature c = (Creature)obj;
+            Creature c = (Creature) obj;
             c.resetActionPoints();
             c.triggerPassive(gameMap, boardObjects);
         });
@@ -333,7 +359,7 @@ public class Match implements Jsonable {
      * reason for the update. Automatically updates the game's sequence identifier.
      *
      * @param originalState The state to compare against. Typically this is the state before an action is done.
-     * @param actionReason The reason for the game update. Usually this describes the action that occurred.
+     * @param actionReason  The reason for the game update. Usually this describes the action that occurred.
      * @return Returns a Game Update - a JSONObject that cotains an "action" (the reason for the update) and a "new_state"
      * which is the difference between the old and new states.
      */
@@ -355,6 +381,7 @@ public class Match implements Jsonable {
 
     private void setCurrentSequence(int sequence) {
         GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SNAPSHOT_CACHE_KEY, this.getJSONRepresentation().toString());
     }
 
     private void storeSnapshotForSequence(int sequenceNumber, JSONObject snapshot) {
@@ -464,5 +491,21 @@ public class Match implements Jsonable {
 
     public int getTurnNumber() {
         return turnNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Match match = (Match) o;
+
+        return getMatchIdentifier().equals(match.getMatchIdentifier());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return getMatchIdentifier().hashCode();
     }
 }
