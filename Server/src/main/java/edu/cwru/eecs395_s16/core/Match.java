@@ -5,9 +5,7 @@ import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
-import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
-import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
 import edu.cwru.eecs395_s16.networking.Jsonable;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.actions.GameAction;
@@ -79,7 +77,7 @@ public class Match implements Jsonable {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
             UUID randMatchID = UUID.randomUUID();
-            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap, new DeathmatchGameObjective());
+            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap, objective);
             InternalResponseObject<?> resp = m.startInitialGameTasks();
             if (!resp.isNormal()) {
                 return InternalResponseObject.cloneError(resp);
@@ -122,7 +120,7 @@ public class Match implements Jsonable {
                 GameMap mp = new FromJSONGameMap((JSONObject) matchData.get("map"));
 
                 //Retrieve Game Objective
-                GameObjective objective = GameObjective.objectiveForKey(matchData.getJSONObject(MATCH_OBJECTIVE_KEY).getString(GameObjective.OBJECTIVE_TYPE_KEY));
+                GameObjective objective = GameObjective.objectiveForJSON(matchData.getJSONObject(MATCH_OBJECTIVE_KEY));
 
                 //Build match as we have all the basics we need
                 Match m;
@@ -233,13 +231,7 @@ public class Match implements Jsonable {
         }
 
         //Add in an objective if the map calls for one
-        List<Location> objectiveSpawnLocations = gameMap.getObjectiveSpawnLocations();
-        if(objectiveSpawnLocations.size() > 0) {
-            Random r = new Random();
-            int index = r.nextInt(objectiveSpawnLocations.size());
-            ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID(), objectiveSpawnLocations.get(index));
-            this.boardObjects.add(obj);
-        }
+        objective.setup(this);
 
         //Take initial snapshots and store them.
         setCurrentSequence(this.gameSequenceID);
@@ -489,4 +481,15 @@ public class Match implements Jsonable {
         return gameMap;
     }
 
+    public int getTurnNumber() {
+        return turnNumber;
+    }
+
+    public int getGameSequenceID() {
+        return gameSequenceID;
+    }
+
+    public GameObjective getObjective() {
+        return objective;
+    }
 }

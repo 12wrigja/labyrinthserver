@@ -43,7 +43,7 @@ public abstract class InMatchTest extends SerializationTest {
     protected List<Hero> initialHeroes;
     protected List<GameObject> initialArchitectObjects;
     protected GameObjective initialObjective;
-    private NetworkingInterface game;
+    protected NetworkingInterface game;
 
     @Override
     public void setup() throws Exception {
@@ -136,7 +136,7 @@ public abstract class InMatchTest extends SerializationTest {
     }
 
     public InternalResponseObject<Boolean> moveCharacter(Player p, UUID characterID, List<Location> path, boolean failTestOnFailure) {
-        MoveGameActionData actionData = new MoveGameActionData(characterID.toString(), path);
+        MoveGameActionData actionData = new MoveGameActionData(characterID, path);
         GameActionBaseRequest req = new GameActionBaseRequest();
         try {
             String json = objMapper.writeValueAsString(actionData.convertToJSON());

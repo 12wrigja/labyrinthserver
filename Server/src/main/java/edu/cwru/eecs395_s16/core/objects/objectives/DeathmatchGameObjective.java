@@ -31,6 +31,11 @@ public class DeathmatchGameObjective extends GameObjective {
         }
     }
 
+    @Override
+    public void setup(Match match) {
+        //Do nothing - deathmatch needs no setup.
+    }
+
 
     @Override
     public JSONObject getJSONRepresentation() {

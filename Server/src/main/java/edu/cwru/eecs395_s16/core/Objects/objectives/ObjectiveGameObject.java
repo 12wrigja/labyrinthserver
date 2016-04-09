@@ -13,6 +13,10 @@ import java.util.UUID;
  */
 public class ObjectiveGameObject extends GameObject {
 
+    public ObjectiveGameObject(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, Location location) {
+        super(objectID, ownerID, controllerID, TYPE.OBJECTIVE, location);
+    }
+
     public ObjectiveGameObject(UUID objectID, Location location) {
         super(objectID, Optional.empty(), Optional.empty(), TYPE.OBJECTIVE, location);
     }
@@ -23,7 +27,9 @@ public class ObjectiveGameObject extends GameObject {
             UUID uuid = UUID.fromString(id);
             int x = obj.getInt(Location.X_KEY);
             int y = obj.getInt(Location.Y_KEY);
-            return new ObjectiveGameObject(uuid, new Location(x,y));
+            String ownerID = obj.optString(GameObject.OWNER_ID_KEY,null);
+            String controllerID = obj.optString(GameObject.CONTROLLER_ID_KEY,null);
+            return new ObjectiveGameObject(uuid, Optional.ofNullable(ownerID),Optional.ofNullable(controllerID), new Location(x,y));
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
