@@ -5,7 +5,7 @@ import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
-import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
+import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Jsonable;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.actions.GameAction;
@@ -25,6 +25,7 @@ import java.util.*;
  */
 public class Match implements Jsonable {
 
+    public static final String MATCH_END_KEY = "match_end";
     private final TimerTask pingTask;
 
     //Players
@@ -66,15 +67,18 @@ public class Match implements Jsonable {
     private static final String TURN_NUMBER_KEY = "turn_number";
     private int turnNumber = 0;
 
+    private static final String MATCH_OBJECTIVE_KEY = "objective";
+    private final GameObjective objective;
+
     //Event Keys
     public static final String GAME_UPDATE_KEY = "game_update";
 
-    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap) {
+    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
             UUID randMatchID = UUID.randomUUID();
-            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap);
+            Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap, objective);
             InternalResponseObject<?> resp = m.startInitialGameTasks();
             if (!resp.isNormal()) {
                 return InternalResponseObject.cloneError(resp);
@@ -140,10 +144,13 @@ public class Match implements Jsonable {
                 //Retrieve Map
                 GameMap mp = new FromJSONGameMap((JSONObject) matchData.get("map"));
 
+                //Retrieve Game Objective
+                GameObjective objective = GameObjective.objectiveForJSON(matchData.getJSONObject(MATCH_OBJECTIVE_KEY));
+
                 //Build match as we have all the basics we need
                 Match m;
                 if (heroRetrievalResponse.isPresent() && architectRetrievalResponse.isPresent()) {
-                    m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp);
+                    m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp, objective);
                 } else {
                     return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MISSING_PLAYER, "One of the two players in the match are missing.");
                 }
@@ -175,11 +182,12 @@ public class Match implements Jsonable {
         return fromCacheWithMatchIdentifier(uuidID);
     }
 
-    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap) {
+    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap, GameObjective objective) {
         this.heroPlayer = heroPlayer;
         this.architectPlayer = architectPlayer;
         this.matchIdentifier = matchIdentifier;
         this.gameMap = gameMap;
+        this.objective = objective;
         this.boardObjects = new GameObjectCollection();
 
         pingTask = new TimerTask() {
@@ -249,13 +257,7 @@ public class Match implements Jsonable {
         }
 
         //Add in an objective if the map calls for one
-        List<Location> objectiveSpawnLocations = gameMap.getObjectiveSpawnLocations();
-        if (objectiveSpawnLocations.size() > 0) {
-            Random r = new Random();
-            int index = r.nextInt(objectiveSpawnLocations.size());
-            ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID(), objectiveSpawnLocations.get(index));
-            this.boardObjects.add(obj);
-        }
+        objective.setup(this);
 
         //Take initial snapshots and store them.
         setCurrentSequence(this.gameSequenceID);
@@ -271,16 +273,21 @@ public class Match implements Jsonable {
         //First check and see if it is your turn
         if (isPlayerTurn(p)) {
             //Assemble the required lists of stuff.
-            InternalResponseObject<Boolean> resp = action.checkCanDoAction(this.gameMap, this.boardObjects, p);
+            InternalResponseObject<Boolean> resp = action.checkCanDoAction(this, this.gameMap, this.boardObjects, p);
             if (!resp.isNormal()) {
                 return resp;
             }
             doAndSnapshot(action.getJSONRepresentation(), () ->
                     action.doGameAction(this.gameMap, this.boardObjects), true);
-            //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
-            long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
-            if (numNotExhausted == 0) {
-                doAndSnapshot("turn_end", this::swapSides, true);
+            GameObjective.GAME_WINNER winner = objective.checkForGameEnd(this);
+            if(winner != GameObjective.GAME_WINNER.NO_WINNER){
+                end(winner.toString().toLowerCase());
+            } else {
+                //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
+                long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
+                if (numNotExhausted == 0) {
+                    doAndSnapshot("turn_end", this::swapSides, true);
+                }
             }
             return resp;
         } else {
@@ -336,7 +343,7 @@ public class Match implements Jsonable {
             //should never happen - keys are non-null
         }
         storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
-        broadcastToAllParties("game_update", gameUpdate);
+        broadcastToAllParties(GAME_UPDATE_KEY,gameUpdate);
     }
 
     private void swapSides() {
@@ -351,6 +358,14 @@ public class Match implements Jsonable {
             c.triggerPassive(gameMap, boardObjects);
         });
         this.turnNumber++;
+    }
+
+    public Player getHeroPlayer() {
+        return heroPlayer;
+    }
+
+    public Player getArchitectPlayer() {
+        return architectPlayer;
     }
 
     /**
@@ -423,6 +438,9 @@ public class Match implements Jsonable {
     }
 
     public void end(String reason) {
+        doAndSnapshot("match_end: "+reason,()->{
+            gameState = GameState.GAME_END;
+        },false);
         //TODO commit match data, update xp, currency, etc
         JSONObject reasonObj = new JSONObject();
         try {
@@ -432,11 +450,11 @@ public class Match implements Jsonable {
                 e.printStackTrace();
             }
         }
-        broadcastToAllParties("match_end", reasonObj);
-        this.heroPlayer.setCurrentMatch(Optional.empty());
-        this.architectPlayer.setCurrentMatch(Optional.empty());
-        spectators.forEach(this::removeSpectator);
-        pingTask.cancel();
+        broadcastToAllParties(MATCH_END_KEY, reasonObj);
+//        this.heroPlayer.setCurrentMatch(Optional.empty());
+//        this.architectPlayer.setCurrentMatch(Optional.empty());
+//        spectators.forEach(this::removeSpectator);
+//        pingTask.cancel();
     }
 
     @Override
@@ -466,6 +484,8 @@ public class Match implements Jsonable {
 
             //Current turn number
             obj.put(TURN_NUMBER_KEY, this.turnNumber);
+
+            obj.put(MATCH_OBJECTIVE_KEY, objective.getJSONRepresentation());
 
         } catch (JSONException e) {
             //Never will be thrown as the keys are never null
@@ -507,5 +527,13 @@ public class Match implements Jsonable {
     @Override
     public int hashCode() {
         return getMatchIdentifier().hashCode();
+    }
+
+    public int getGameSequenceID() {
+        return gameSequenceID;
+    }
+
+    public GameObjective getObjective() {
+        return objective;
     }
 }

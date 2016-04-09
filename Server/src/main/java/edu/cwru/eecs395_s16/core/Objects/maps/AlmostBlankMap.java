@@ -31,14 +31,13 @@ public class AlmostBlankMap implements GameMap {
         MapRepository.TileType dirtType = tileMap.get("dirt");
         this.x = x;
         this.y = y;
-        Random r = new Random();
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 MapTile t;
                 MapRepository.TileType tType = (i % 4 == 0 && i != 0 && y >= 2 && j >= 2 && j <= y-2)?wallType:dirtType;
                 boolean isHeroSpawnPoint = (i>=0 && i<=2 && j >= 0 && j <= 2) && !tType.isObstruction;
                 boolean isArchitectSpawnPoint = (i>=0 && i >= x-2 && i < x && j>=0 && j>=y-2 && j < y) && !tType.isObstruction;
-                boolean isObjectiveSpawnPoint = isArchitectSpawnPoint && r.nextInt(100) < 30  && !tType.isObstruction;
+                boolean isObjectiveSpawnPoint = (i == x/2 && j==y/2);
                 t = new MapTile(i, j, tType, 0, isHeroSpawnPoint, isArchitectSpawnPoint, isObjectiveSpawnPoint);
                 tiles[i][j] = t;
                 if(isHeroSpawnPoint){

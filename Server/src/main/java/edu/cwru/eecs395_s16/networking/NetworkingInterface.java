@@ -3,22 +3,21 @@ package edu.cwru.eecs395_s16.networking;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.core.*;
-import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.core.actions.BasicAttackGameAction;
-import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
-import edu.cwru.eecs395_s16.core.actions.PassGameAction;
+import edu.cwru.eecs395_s16.core.actions.*;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
-import edu.cwru.eecs395_s16.core.actions.GameAction;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
-import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
-import edu.cwru.eecs395_s16.services.maps.MapRepository;
-import edu.cwru.eecs395_s16.services.connections.GameClient;
+import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.CaptureObjectiveActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
+import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
+import edu.cwru.eecs395_s16.services.maps.MapRepository;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -62,7 +61,7 @@ public class NetworkingInterface {
     public InternalResponseObject<Boolean> queueUpHeroes(QueueRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
             //TODO update this to pick a random map?
-            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(obj.getMapX(), obj.getMapY()));
+            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(obj.getMapX(), obj.getMapY()),new DeathmatchGameObjective());
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -76,7 +75,7 @@ public class NetworkingInterface {
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpArchitect(QueueRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
-            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(obj.getMapX(), obj.getMapY()));
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(obj.getMapX(), obj.getMapY()), new DeathmatchGameObjective());
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -160,6 +159,14 @@ public class NetworkingInterface {
                         return InternalResponseObject.cloneError(dataResp);
                     }
                     action = new PassGameAction(dataResp.get());
+                    break;
+                }
+                case CAPTURE_OBJECTIVE_ACTION: {
+                    InternalResponseObject<CaptureObjectiveActionData> dataResp = CaptureObjectiveActionData.fillFromJSON(obj.getOriginalData());
+                    if (!dataResp.isNormal()) {
+                        return InternalResponseObject.cloneError(dataResp);
+                    }
+                    action = new CaptureObjectiveGameAction(dataResp.get());
                     break;
                 }
 //                case ABILITY_ACTION: {

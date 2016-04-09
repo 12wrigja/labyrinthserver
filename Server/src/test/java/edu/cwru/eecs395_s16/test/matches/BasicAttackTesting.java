@@ -40,7 +40,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(creature.getGameObjectID(), new Location(0, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(0,2));
-        basicAttackWithCharacter(heroBot, hero, inputs, true);
+        basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(creature.getGameObjectID(), new Location(0, 3));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(0, 5));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.NOT_IN_RANGE, resp.getInternalErrorCode());
     }
@@ -80,7 +80,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero2.getGameObjectID(), new Location(0, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(0,2));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero1, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero1.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.FRIENDLY_FIRE, resp.getInternalErrorCode());
     }
@@ -95,7 +95,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(3, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(4, 2));
-        basicAttackWithCharacter(heroBot, hero, inputs, true);
+        basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 3));
-        basicAttackWithCharacter(heroBot, hero, inputs, true);
+        basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1,2));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.FRIENDLY_FIRE, resp.getInternalErrorCode());
     }
@@ -136,7 +136,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(-1, 1));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.INVALID_LOCATION, resp.getInternalErrorCode());
     }
@@ -151,7 +151,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 3));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.NOT_CONTROLLER, resp.getInternalErrorCode());
     }
@@ -167,7 +167,7 @@ public class BasicAttackTesting extends InMatchTest {
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 4));
         inputs.add(new Location(1,3));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.TOO_MANY_TARGETS, resp.getInternalErrorCode());
     }
@@ -185,7 +185,7 @@ public class BasicAttackTesting extends InMatchTest {
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 4));
-        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero, inputs, false);
+        InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.TOO_FEW_TARGETS, resp.getInternalErrorCode());
     }
@@ -209,6 +209,6 @@ public class BasicAttackTesting extends InMatchTest {
 
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1,5));
-        basicAttackWithCharacter(heroBot, hero, inputs, true);
+        basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
     }
 }

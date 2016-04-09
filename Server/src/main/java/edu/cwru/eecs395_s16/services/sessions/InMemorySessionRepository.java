@@ -26,7 +26,6 @@ public class InMemorySessionRepository implements SessionRepository {
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER, "Unable to find the player for the given session token.");
         }
-
     }
 
     @Override

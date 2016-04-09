@@ -22,7 +22,8 @@ public class GameActionBaseRequest implements RequestData {
         MOVE_ACTION,
         BASIC_ATTACK_ACTION,
         ABILITY_ACTION,
-        PASS_ACTION;
+        PASS_ACTION,
+        CAPTURE_OBJECTIVE_ACTION;
     }
 
     private static final String ENUM_APPEND = "_ACTION";
