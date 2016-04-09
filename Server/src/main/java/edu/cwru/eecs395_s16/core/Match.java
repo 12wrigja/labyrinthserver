@@ -255,7 +255,7 @@ public class Match implements Jsonable {
         //First check and see if it is your turn
         if (isPlayerTurn(p)) {
             //Assemble the required lists of stuff.
-            InternalResponseObject<Boolean> resp = action.checkCanDoAction(this.gameMap, this.boardObjects, p);
+            InternalResponseObject<Boolean> resp = action.checkCanDoAction(this, this.gameMap, this.boardObjects, p);
             if (!resp.isNormal()) {
                 return resp;
             }

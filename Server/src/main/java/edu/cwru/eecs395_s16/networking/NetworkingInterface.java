@@ -3,14 +3,12 @@ package edu.cwru.eecs395_s16.networking;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.core.*;
+import edu.cwru.eecs395_s16.core.actions.*;
 import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
+import edu.cwru.eecs395_s16.networking.requests.gameactions.CaptureObjectiveActionData;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.core.actions.BasicAttackGameAction;
-import edu.cwru.eecs395_s16.core.actions.MoveGameAction;
-import edu.cwru.eecs395_s16.core.actions.PassGameAction;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
-import edu.cwru.eecs395_s16.core.actions.GameAction;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import edu.cwru.eecs395_s16.services.maps.MapRepository;
@@ -161,6 +159,14 @@ public class NetworkingInterface {
                         return InternalResponseObject.cloneError(dataResp);
                     }
                     action = new PassGameAction(dataResp.get());
+                    break;
+                }
+                case CAPTURE_OBJECTIVE_ACTION: {
+                    InternalResponseObject<CaptureObjectiveActionData> dataResp = CaptureObjectiveActionData.fillFromJSON(obj.getOriginalData());
+                    if (!dataResp.isNormal()) {
+                        return InternalResponseObject.cloneError(dataResp);
+                    }
+                    action = new CaptureObjectiveGameAction(dataResp.get());
                     break;
                 }
 //                case ABILITY_ACTION: {

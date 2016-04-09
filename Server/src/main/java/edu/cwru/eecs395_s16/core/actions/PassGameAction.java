@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.core.actions;
 
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
@@ -25,7 +26,7 @@ public class PassGameAction implements GameAction {
 
 
     @Override
-    public InternalResponseObject<Boolean> checkCanDoAction(GameMap map, GameObjectCollection boardObjects, Player player) {
+    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
         Optional<GameObject> boardObj = boardObjects.getByID(characterID);
         if (boardObj.isPresent()) {
             if (!(boardObj.get() instanceof Creature)) {

@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.core.actions;
 
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.*;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
@@ -33,27 +34,14 @@ public class BasicAttackGameAction implements GameAction {
     }
 
     @Override
-    public InternalResponseObject<Boolean> checkCanDoAction(GameMap map, GameObjectCollection boardObjects, Player player) {
-        //Check and see if the object is a valid object in this game
-        Optional<GameObject> attackerObjOpt = boardObjects.getByID(data.getAttacker());
-        if (!attackerObjOpt.isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The attacker id is not a valid game object.");
+    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
+        //Check and see if the object is a valid object for doing active actions
+        InternalResponseObject<Boolean> validCreatureResp = GameAction.canDoActiveAction(data.getAttacker(),boardObjects,player,"attacker_id");
+        if(!validCreatureResp.isNormal()){
+            return validCreatureResp;
         }
-        GameObject attackerObj = attackerObjOpt.get();
-        //Check that the target has health - you can't attack dead stuff (it will have probably been removed from the board)
-        if (!(attackerObj instanceof Creature)) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The attacker game object is not a creature that can attack.");
-        }
-        //Check and see if the player who made the request can control their attacker
-        if (!GameAction.isControlledByPlayer(attackerObj, player)) {
-            return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER, "You are not the controller of the attacker object");
-        }
-        attacker = (Creature) attackerObj;
+        attacker = (Creature)boardObjects.getByID(data.getAttacker()).get();
         Weapon weapon = attacker.getWeapon();
-
-        if(attacker.getActionPoints() == 0){
-            return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS, "The attacker has no action points remaining.");
-        }
 
         if (data.getTargets().size() > weapon.getUsePattern().getInputCount()) {
             return new InternalResponseObject<>(InternalErrorCode.TOO_MANY_TARGETS);
@@ -75,7 +63,6 @@ public class BasicAttackGameAction implements GameAction {
                     return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
                 }
             } else {
-                //TODO potentially make this change based on the weapon equipped
                 //Check to see that the target point is within the weapon's range and that we have line of sight to that point
                 if (!GameAction.floodFill(map, attacker.getLocation(), weapon.getRange(), true).contains(target)){
                     return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
@@ -98,8 +85,9 @@ public class BasicAttackGameAction implements GameAction {
                 if (GameAction.isControlledByPlayer(c, player)) {
                     //Check and see if the player is trying to target a friendly unit with their attacker
                     return new InternalResponseObject<>(InternalErrorCode.FRIENDLY_FIRE, "A target game object is controlled by you.");
+                } else if (GameAction.isControlledByOpponent(c,player)) {
+                    creaturesHit.add(c);
                 }
-                creaturesHit.add(c);
             }
             targets.put(target, creaturesHit);
         }
