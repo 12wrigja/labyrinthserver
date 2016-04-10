@@ -286,7 +286,13 @@ public class Match implements Jsonable {
                 //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
                 long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
                 if (numNotExhausted == 0) {
-                    doAndSnapshot("turn_end", this::swapSides, true);
+                    JSONObject turnEndObj = new JSONObject();
+                    try {
+                        turnEndObj.put("type","turn_end");
+                    } catch (JSONException e){
+                        //
+                    }
+                    doAndSnapshot(turnEndObj, this::swapSides, true);
                 }
             }
             return resp;
