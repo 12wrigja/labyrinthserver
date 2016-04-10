@@ -9,6 +9,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Optional;
@@ -50,6 +51,13 @@ public class PassGameAction implements GameAction {
 
     @Override
     public JSONObject getJSONRepresentation() {
-        return null;
+        JSONObject repr = new JSONObject();
+        try {
+            repr.put("type","pass");
+            repr.put("character_id",characterID.toString());
+        } catch (JSONException e){
+            //Should not be thrown - all keys are non-null
+        }
+        return repr;
     }
 }
