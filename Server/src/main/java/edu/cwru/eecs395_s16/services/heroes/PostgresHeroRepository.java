@@ -4,7 +4,6 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.creatures.Equipment;
 import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
@@ -13,7 +12,6 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.LevelReward;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.containers.DBRepository;
 import edu.cwru.eecs395_s16.services.players.PostgresPlayerRepository;
-import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
 import java.sql.*;
 import java.util.*;
@@ -226,19 +224,17 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
         UUID id = UUID.fromString(r.getString("hero_uuid"));
         String heroType = r.getString("class");
         HeroType type = HeroType.valueOf(heroType.toUpperCase());
-        HeroBuilder hb = new HeroBuilder(p.getUsername(), type);
+        HeroBuilder hb = new HeroBuilder(id, p.getUsername(), Optional.of(p.getUsername()), heroID, type);
         Optional<Weapon> wep = GameEngine.instance().services.heroItemRepository.getWeaponForId(r.getInt("weapon_id"));
         //TODO either remove or patch up equipment
         //Optional<Equipment> equip = GameEngine.instance().services.heroItemRepository.getEquipmentForId(r.getInt("equipment_id"));
-        hb.setDatabaseIdentifier(heroID)
-                .setAttack(attack)
+        hb.setAttack(attack)
                 .setDefense(defense)
                 .setHealth(health)
                 .setMovement(movement)
-                .setVision(vision)
-                .setExp(exp, true)
-                .setGameObjectID(id);
-        if(wep.isPresent()){
+                .setVision(vision);
+        hb.setExp(exp, true);
+        if (wep.isPresent()) {
             hb.setWeapon(wep.get());
         }
         return hb.createHero();

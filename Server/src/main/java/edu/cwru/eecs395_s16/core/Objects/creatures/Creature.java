@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Created by james on 1/19/16.
  */
-public class Creature extends GameObject {
+public class Creature extends GameObject implements DatabaseObject {
 
     public static final String ATTACK_KEY = "attack";
     public static final String DEFENSE_KEY = "defense";
@@ -33,11 +33,13 @@ public class Creature extends GameObject {
     private int vision = 5;
     private int maxActionPoints = 2;
     private int currentActionPoints;
+    private int databaseId;
     private List<Ability> abilities = new ArrayList<>();
     private List<CreatureStatus> statuses = new ArrayList<>();
 
-    public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses, Location location, Weapon weapon) {
+    public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, int databaseId, TYPE objectType, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses, Location location, Weapon weapon) {
         super(objectID, ownerID, controllerID, objectType, location);
+        this.databaseId = databaseId;
         this.attack = attack;
         this.defense = defense;
         this.health = currentHealth;
@@ -84,6 +86,11 @@ public class Creature extends GameObject {
 
     public int getVision() {
         return vision;
+    }
+
+    @Override
+    public int getDatabaseID() {
+        return databaseId;
     }
 
     protected void setAttack(int attack) {

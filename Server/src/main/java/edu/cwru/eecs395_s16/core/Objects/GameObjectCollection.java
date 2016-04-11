@@ -74,7 +74,7 @@ public class GameObjectCollection implements Jsonable {
         while(uuidIterator.hasNext()){
             String key = (String)uuidIterator.next();
             try {
-                Optional<GameObject> gOpt = gFact.objectFromJson(data.getJSONObject(key));
+                Optional<GameObject> gOpt = gFact.fillFromJson(data.getJSONObject(key));
                 if(gOpt.isPresent()) {
                     GameObject gObj = gOpt.get();
                     this.add(gObj);

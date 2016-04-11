@@ -25,15 +25,12 @@ public class Hero extends Creature implements DatabaseObject {
     public static final String EXP_KEY = "experience";
 
     private final HeroType type;
-
     private int level = 1;
     private long exp = 0;
-    private int databaseIdentifier = -1;
 
     Hero(UUID objectID, int databaseIdentifier, String ownerID, Optional<String> controllerID, HeroType type, int level, long exp, Location location, int attack, int defense, int health, int maxHealth, int movement, int vision, int actionPoints, int maxActionPoints, Weapon weapon, List<Ability> abilities, List<CreatureStatus> statuses) {
-        super(objectID, Optional.of(ownerID), controllerID, TYPE.HERO, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
+        super(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, TYPE.HERO, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
         this.level = level;
-        this.databaseIdentifier = databaseIdentifier;
         this.type = type;
         this.exp = exp;
     }
@@ -69,11 +66,6 @@ public class Hero extends Creature implements DatabaseObject {
 
     public long getExp() {
         return exp;
-    }
-
-    @Override
-    public int getDatabaseID() {
-        return this.databaseIdentifier;
     }
 
     public HeroType getHeroType() {

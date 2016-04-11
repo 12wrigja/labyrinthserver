@@ -54,9 +54,7 @@ public class InMemoryHeroRepository implements HeroRepository {
     @Override
     public InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p) {
         for(HeroDefinition def : heroTypeMap.values()){
-            HeroBuilder hb = new HeroBuilder(p.getUsername(), def)
-                    .setControllerID(Optional.of(p.getUsername()))
-                    .setDatabaseIdentifier(-1);
+            HeroBuilder hb = new HeroBuilder(UUID.randomUUID(), p.getUsername(), Optional.of(p.getUsername()), -1, def);
             InternalResponseObject<Boolean> resp = saveHeroForPlayer(p,hb.createHero());
             if(!resp.isNormal()){
                 return resp;

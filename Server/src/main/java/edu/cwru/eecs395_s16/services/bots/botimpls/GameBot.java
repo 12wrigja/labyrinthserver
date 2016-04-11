@@ -95,7 +95,7 @@ public abstract class GameBot extends Player implements GameClient {
     }
 
     protected void populate() {
-        heroes.add(new HeroBuilder(getUsername(), HeroType.WARRIOR).createHero());
-        architectObjects.add(new HeroBuilder(getUsername(), HeroType.WARRIOR).createHero());
+        heroes.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType.WARRIOR).createHero());
+        architectObjects.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType.WARRIOR).createHero());
     };
 }

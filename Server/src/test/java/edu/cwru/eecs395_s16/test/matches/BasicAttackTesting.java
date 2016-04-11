@@ -26,7 +26,7 @@ public class BasicAttackTesting extends InMatchTest {
     @Test
     public void testBasicAttacking() {
         initialHeroes = new ArrayList<>();
-        initialHeroes.add(new HeroBuilder(heroBot.getUsername(),HeroType.MAGE).createHero());
+        initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.MAGE).createHero());
         setupMatch();
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
