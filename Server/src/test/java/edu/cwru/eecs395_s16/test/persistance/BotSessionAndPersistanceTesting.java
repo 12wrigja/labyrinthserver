@@ -52,7 +52,7 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     @Test
     public void testRetrieveBotFromSessionUsername() {
         GameBot b = new PassBot();
-        InternalResponseObject<Player> retr = GameEngine.instance().services.sessionRepository.findPlayer(b.getUsername());
+        InternalResponseObject<Player> retr = GameEngine.instance().services.playerRepository.findPlayer(b.getUsername());
         if (retr.isNormal() && retr.isPresent()) {
             Player retrieved = retr.get();
             if (retrieved instanceof GameBot) {
