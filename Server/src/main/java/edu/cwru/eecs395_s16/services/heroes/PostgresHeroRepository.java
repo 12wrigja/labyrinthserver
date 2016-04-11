@@ -33,14 +33,10 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
     private static final String GET_HEROES_QUERY = "select * from " + HERO_PLAYER_TABLE + " inner join " + HEROES_TABLE + " on hero_player.hero_id = heroes.id where player_id = ?";
     private static final String GET_HERO_DEFINITION_QUERY = "select * from " + HEROES_TABLE + " where id = ?";
     private static final String GET_HERO_DEFINITION_BY_TYPE_QUERY = "select * from " + HEROES_TABLE + " where class = ?";
-    private static final String GET_LEVEL_REWARD_QUERY = "select * from " + LEVELS_TABLE + " where class = ? and experience <= ? and experience > ?";
+    private static final String GET_LEVEL_REWARD_QUERY = "select * from " + LEVELS_TABLE + " where hero_id = ? and experience <= ? and experience > ?";
     private static final String UPDATE_PLAYER_HERO_QUERY = "update " + HERO_PLAYER_TABLE + " set experience=?, weapon_id = ? where player_id = ? and hero_id = ?";
 
     public PostgresHeroRepository(Connection conn) {
-        this(conn, CoreDataUtils.defaultCoreData());
-    }
-
-    public PostgresHeroRepository(Connection conn, Map<String, CoreDataUtils.CoreDataEntry> baseData) {
         super(conn);
     }
 
