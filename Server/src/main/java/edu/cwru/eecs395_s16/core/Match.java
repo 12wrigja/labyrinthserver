@@ -29,12 +29,13 @@ import java.util.stream.Collectors;
 public class Match implements Jsonable {
 
     public static final String MATCH_END_KEY = "match_end";
+    public static final String MATCH_FOUND_KEY = "match_found";
     private final TimerTask pingTask;
 
     //Players
-    private static final String PLAYER_OBJ_KEY = "players";
-    private static final String HERO_PLAYER_KEY = "heroes";
-    private static final String ARCHITECT_PLAYER_KEY = "architect";
+    public static final String PLAYER_OBJ_KEY = "players";
+    public static final String HERO_PLAYER_KEY = "heroes";
+    public static final String ARCHITECT_PLAYER_KEY = "architect";
     private final Player heroPlayer;
     private final Player architectPlayer;
 
@@ -42,35 +43,35 @@ public class Match implements Jsonable {
 
     //Match Identifier
     private final UUID matchIdentifier;
-    private static final String MATCH_ID_KEY = "match_identifier";
+    public static final String MATCH_ID_KEY = "match_identifier";
 
     //Game Map
     private final GameMap gameMap;
-    private static final String GAME_MAP_KEY = "map";
+    public static final String GAME_MAP_KEY = "map";
 
     //Game state
     private GameState gameState;
-    private static final String GAME_STATE_KEY = "game_state";
+    public static final String GAME_STATE_KEY = "game_state";
 
     //Board Object collection
     private final GameObjectCollection boardObjects;
-    private static final String BOARD_COLLECTION_KEY = "board_objects";
+    public static final String BOARD_COLLECTION_KEY = "board_objects";
 
 
     //Sequence Numbers for actions
-    private static final String GAME_SEQUENCE_KEY = ":SEQUENCE:";
-    private static final String CURRENT_SEQUENCE_CACHE_KEY = ":CURRENTSEQUENCE";
-    private static final String CURRENT_SNAPSHOT_CACHE_KEY = ":CURRENTSNAPSHOT";
-    private static final String CURRENT_SEQUENCE_JSON_KEY = "current_sequence";
-    private static final int INITIAL_SEQUENCE_NUMBER = 0;
+    public static final String GAME_SEQUENCE_KEY = ":SEQUENCE:";
+    public static final String CURRENT_SEQUENCE_CACHE_KEY = ":CURRENTSEQUENCE";
+    public static final String CURRENT_SNAPSHOT_CACHE_KEY = ":CURRENTSNAPSHOT";
+    public static final String CURRENT_SEQUENCE_JSON_KEY = "current_sequence";
+    public static final int INITIAL_SEQUENCE_NUMBER = 0;
     private int gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
     //TODO Turn numbers
     //Turn numbers
-    private static final String TURN_NUMBER_KEY = "turn_number";
+    public static final String TURN_NUMBER_KEY = "turn_number";
     private int turnNumber = 0;
 
-    private static final String MATCH_OBJECTIVE_KEY = "objective";
+    public static final String MATCH_OBJECTIVE_KEY = "objective";
     private final GameObjective objective;
 
     //Event Keys
@@ -208,14 +209,6 @@ public class Match implements Jsonable {
     }
 
     private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<Location, Integer> initialArchitectLocations) {
-        //Schedule the ping task once every second and have the players join the room for the match
-        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
-        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
-        GameEngine.instance().gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
-
-        //Set the player's current match identifiers
-        this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
-        this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
 
         //Set initial turn data
         this.gameState = GameState.HERO_TURN;
@@ -266,12 +259,15 @@ public class Match implements Jsonable {
         if(initialArchitectLocations == null){
             int numTotalArchitectCreatures = (int)Math.max(1.0f,architectMonsterDefns.stream().collect(Collectors.summingInt(d->d.count)) * 0.25f);
             numIterations = Math.min(numTotalArchitectCreatures,numArchitectObjectLocations);
+            if(numIterations == 0){
+                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"The architect doesn't have any monsters.");
+            }
             int monstersPlaced = 0;
             int defIndex = 0;
             Collections.shuffle(architectSpawnLocations);
             while(monstersPlaced < numIterations){
                 MonsterRepository.MonsterDefinition def;
-                int numOfTypeToPlace;
+                int numOfTypeToPlace = 0;
                 while(true) {
                     def = architectMonsterDefns.get(defIndex);
                     numOfTypeToPlace = Math.min(numIterations - monstersPlaced, def.count);
@@ -309,8 +305,17 @@ public class Match implements Jsonable {
         JSONObject matchBaseline = this.getJSONRepresentation();
         storeSnapshotForSequence(this.gameSequenceID, matchBaseline);
 
+        //Schedule the ping task once every second and have the players join the room for the match
+        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        GameEngine.instance().gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
+
+        //Set the player's current match identifiers
+        this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
+        this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
+
         //Broadcast that a match has been found to all interested parties
-        broadcastToAllParties("match_found", matchBaseline);
+        broadcastToAllParties(MATCH_FOUND_KEY, matchBaseline);
         return new InternalResponseObject<>();
     }
 

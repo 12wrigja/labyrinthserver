@@ -6,6 +6,8 @@ import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.creatures.CreatureStatus;
 import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
 import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,14 @@ public class Monster extends Creature {
         this.creatureDef = creatureDef;
     }
 
+    @Override
+    public JSONObject getJSONRepresentation() {
+        JSONObject repr = super.getJSONRepresentation();
+        try {
+            repr.put(NAME_KEY,creatureDef.name);
+        } catch (JSONException e) {
+            //DO nothing should never happen
+        }
+        return repr;
+    }
 }

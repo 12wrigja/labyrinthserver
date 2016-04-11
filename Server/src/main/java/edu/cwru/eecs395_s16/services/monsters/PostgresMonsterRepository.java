@@ -95,7 +95,17 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
             stmt.setInt(1,p.getDatabaseID());
             int results = stmt.executeUpdate();
             if (results > 0) {
-                return new InternalResponseObject<>(true, "created");
+                InternalResponseObject<MonsterDefinition> goblinDef = getMonsterDefinitionForId(1);
+                if(goblinDef.isNormal()) {
+                    InternalResponseObject<Boolean> goblinCreateResp = addMonsterForPlayer(p, goblinDef.get(), 10);
+                    if(goblinCreateResp.isNormal()) {
+                        return new InternalResponseObject<>(true, "created");
+                    } else {
+                        return InternalResponseObject.cloneError(goblinCreateResp,"Unable to give new player goblins.");
+                    }
+                } else {
+                    return InternalResponseObject.cloneError(goblinDef,"Unable to find the goblin definition.");
+                }
             } else {
                 return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL);
             }

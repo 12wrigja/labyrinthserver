@@ -8,6 +8,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.test.AutoStartInMatchTest;
 import org.json.JSONException;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by james on 2/27/16.
  */
-public class MovementTesting extends AutoStartInMatchTest {
+public class MovementTestingHeroes extends AutoStartInMatchTest {
 
     @Override
     protected void changeHeroesList(Player hero, List<Hero> heroes) {
@@ -165,6 +166,22 @@ public class MovementTesting extends AutoStartInMatchTest {
         InternalResponseObject<Boolean> resp = moveCharacter(heroBot, heroID, pathToMove, false);
         assertFalse(resp.isNormal());
         assertEquals(InternalErrorCode.PATH_OBSTRUCTED,resp.getInternalErrorCode());
+    }
+
+    @Test
+    public void testMoveEnemyUnits() throws JSONException {
+        //Get character for hero
+        List<GameObject> architectChars = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
+        assertTrue(architectChars.size() > 0);
+        Monster h = (Monster) architectChars.get(0);
+        UUID monsterID = h.getGameObjectID();
+
+        //Try and move to the location of an existing character.
+        List<Location> pathToMove = new ArrayList<>();
+        pathToMove.add(new Location(0,0));
+        InternalResponseObject<Boolean> resp = moveCharacter(heroBot, monsterID, pathToMove, false);
+        assertFalse(resp.isNormal());
+        assertEquals(InternalErrorCode.NOT_CONTROLLER,resp.getInternalErrorCode());
     }
 
     //TODO write tests for triggering traps

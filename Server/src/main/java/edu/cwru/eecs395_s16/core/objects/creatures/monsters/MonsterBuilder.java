@@ -5,6 +5,8 @@ import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.creatures.CreatureBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
 import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +33,13 @@ public class MonsterBuilder extends CreatureBuilder {
         if(wep.isPresent()){
             this.weapon = wep.get();
         }
+    }
+
+    @Override
+    public CreatureBuilder fillFromJSON(JSONObject obj) throws JSONException {
+        super.fillFromJSON(obj);
+        setName(obj.getString(Monster.NAME_KEY));
+        return this;
     }
 
     public MonsterBuilder setName(String name){

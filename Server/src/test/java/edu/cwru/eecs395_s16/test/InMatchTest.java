@@ -42,6 +42,7 @@ public abstract class InMatchTest extends SerializationTest {
     protected Match currentMatchState;
     protected List<Hero> initialHeroes;
     protected List<GameObject> initialArchitectObjects;
+    protected GameMap initialGameMap;
     protected GameObjective initialObjective;
     protected NetworkingInterface game;
 
@@ -60,6 +61,7 @@ public abstract class InMatchTest extends SerializationTest {
 
     public void teardownMatch() throws Exception {
         game.leaveMatch(new NoInputRequest(), heroBot);
+        game.leaveMatch(new NoInputRequest(), architectBot);
         heroBot.disconnect();
         architectBot.disconnect();
     }
@@ -72,6 +74,14 @@ public abstract class InMatchTest extends SerializationTest {
         return new TestBot();
     }
 
+    protected Set<UUID> useHeros(){
+        return null;
+    }
+
+    protected Map<Location,Integer> useArchitectMonsters(){
+        return null;
+    }
+
     public void setupMatch() {
         if (initialHeroes != null) {
             heroBot.replaceBotHeroes(initialHeroes);
@@ -82,9 +92,9 @@ public abstract class InMatchTest extends SerializationTest {
         if (initialObjective == null) {
             initialObjective = new DeathmatchGameObjective();
         }
-        GameMap gameMap = new AlmostBlankMap(10, 10);
+        initialGameMap = new AlmostBlankMap(10, 10);
 
-        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, gameMap, initialObjective, null, null);
+        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, initialGameMap, initialObjective, useHeros(), useArchitectMonsters());
         if (matchOpt.isNormal()) {
             game = engine.networkingInterface;
             updateMatchState();
@@ -130,7 +140,7 @@ public abstract class InMatchTest extends SerializationTest {
             fail("Incorrect response while moving. ERROR:" + response.getMessage());
         }
         updateMatchState();
-        Hero newHeroState = (Hero) currentMatchState.getBoardObjects().getByID(characterID).get();
+        Creature newHeroState = (Creature) currentMatchState.getBoardObjects().getByID(characterID).get();
         Location newHeroLocation = newHeroState.getLocation();
         if (failTestOnFailure) {
             assertEquals(path.get(path.size() - 1), newHeroLocation);

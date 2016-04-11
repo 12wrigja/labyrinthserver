@@ -53,7 +53,8 @@ public class GameObjectFactory {
                     InternalResponseObject<MonsterRepository.MonsterDefinition> defnResp = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(monsterDBID);
                     if(defnResp.isNormal()) {
                         MonsterBuilder cb = new MonsterBuilder(goID, defnResp.get(), ownerID, Optional.of(controllerID));
-                        return Optional.ofNullable(cb.fillFromJSON(obj).createCreature());
+                        cb.fillFromJSON(obj);
+                        return Optional.ofNullable(cb.createMonster());
                     } else {
                         Optional.empty();
                     }
