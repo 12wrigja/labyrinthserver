@@ -1,10 +1,16 @@
 package edu.cwru.eecs395_s16.core.objects;
 
+import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.objects.creatures.CreatureBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
+import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,8 +49,14 @@ public class GameObjectFactory {
             }
             case MONSTER: {
                 try {
-                    CreatureBuilder cb = new CreatureBuilder(goID, -1, ownerID, Optional.of(controllerID));
-                    return Optional.ofNullable(cb.fillFromJSON(obj).createCreature());
+                    int monsterDBID = obj.getInt(Monster.DATABASE_ID_KEY);
+                    InternalResponseObject<MonsterRepository.MonsterDefinition> defnResp = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(monsterDBID);
+                    if(defnResp.isNormal()) {
+                        MonsterBuilder cb = new MonsterBuilder(goID, defnResp.get(), ownerID, Optional.of(controllerID));
+                        return Optional.ofNullable(cb.fillFromJSON(obj).createCreature());
+                    } else {
+                        Optional.empty();
+                    }
                 } catch (JSONException e) {
                     return Optional.empty();
                 }

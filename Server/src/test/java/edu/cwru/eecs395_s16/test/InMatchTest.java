@@ -60,7 +60,6 @@ public abstract class InMatchTest extends SerializationTest {
 
     public void teardownMatch() throws Exception {
         game.leaveMatch(new NoInputRequest(), heroBot);
-
         heroBot.disconnect();
         architectBot.disconnect();
     }
@@ -73,29 +72,13 @@ public abstract class InMatchTest extends SerializationTest {
         return new TestBot();
     }
 
-    public List<Hero> getHeroesForHero(Player hero) {
-        Hero h = new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).createHero();
-        List<Hero> heroes = new ArrayList<>();
-        heroes.add(h);
-        return heroes;
-    }
-
-    public List<GameObject> getObjectsForArchitect(Player architect) {
-        Hero hero = new HeroBuilder(architect.getUsername(), HeroType.WARRIOR).createHero();
-        List<GameObject> gameObjects = new ArrayList<>();
-        gameObjects.add(hero);
-        return gameObjects;
-    }
-
     public void setupMatch() {
-        if (initialHeroes == null) {
-            initialHeroes = getHeroesForHero(heroBot);
+        if (initialHeroes != null) {
+            heroBot.replaceBotHeroes(initialHeroes);
         }
-        heroBot.replaceBotHeroes(initialHeroes);
-        if (initialArchitectObjects == null) {
-            initialArchitectObjects = getObjectsForArchitect(architectBot);
+        if (initialArchitectObjects != null) {
+            architectBot.replaceArchitectObjects(initialArchitectObjects);
         }
-        architectBot.replaceArchitectObjects(initialArchitectObjects);
         if (initialObjective == null) {
             initialObjective = new DeathmatchGameObjective();
         }

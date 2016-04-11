@@ -22,10 +22,8 @@ import static org.junit.Assert.*;
 public class PassAndTurnTesting extends AutoStartInMatchTest {
 
     @Override
-    public List<Hero> getHeroesForHero(Player hero) {
-        List<Hero> defaultHeroes = super.getHeroesForHero(hero);
-        defaultHeroes.add(new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE, false).createHero());
-        return defaultHeroes;
+    protected void changeHeroesList(Player hero, List<Hero> heroes) {
+        heroes.add(new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE, false).createHero());
     }
 
     @Test

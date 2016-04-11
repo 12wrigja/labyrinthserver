@@ -6,10 +6,13 @@ import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
+import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -96,6 +99,7 @@ public abstract class GameBot extends Player implements GameClient {
 
     protected void populate() {
         heroes.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType.WARRIOR).createHero());
-        architectObjects.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType.WARRIOR).createHero());
+        MonsterRepository.MonsterDefinition def = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
+        architectObjects.add(new MonsterBuilder(UUID.randomUUID(), def, getUsername(), Optional.of(getUsername())).createMonster());
     };
 }

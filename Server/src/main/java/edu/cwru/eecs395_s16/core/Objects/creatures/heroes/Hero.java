@@ -80,7 +80,6 @@ public class Hero extends Creature implements DatabaseObject {
             representation.put(HERO_TYPE_KEY, getHeroType().toString().toLowerCase());
             representation.put(LEVEL_KEY, getLevel());
             representation.put(EXP_KEY, getExp());
-            representation.put(WEAPON_KEY, getWeapon().getJSONRepresentation());
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }

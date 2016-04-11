@@ -27,11 +27,8 @@ import static org.junit.Assert.assertTrue;
 public class MovementTesting extends AutoStartInMatchTest {
 
     @Override
-    public List<Hero> getHeroesForHero(Player hero) {
-        List<Hero> baseHeroes = super.getHeroesForHero(hero);
-        Hero h2 = new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE, false).createHero();
-        baseHeroes.add(h2);
-        return baseHeroes;
+    protected void changeHeroesList(Player hero, List<Hero> heroes) {
+        heroes.add(new HeroBuilder(hero.getUsername(), HeroType.MAGE).createHero());
     }
 
     @Test

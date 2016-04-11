@@ -146,7 +146,7 @@ public class BasicAttackTesting extends InMatchTest {
         setupMatch();
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(h.size() == 1);
-        Hero hero = (Hero) h.get(0);
+        Creature hero = (Creature) h.get(0);
 
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
         List<Location> inputs = new ArrayList<>();
@@ -201,7 +201,7 @@ public class BasicAttackTesting extends InMatchTest {
         Hero hero = (Hero) h.get(0);
 
         List<GameObject> a = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
-        assertTrue(h.size() == 1);
+        assertTrue(a.size() == 1);
         Creature creature = (Creature) a.get(0);
 
         forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));

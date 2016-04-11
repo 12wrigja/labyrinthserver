@@ -54,7 +54,7 @@ public class NetworkingInterface {
             InternalResponseObject<Boolean> monstersCreatedResp = GameEngine.instance().services.monsterRepository.createDefaultMonstersForPlayer(newPlayerResp.get());
             if(!monstersCreatedResp.isNormal()){
                 GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
-                return InternalResponseObject.cloneError(heroesCreatedResp);
+                return InternalResponseObject.cloneError(monstersCreatedResp);
             }
         }
         return newPlayerResp;

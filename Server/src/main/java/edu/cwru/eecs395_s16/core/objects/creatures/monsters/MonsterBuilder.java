@@ -17,9 +17,9 @@ public class MonsterBuilder extends CreatureBuilder {
     protected String name;
     protected MonsterRepository.MonsterDefinition def;
 
-    public MonsterBuilder(UUID objectID, int databaseIdentifier, String ownerID, Optional<String> controllerID, MonsterRepository.MonsterDefinition definition) {
-        super(objectID, databaseIdentifier, ownerID, controllerID);
-        this.def = definition;
+    public MonsterBuilder(UUID objectID, MonsterRepository.MonsterDefinition monsterDefinition, String ownerID, Optional<String> controllerID) {
+        super(objectID, monsterDefinition.id, ownerID, controllerID);
+        this.def = monsterDefinition;
         this.attack = def.startAttack;
         this.defense = def.startDefense;
         this.movement = def.startMovement;

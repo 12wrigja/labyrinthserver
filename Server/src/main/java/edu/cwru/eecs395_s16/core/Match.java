@@ -4,6 +4,7 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Jsonable;
@@ -75,7 +76,7 @@ public class Match implements Jsonable {
     //Event Keys
     public static final String GAME_UPDATE_KEY = "game_update";
 
-    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective, Set<UUID> useHeroes, Map<GameObject, Location> initialArchitectLocations) {
+    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective, Set<UUID> useHeroes, Map<Location, Integer> initialArchitectLocations) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
@@ -206,7 +207,7 @@ public class Match implements Jsonable {
         spectators = new HashSet<>(5);
     }
 
-    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<GameObject, Location> initialArchitectLocations) {
+    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<Location, Integer> initialArchitectLocations) {
         //Schedule the ping task once every second and have the players join the room for the match
         this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
         this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
@@ -255,17 +256,49 @@ public class Match implements Jsonable {
         if (!architectMonsterResponse.isNormal()) {
             return InternalResponseObject.cloneError(architectMonsterResponse);
         }
-        List<MonsterRepository.MonsterDefinition> architectHeroes = architectMonsterResponse.get();
-        int numArchitectMonsterTypes = architectHeroes.size();
         List<Location> architectSpawnLocations = gameMap.getArchitectCreatureSpawnLocations();
         int numArchitectObjectLocations = architectSpawnLocations.size();
-        numIterations = Math.min(numArchitectHeroes, numArchitectObjectLocations);
-        Collections.shuffle(architectHeroes);
-        for (int i = 0; i < numIterations; i++) {
-            Creature obj = architectHeroes.get(i);
-            Location spawnLoc = architectSpawnLocations.get(i);
-            obj.setLocation(spawnLoc);
-            this.boardObjects.add(obj);
+        if(initialArchitectLocations != null && initialArchitectLocations.size() > numArchitectObjectLocations){
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"There are not enough spawn locations for that configuration.");
+        }
+        List<MonsterRepository.MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get();
+
+        if(initialArchitectLocations == null){
+            int numTotalArchitectCreatures = (int)Math.max(1.0f,architectMonsterDefns.stream().collect(Collectors.summingInt(d->d.count)) * 0.25f);
+            numIterations = Math.min(numTotalArchitectCreatures,numArchitectObjectLocations);
+            int monstersPlaced = 0;
+            int defIndex = 0;
+            Collections.shuffle(architectSpawnLocations);
+            while(monstersPlaced < numIterations){
+                MonsterRepository.MonsterDefinition def;
+                int numOfTypeToPlace;
+                while(true) {
+                    def = architectMonsterDefns.get(defIndex);
+                    numOfTypeToPlace = Math.min(numIterations - monstersPlaced, def.count);
+                    if (numOfTypeToPlace == 0) {
+                        defIndex++;
+                    } else {
+                        break;
+                    }
+                }
+                for(int i=0; i<numOfTypeToPlace; i++){
+                    Location spawnLoc = architectSpawnLocations.get(monstersPlaced);
+                    Creature obj = new MonsterBuilder(UUID.randomUUID(),def,architectPlayer.getUsername(), Optional.of(architectPlayer.getUsername())).createMonster();
+                    obj.setLocation(spawnLoc);
+                    boardObjects.add(obj);
+                    monstersPlaced++;
+                }
+            }
+        } else {
+            for (Map.Entry<Location,Integer> creaturePlaceMap : initialArchitectLocations.entrySet()) {
+                InternalResponseObject<MonsterRepository.MonsterDefinition> defnResp = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(creaturePlaceMap.getValue());
+                if(!defnResp.isNormal()){
+                    return InternalResponseObject.cloneError(defnResp,"Unable to retrieve monster definition for id: "+creaturePlaceMap.getValue());
+                }
+                Creature obj = new MonsterBuilder(UUID.randomUUID(),defnResp.get(),architectPlayer.getUsername(), Optional.of(architectPlayer.getUsername())).createMonster();;
+                obj.setLocation(creaturePlaceMap.getKey());
+                this.boardObjects.add(obj);
+            }
         }
 
         //Add in an objective if the map calls for one
