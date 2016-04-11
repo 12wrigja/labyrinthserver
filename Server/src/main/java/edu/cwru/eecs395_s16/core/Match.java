@@ -292,7 +292,7 @@ public class Match implements Jsonable {
                     action.doGameAction(this.gameMap, this.boardObjects), true);
             GameObjective.GAME_WINNER winner = objective.checkForGameEnd(this);
             if(winner != GameObjective.GAME_WINNER.NO_WINNER){
-                end(winner.toString().toLowerCase());
+                end("Objective Satisfied", winner);
             } else {
                 //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
                 long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
@@ -454,8 +454,29 @@ public class Match implements Jsonable {
         }
     }
 
-    public void end(String reason) {
-        doAndSnapshot("match_end: "+reason,()->{
+    public void end(String reason, GameObjective.GAME_WINNER winner) {
+        JSONObject endGameReason = new JSONObject();
+        try {
+            endGameReason.put("type", "end_game");
+            endGameReason.put("reason", reason);
+            String winnerUsername;
+            switch(winner){
+                case ARCHITECT_WINNER:
+                    winnerUsername = architectPlayer.getUsername();
+                    break;
+                case HERO_WINNER:
+                    winnerUsername = heroPlayer.getUsername();
+                    break;
+                case TIE:
+                case NO_WINNER:
+                default:
+                    winnerUsername = "No Winner.";
+            }
+            endGameReason.put("winner",winnerUsername);
+        } catch (JSONException e){
+            //Should never be called - non-null keys
+        }
+        doAndSnapshot(endGameReason,()->{
             gameState = GameState.GAME_END;
         },false);
         //TODO commit match data, update xp, currency, etc

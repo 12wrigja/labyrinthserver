@@ -12,11 +12,10 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.networking.Jsonable;
+import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -94,7 +93,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
                     InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(player.getCurrentMatchID().get());
                     if (match.isNormal()) {
                         Match m = match.get();
-                        m.end("Player " + player.getUsername() + " disconnected.");
+                        m.end("Player " + player.getUsername() + " disconnected.", GameObjective.GAME_WINNER.NO_WINNER);
                     }
                 }
             }

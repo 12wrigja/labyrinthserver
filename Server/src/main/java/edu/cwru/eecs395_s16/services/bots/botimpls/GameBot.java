@@ -1,10 +1,12 @@
 package edu.cwru.eecs395_s16.services.bots.botimpls;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
+import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
@@ -63,7 +65,12 @@ public abstract class GameBot extends Player implements GameClient {
         GameEngine.instance().botService.unregister(this);
     }
 
-    public void onDisconnect(){};
+    public void onDisconnect(){
+        if(getCurrentMatchID().isPresent()){
+            Match.fromCacheWithMatchIdentifier(getCurrentMatchID().get()).get().end("Bot disconnected.", GameObjective.GAME_WINNER.NO_WINNER);
+            setCurrentMatch(Optional.empty());
+        }
+    };
 
     public final List<Hero> getBotsHeroes(){
         return heroes;

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class BotClientService implements ClientConnectionService {
 
-    Map<UUID,GameBot> connectedClients;
+    Map<UUID, GameBot> connectedClients;
 
     Map<String, Set<GameBot>> roomMap;
 
@@ -59,7 +59,7 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public final void register(GameBot c) {
-        this.connectedClients.put(c.getSessionId(),c);
+        this.connectedClients.put(c.getSessionId(), c);
         c.onConnect();
     }
 
@@ -102,7 +102,7 @@ public class BotClientService implements ClientConnectionService {
 
     @Override
     public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
-        if(connectedClients.containsKey(clientID)){
+        if (connectedClients.containsKey(clientID)) {
             return new InternalResponseObject<>(connectedClients.get(clientID));
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
@@ -123,8 +123,9 @@ public class BotClientService implements ClientConnectionService {
         if (matches.size() == 1) {
             return Optional.of(matches.get(0));
         } else {
+            //There is not an active bot with that name
             if(username.contains("_")){
-                //This is where we would rebuild bots that we need.
+                //There was a bot with that name. If they terminated, then they automatically ended whatever match they were a part of. Return a shell here.
                 return Optional.of(new GameBot(username.split("_")[0],UUID.fromString(username.split("_")[1])){
                     @Override
                     public void receiveEvent(String event, Object data) {
