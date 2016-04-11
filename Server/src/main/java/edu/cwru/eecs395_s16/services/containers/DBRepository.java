@@ -53,6 +53,7 @@ public abstract class DBRepository implements Repository {
                 }
             }
             sb.append(" cascade;");
+            System.out.println(sb.toString());
             PreparedStatement stmt = conn.prepareStatement(sb.toString());
             stmt.executeUpdate();
         } catch (SQLException e) {

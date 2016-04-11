@@ -195,7 +195,6 @@ public class CoreDataUtils {
             }
             try {
                 String stmtAsString = isb.toString();
-                System.out.println(stmtAsString);
                 PreparedStatement stmt = conn.prepareStatement(stmtAsString);
                 stmt.executeUpdate();
             } catch (SQLException e) {

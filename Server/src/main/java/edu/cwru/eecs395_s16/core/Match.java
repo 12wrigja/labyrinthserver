@@ -13,6 +13,7 @@ import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.services.cache.CacheService;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import edu.cwru.eecs395_s16.utils.JSONDiff;
 import edu.cwru.eecs395_s16.utils.JSONUtils;
 import org.json.JSONException;
@@ -250,12 +251,12 @@ public class Match implements Jsonable {
 
         //Add all the architect's monsters and traps to the board
         //TODO update to add all the architect's monsters and traps to the board instead of their heroes
-        InternalResponseObject<List<Hero>> architectHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.architectPlayer);
-        if (!architectHeroResponse.isNormal()) {
-            return InternalResponseObject.cloneError(architectHeroResponse);
+        InternalResponseObject<List<MonsterRepository.MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services.monsterRepository.getPlayerMonsterTypes(architectPlayer);
+        if (!architectMonsterResponse.isNormal()) {
+            return InternalResponseObject.cloneError(architectMonsterResponse);
         }
-        List<Hero> architectHeroes = architectHeroResponse.get();
-        int numArchitectHeroes = architectHeroes.size();
+        List<MonsterRepository.MonsterDefinition> architectHeroes = architectMonsterResponse.get();
+        int numArchitectMonsterTypes = architectHeroes.size();
         List<Location> architectSpawnLocations = gameMap.getArchitectCreatureSpawnLocations();
         int numArchitectObjectLocations = architectSpawnLocations.size();
         numIterations = Math.min(numArchitectHeroes, numArchitectObjectLocations);

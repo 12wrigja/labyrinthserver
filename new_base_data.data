@@ -275,5 +275,5 @@ default, 'Bear Trap', 'none', 10, 0, 1, 1
 end traps
 
 start monsters
-default, 'Goblin', 'blank', 5, 0, 30, 3, 2, 1
+default, 'Goblin', 'blank', 5, 0, 30, 3, 2, 2, 1
 end monsters

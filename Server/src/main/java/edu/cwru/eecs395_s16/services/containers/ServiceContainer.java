@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.services.containers;
 
+import edu.cwru.eecs395_s16.services.bots.MonsterRepositoryBotWrapper;
 import edu.cwru.eecs395_s16.services.cache.CacheService;
 import edu.cwru.eecs395_s16.services.matchmaking.MatchmakingService;
 import edu.cwru.eecs395_s16.services.bots.HeroRepositoryBotWrapper;
@@ -13,6 +14,9 @@ import edu.cwru.eecs395_s16.services.heroes.PostgresHeroRepository;
 import edu.cwru.eecs395_s16.services.maps.InMemoryMapRepository;
 import edu.cwru.eecs395_s16.services.maps.MapRepository;
 import edu.cwru.eecs395_s16.services.maps.PostgresMapRepository;
+import edu.cwru.eecs395_s16.services.monsters.InMemoryMonsterRepository;
+import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
+import edu.cwru.eecs395_s16.services.monsters.PostgresMonsterRepository;
 import edu.cwru.eecs395_s16.services.players.InMemoryPlayerRepository;
 import edu.cwru.eecs395_s16.services.players.PlayerRepository;
 import edu.cwru.eecs395_s16.services.players.PostgresPlayerRepository;
@@ -40,8 +44,11 @@ public class ServiceContainer {
     public final HeroRepository heroRepository;
     public final MapRepository mapRepository;
     public final HeroItemRepository heroItemRepository;
+    public final MonsterRepository monsterRepository;
 
-    protected ServiceContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, MapRepository mapRepository, HeroRepository heroRepository, CacheService cacheService, MatchmakingService matchService, SessionRepository sessionRepository, PlayerRepository playerRepository, HeroItemRepository heroItemRepository) {
+    protected ServiceContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, MapRepository mapRepository, HeroRepository heroRepository, CacheService cacheService, MatchmakingService matchService, SessionRepository sessionRepository, PlayerRepository playerRepository, HeroItemRepository heroItemRepository, MonsterRepository monsterRepository) {
+        //Autowrap various repositories
+
         //Weapon Repository
         this.heroItemRepository = heroItemRepository;
         this.heroItemRepository.initialize(initialData);
@@ -53,6 +60,13 @@ public class ServiceContainer {
         }
         this.heroRepository = hRepo;
         this.heroRepository.initialize(initialData);
+
+        MonsterRepository mRepo = monsterRepository;
+        if(!(mRepo instanceof MonsterRepositoryBotWrapper)){
+            mRepo = new MonsterRepositoryBotWrapper(mRepo);
+        }
+        this.monsterRepository = mRepo;
+        this.monsterRepository.initialize(initialData);
 
         //Player Repository
         PlayerRepository pRepo = playerRepository;
@@ -72,7 +86,6 @@ public class ServiceContainer {
         //Match Service
         this.matchService = matchService;
 
-        //Autowrap various repositories
         //Session Repository
         SessionRepository sRepo = sessionRepository;
         if (!(sRepo instanceof SessionRepositoryBotWrapper)) {
@@ -88,6 +101,9 @@ public class ServiceContainer {
         //Hero Repository
         this.heroRepository.resetToDefaultData(initialData);
 
+        //Monster Repository
+        this.monsterRepository.resetToDefaultData(initialData);
+
         //Player Repository
         this.playerRepository.resetToDefaultData(initialData);
 
@@ -101,11 +117,11 @@ public class ServiceContainer {
     public static ServiceContainer buildPersistantContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, Connection dbConnection, JedisPool jedisPool, MatchmakingService matchService) {
         CoreDataUtils.setCreateSchemaMap("create_schema.sql");
         PlayerRepository repo = new PostgresPlayerRepository(dbConnection);
-        return new ServiceContainer(initialData, new PostgresMapRepository(dbConnection), new PostgresHeroRepository(dbConnection), new RedisCacheService(jedisPool), matchService, new RedisSessionRepository(jedisPool, repo), repo, new PostgresHeroItemRepository(dbConnection));
+        return new ServiceContainer(initialData, new PostgresMapRepository(dbConnection), new PostgresHeroRepository(dbConnection), new RedisCacheService(jedisPool), matchService, new RedisSessionRepository(jedisPool, repo), repo, new PostgresHeroItemRepository(dbConnection), new PostgresMonsterRepository(dbConnection));
     }
 
     public static ServiceContainer buildInMemoryContainer(Map<String, CoreDataUtils.CoreDataEntry> initialData, MatchmakingService matchService) {
-        return new ServiceContainer(initialData, new InMemoryMapRepository(), new InMemoryHeroRepository(), new InMemoryCacheService(), matchService, new InMemorySessionRepository(), new InMemoryPlayerRepository(), new InMemoryHeroItemRepository());
+        return new ServiceContainer(initialData, new InMemoryMapRepository(), new InMemoryHeroRepository(), new InMemoryCacheService(), matchService, new InMemorySessionRepository(), new InMemoryPlayerRepository(), new InMemoryHeroItemRepository(), new InMemoryMonsterRepository());
     }
 
 }

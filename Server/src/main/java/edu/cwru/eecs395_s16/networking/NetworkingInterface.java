@@ -20,6 +20,7 @@ import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import edu.cwru.eecs395_s16.services.maps.MapRepository;
+import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +48,11 @@ public class NetworkingInterface {
         if(newPlayerResp.isNormal()){
             InternalResponseObject<Boolean> heroesCreatedResp = GameEngine.instance().services.heroRepository.createDefaultHeroesForPlayer(newPlayerResp.get());
             if(!heroesCreatedResp.isNormal()){
+                GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
+                return InternalResponseObject.cloneError(heroesCreatedResp);
+            }
+            InternalResponseObject<Boolean> monstersCreatedResp = GameEngine.instance().services.monsterRepository.createDefaultMonstersForPlayer(newPlayerResp.get());
+            if(!monstersCreatedResp.isNormal()){
                 GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
                 return InternalResponseObject.cloneError(heroesCreatedResp);
             }
@@ -95,10 +101,16 @@ public class NetworkingInterface {
         return GameEngine.instance().services.matchService.removeFromQueue(p);
     }
 
-    @NetworkEvent(description = "Returns a list of all the player's current heroes. This is for use in the hero management pages, not in-game.")
+    @NetworkEvent(description = "Returns a list of all the player's current heroes. This is for use in the hero management and match initialization screens, not in-game.")
     public InternalResponseObject<List<Hero>> getHeroes(NoInputRequest obj, Player p) {
         HeroRepository heroRepo = GameEngine.instance().services.heroRepository;
         return heroRepo.getPlayerHeroes(p);
+    }
+
+    @NetworkEvent(description = "Returns a list of all the player's monsters. This is for use in the monster management and match initialization screens, not in-game.")
+    public InternalResponseObject<List<MonsterRepository.MonsterDefinition>> getMonsters(NoInputRequest obj, Player p) {
+        MonsterRepository heroRepo = GameEngine.instance().services.monsterRepository;
+        return heroRepo.getPlayerMonsterTypes(p);
     }
 
     @NetworkEvent(description = "Allows a player to spectate a match between other players.")
