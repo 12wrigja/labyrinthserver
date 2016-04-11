@@ -101,6 +101,7 @@ public class Player implements DatabaseObject {
 
     public void forceLeaveCurrentMatch() {
         GameEngine.instance().services.cacheService.removeString(this.getUsername() + PLAYER_CURRENT_MATCH_KEY);
+        setCurrentMatch(Optional.empty());
     }
 
     @Override

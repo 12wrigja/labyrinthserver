@@ -20,6 +20,7 @@ import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import edu.cwru.eecs395_s16.services.maps.MapRepository;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -211,13 +212,18 @@ public class NetworkingInterface {
         if (m.isPresent()) {
             InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(m.get());
             if (match.isNormal()) {
-                if(match.get().getGameState() != GameState.GAME_END) {
-                    match.get().end("Player " + p.getUsername() + " left the match.");
+                JSONObject playerData = new JSONObject();
+                try {
+                    playerData.put("player:",p.getUsername());
+                } catch (JSONException e) {
+                    //Should never happen - nonnull key.
                 }
+                match.get().broadcastToAllParties("player_left",playerData);
+                p.setCurrentMatch(Optional.empty());
+                return new InternalResponseObject<>(true, "left_match");
             } else {
-                p.forceLeaveCurrentMatch();
+                return InternalResponseObject.cloneError(match);
             }
-            return new InternalResponseObject<>(true, "left_match");
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
         }
