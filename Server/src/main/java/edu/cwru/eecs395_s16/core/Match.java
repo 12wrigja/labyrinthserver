@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by james on 1/19/16.
@@ -73,13 +74,13 @@ public class Match implements Jsonable {
     //Event Keys
     public static final String GAME_UPDATE_KEY = "game_update";
 
-    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective) {
+    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective, Set<UUID> useHeroes, Map<GameObject, Location> initialArchitectLocations) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
             UUID randMatchID = UUID.randomUUID();
             Match m = new Match(heroPlayer, dmPlayer, randMatchID, gameMap, objective);
-            InternalResponseObject<?> resp = m.startInitialGameTasks();
+            InternalResponseObject<?> resp = m.startInitialGameTasks(useHeroes, initialArchitectLocations);
             if (!resp.isNormal()) {
                 return InternalResponseObject.cloneError(resp);
             } else {
@@ -132,11 +133,11 @@ public class Match implements Jsonable {
             try {
                 //Retrieve players
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
-                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
+                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.playerRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
                 if (!heroRetrievalResponse.isNormal()) {
                     return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, heroRetrievalResponse.getInternalErrorCode(), "Unable to find the hero player for the match.");
                 }
-                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.sessionRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
+                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.playerRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
                 if (!architectRetrievalResponse.isNormal()) {
                     return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, architectRetrievalResponse.getInternalErrorCode(), "Unable to find the architect player for the match");
                 }
@@ -204,7 +205,7 @@ public class Match implements Jsonable {
         spectators = new HashSet<>(5);
     }
 
-    private InternalResponseObject<Match> startInitialGameTasks() {
+    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<GameObject, Location> initialArchitectLocations) {
         //Schedule the ping task once every second and have the players join the room for the match
         this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
         this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
@@ -220,12 +221,22 @@ public class Match implements Jsonable {
         this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
 
         //Retrieve heroes for the hero player and place them randomly in the spawn positions
+        int numHeroSpaces = this.gameMap.getHeroCapacity();
+        if(pickedHeroes != null && pickedHeroes.size() != numHeroSpaces){
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP,"Not enough heroes were selected to create a match on this map.");
+        }
+
         InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
         if (!heroHeroResponse.isNormal()) {
             return InternalResponseObject.cloneError(heroHeroResponse);
         }
-        List<Hero> heroHeroes = heroHeroResponse.get();
-        int numHeroSpaces = this.gameMap.getHeroCapacity();
+        List<Hero> heroHeroes;
+        if(pickedHeroes != null) {
+            heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID())).collect(Collectors.toList());
+        } else {
+            heroHeroes = heroHeroResponse.get();
+        }
+
         int numHeroes = heroHeroes.size();
         List<Location> heroSpawnLocations = this.gameMap.getHeroSpawnLocations();
         Collections.shuffle(heroHeroes);
@@ -457,10 +468,7 @@ public class Match implements Jsonable {
             }
         }
         broadcastToAllParties(MATCH_END_KEY, reasonObj);
-//        this.heroPlayer.setCurrentMatch(Optional.empty());
-//        this.architectPlayer.setCurrentMatch(Optional.empty());
-//        spectators.forEach(this::removeSpectator);
-//        pingTask.cancel();
+        pingTask.cancel();
     }
 
     @Override

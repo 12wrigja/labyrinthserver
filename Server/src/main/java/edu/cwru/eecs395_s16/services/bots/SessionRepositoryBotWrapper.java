@@ -4,6 +4,7 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 
 import java.util.Optional;
@@ -31,12 +32,11 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
     }
 
     @Override
-    public InternalResponseObject<Player> findPlayer(String username) {
-        Optional<GameBot> bot = GameEngine.instance().botService.botForUsername(username);
-        if(bot.isPresent()){
-            return new InternalResponseObject<>(bot.get(),"bot");
+    public Optional<GameClient> findClient(Player player) {
+        if(player instanceof GameBot){
+            return Optional.of((GameBot)player);
         } else {
-            return actualRepo.findPlayer(username);
+            return actualRepo.findClient(player);
         }
     }
 
@@ -53,13 +53,6 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
         //Directly forward this to the wrapped session repo.
         //The bot service will take care of expiring the session id automatically.
         actualRepo.expirePlayerSession(clientID);
-    }
-
-    @Override
-    public void expirePlayerSession(String username) {
-        //Directly forward this to the wrapped session repo.
-        //The bot service will take care of expiring the session id automatically.
-        actualRepo.expirePlayerSession(username);
     }
 
 }

@@ -1,11 +1,14 @@
 package edu.cwru.eecs395_s16.services.sessions;
 
+import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,12 +32,17 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public InternalResponseObject<Player> findPlayer(String username) {
-        UUID clientID = connectionMap.get(username);
+    public Optional<GameClient> findClient(Player player) {
+        UUID clientID = connectionMap.get(player.getUsername());
         if(clientID == null){
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_USERNAME, "Could not find a session for the player with the given username.");
+            return Optional.empty();
         } else {
-            return findPlayer(clientID);
+            InternalResponseObject<GameClient> client = GameEngine.instance().findClientFromUUID(clientID);
+            if(client.isNormal()){
+                return Optional.of(client.get());
+            } else {
+                return Optional.empty();
+            }
         }
     }
 
@@ -55,11 +63,4 @@ public class InMemorySessionRepository implements SessionRepository {
         }
     }
 
-    @Override
-    public void expirePlayerSession(String username) {
-        if(connectionMap.containsKey(username)){
-            UUID playerID = connectionMap.get(username);
-            expirePlayerSession(playerID);
-        }
-    }
 }

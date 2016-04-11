@@ -12,9 +12,11 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.networking.Jsonable;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -36,13 +38,13 @@ public class SocketIOConnectionService implements ClientConnectionService {
     private List<FunctionDescription> availableFunctions;
     private List<Module> usedSerializationModules;
 
-    public SocketIOConnectionService(){
+    public SocketIOConnectionService() {
         usedSerializationModules = new ArrayList<>();
         Module jsonMod = new JsonOrgModule();
-         usedSerializationModules.add(jsonMod);
+        usedSerializationModules.add(jsonMod);
     }
 
-    public ObjectMapper getManualMapper(){
+    public ObjectMapper getManualMapper() {
         ObjectMapper mapper = new ObjectMapper();
         usedSerializationModules.forEach(mapper::registerModule);
         return mapper;
@@ -80,19 +82,19 @@ public class SocketIOConnectionService implements ClientConnectionService {
         linkAllFunctionsToNetwork();
 
         gameSocket.addConnectListener(client -> {
-            System.out.println("Client connected: "+client.getSessionId());
+            System.out.println("Client connected: " + client.getSessionId());
         });
         gameSocket.addDisconnectListener(client -> {
             System.out.println("Client disconnected: " + client.getSessionId());
             //TODO modify this when the UI catches up
             InternalResponseObject<Player> p = GameEngine.instance().services.sessionRepository.findPlayer(client.getSessionId());
-            if(p.isNormal()){
+            if (p.isNormal()) {
                 Player player = p.get();
-                if(player.getCurrentMatchID().isPresent()){
+                if (player.getCurrentMatchID().isPresent()) {
                     InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(player.getCurrentMatchID().get());
-                    if(match.isNormal()){
+                    if (match.isNormal()) {
                         Match m = match.get();
-                        m.end("Player "+player.getUsername()+" disconnected.");
+                        m.end("Player " + player.getUsername() + " disconnected.");
                     }
                 }
             }
@@ -124,7 +126,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
     @Override
     public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
         SocketIOClient client = gameSocket.getClient(clientID);
-        if(client != null){
+        if (client != null) {
             return new InternalResponseObject<>(new SocketIOClientWrapper(client));
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);

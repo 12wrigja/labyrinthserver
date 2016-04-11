@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.utils;
 
+import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
 import edu.cwru.eecs395_s16.networking.Jsonable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -122,7 +123,6 @@ public class JSONUtils {
         return current;
     }
 
-    //TODO add in support for list additions
     private static JSONObject doAdditions(JSONObject current, JSONObject additions) throws JSONException {
         Iterator additionIterator = additions.keys();
         while (additionIterator.hasNext()) {
@@ -183,18 +183,21 @@ public class JSONUtils {
         return !diff.hasChanges();
     }
 
-
     public static <T extends  Jsonable> JSONArray listify(List<T> list){
         JSONArray arr = new JSONArray();
         list.forEach(t -> arr.put(t.getJSONRepresentation()));
         return arr;
     }
 
-    public interface Reducer<K,V> {
+    public interface ObjectReducer<T> {
+        JSONObject reduce(T object);
+    }
+
+    public interface MapReducer<K,V> {
         JSONObject reduce(Map.Entry<K,V> entry);
     }
 
-    public static <K,V> JSONArray listify(Map<K,V> map, Reducer<K,V> reducer){
+    public static <K,V> JSONArray listify(Map<K,V> map, MapReducer<K,V> reducer){
         JSONArray arr = new JSONArray();
         map.entrySet().forEach(entry -> arr.put(reducer.reduce(entry)));
         return arr;

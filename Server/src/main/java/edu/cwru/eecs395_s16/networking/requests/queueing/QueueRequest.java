@@ -1,4 +1,4 @@
-package edu.cwru.eecs395_s16.networking.requests;
+package edu.cwru.eecs395_s16.networking.requests.queueing;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.networking.RequestData;
@@ -13,6 +13,16 @@ public class QueueRequest implements RequestData {
     private boolean queueWithPassBot = false;
     private int mapX = 10;
     private int mapY = 10;
+
+    public QueueRequest(){
+
+    }
+
+    public QueueRequest(boolean queueWithPassBot, int mapX, int mapY) {
+        this.queueWithPassBot = queueWithPassBot;
+        this.mapX = mapX;
+        this.mapY = mapY;
+    }
 
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {

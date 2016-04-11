@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.core;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
+import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
 import edu.cwru.eecs395_s16.services.cache.CacheService;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 /**
  * Created by james on 1/19/16.
  */
-public class Player implements DatabaseObject{
+public class Player implements DatabaseObject {
 
     private String username;
 
@@ -44,7 +45,7 @@ public class Player implements DatabaseObject{
     }
 
     public Optional<GameClient> getClient() {
-        return this.client;
+        return GameEngine.instance().services.sessionRepository.findClient(this);
     }
 
     public void setClient(Optional<GameClient> client) {
@@ -96,6 +97,10 @@ public class Player implements DatabaseObject{
             cache.removeString(this.getUsername() + PLAYER_CURRENT_MATCH_KEY);
         }
         this.currentMatchID = currentMatch;
+    }
+
+    public void forceLeaveCurrentMatch() {
+        GameEngine.instance().services.cacheService.removeString(this.getUsername() + PLAYER_CURRENT_MATCH_KEY);
     }
 
     @Override

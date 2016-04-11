@@ -103,7 +103,7 @@ public abstract class InMatchTest extends SerializationTest {
         }
         GameMap gameMap = new AlmostBlankMap(10, 10);
 
-        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, gameMap, initialObjective);
+        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, gameMap, initialObjective, null, null);
         if (matchOpt.isNormal()) {
             game = engine.networkingInterface;
             updateMatchState();

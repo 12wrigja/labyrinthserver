@@ -1,12 +1,10 @@
 package edu.cwru.eecs395_s16.services.sessions;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.services.players.PlayerRepository;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
-import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -46,26 +44,24 @@ public class RedisSessionRepository implements SessionRepository {
     }
 
     @Override
-    public InternalResponseObject<Player> findPlayer(String username) {
+    public Optional<GameClient> findClient(Player player) {
         try (Jedis j = pool.getResource()) {
-            String clientIDString = j.get(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + username);
+            String clientIDString = j.get(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
             if(clientIDString == null){
-                return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
+                return Optional.empty();
             }
             UUID clientID;
             try {
                 clientID = UUID.fromString(clientIDString);
             } catch (IllegalArgumentException e) {
-                return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.DATA_PARSE_ERROR);
+                return Optional.empty();
             }
-            InternalResponseObject<Player> p = backingRepo.findPlayer(username);
-            if (p.isPresent()) {
-                InternalResponseObject<GameClient> client = GameEngine.instance().findClientFromUUID(clientID);
-                if (client.isNormal() && client.isPresent()) {
-                    p.get().setClient(Optional.of(client.get()));
-                }
+            InternalResponseObject<GameClient> client = GameEngine.instance().findClientFromUUID(clientID);
+            if(client.isNormal()){
+                return Optional.of(client.get());
+            } else {
+                return Optional.empty();
             }
-            return p;
         }
     }
 
@@ -89,18 +85,4 @@ public class RedisSessionRepository implements SessionRepository {
         }
     }
 
-    @Override
-    public void expirePlayerSession(String username) {
-        InternalResponseObject<Player> p = findPlayer(username);
-        if(p.isPresent()){
-            Player player = p.get();
-            try (Jedis j = pool.getResource()){
-                j.del(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
-                Optional<GameClient> c = p.get().getClient();
-                if(c.isPresent()) {
-                    j.del(SESSION_KEY_PREFIX + SESSION_CLIENT_ID_PREFIX + c.get().getSessionId());
-                }
-            }
-        }
-    }
 }

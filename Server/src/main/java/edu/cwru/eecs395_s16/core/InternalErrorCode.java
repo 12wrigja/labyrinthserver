@@ -31,6 +31,8 @@ public enum InternalErrorCode {
     MISSING_PLAYER("Unable to retrieve a player from given information."),
     PLAYER_BUSY("A player is currently busy."),
     MATCH_RETRIEVAL_ERROR("Unable to retrieve a match from storage."),
+    INCORRECT_INITIAL_HERO_SETUP("Something about hero selection is incorrect."),
+    INCORRECT_INITIAL_ARCHITECT_SETUP("Something about architect setup is incorrect."),
 
     //Queuing
     ALREADY_IN_QUEUE("You are already in a queue."),

@@ -36,7 +36,7 @@ public class PlayerRepositoryBotWrapper implements PlayerRepository {
     public InternalResponseObject<Player> loginPlayer(String username, String password) {
         Optional<GameBot> bot = GameEngine.instance().botService.botForUsername(username);
         if(bot.isPresent()){
-            return new InternalResponseObject<Player>(InternalErrorCode.RESTRICTED_USERNAME);
+            return new InternalResponseObject<>(InternalErrorCode.RESTRICTED_USERNAME);
         } else {
             return actualRepo.loginPlayer(username,password);
         }

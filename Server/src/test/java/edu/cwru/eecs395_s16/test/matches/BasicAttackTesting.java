@@ -174,7 +174,7 @@ public class BasicAttackTesting extends InMatchTest {
 
     @Test
     public void testAttackWithTooFewInputs() {
-        Weapon w = GameEngine.instance().services.heroItemRepository.getWeaponForId(4).get();
+        Weapon w = GameEngine.instance().services.heroItemRepository.getWeaponForId(6).get();
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.WARRIOR).setWeapon(w).createHero());
         setupMatch();
@@ -192,7 +192,7 @@ public class BasicAttackTesting extends InMatchTest {
 
     @Test
     public void testAttackAtRange() {
-        Weapon w = GameEngine.instance().services.heroItemRepository.getWeaponForId(2).get();
+        Weapon w = GameEngine.instance().services.heroItemRepository.getWeaponForId(4).get();
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.WARRIOR).setWeapon(w).createHero());
         setupMatch();

@@ -35,6 +35,9 @@ public class MapTile extends Location implements Jsonable {
             json.put("terrain", tileType.type);
             json.put("rotation", rotation);
             json.put("is_obstacle",tileType.isObstruction);
+            json.put("is_hero_spawn_tile",isHeroSpawn);
+            json.put("is_architect_spawn_tile",isArchitectSpawn);
+            json.put("is_objective_spawn_tile",isObjectiveSpawn);
         } catch (JSONException e) {
             //Never will happen - all keys are not null
         }

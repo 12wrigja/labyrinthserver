@@ -93,7 +93,7 @@ public class BasicMatchmakingService implements MatchmakingService {
                             //Deque Players and make match
                             Player heroPlayer = heroesQueue.poll();
                             Player architectPlayer = architectQueue.poll();
-                            Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10), new DeathmatchGameObjective());
+                            Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10), new DeathmatchGameObjective(), null, null);
                         }
                     }
                 mutex.readLock().unlock();

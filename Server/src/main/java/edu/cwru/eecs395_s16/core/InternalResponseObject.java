@@ -1,10 +1,13 @@
 package edu.cwru.eecs395_s16.core;
 
+import edu.cwru.eecs395_s16.networking.Jsonable;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -106,6 +109,7 @@ public class InternalResponseObject<T> extends Response {
 
     /**
      * Creates a response with the given status code and uses the message from the given internal error.
+     *
      * @param code
      * @param errorCode
      */
@@ -113,12 +117,12 @@ public class InternalResponseObject<T> extends Response {
         this(code, errorCode, errorCode.message);
     }
 
-    public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original,String message){
-        return new InternalResponseObject<>(original.getStatus(),original.getInternalErrorCode(),message);
+    public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original, String message) {
+        return new InternalResponseObject<>(original.getStatus(), original.getInternalErrorCode(), message);
     }
 
-    public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original){
-        return new InternalResponseObject<>(original.getStatus(),original.getInternalErrorCode(),original.getMessage());
+    public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original) {
+        return new InternalResponseObject<>(original.getStatus(), original.getInternalErrorCode(), original.getMessage());
     }
 
     public T get() {
@@ -141,7 +145,7 @@ public class InternalResponseObject<T> extends Response {
         return this.status.equals(WebStatusCode.OK);
     }
 
-    public boolean hasObjectKey(){
+    public boolean hasObjectKey() {
         return this.objectKey != null;
     }
 
@@ -150,7 +154,20 @@ public class InternalResponseObject<T> extends Response {
         JSONObject repr = super.getJSONRepresentation();
         if (isNormal() && object.isPresent() && !objectKey.equals(DEFAULT_OBJECT_KEY)) {
             try {
-                repr.put(objectKey, object.get());
+                T jObj = object.get();
+                if (jObj instanceof List<?>) {
+                    JSONArray arr = new JSONArray();
+                    for(Object obj : (List<?>)jObj){
+                        if(obj instanceof Jsonable){
+                            arr.put(((Jsonable) obj).getJSONRepresentation());
+                        } else {
+                            arr.put(obj.toString());
+                        }
+                    }
+                    repr.put(objectKey,arr);
+                } else {
+                    repr.put(objectKey, object.get());
+                }
             } catch (JSONException e) {
                 //TODO use logging of sorts.
             }

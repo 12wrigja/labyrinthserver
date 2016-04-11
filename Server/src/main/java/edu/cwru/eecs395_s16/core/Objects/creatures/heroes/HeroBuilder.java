@@ -178,10 +178,6 @@ public class HeroBuilder {
         if (weapon.isPresent()) {
             setWeapon(weapon.get());
         }
-        //Abilities 
-        //TODO set abilities 
-        //Statuses 
-        //TODO set statuses 
         return this;
     }
 

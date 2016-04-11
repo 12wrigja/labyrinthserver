@@ -6,6 +6,8 @@ import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.networking.Response;
+import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.TestBot;
 import edu.cwru.eecs395_s16.services.connections.ClientConnectionService;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
@@ -121,7 +123,17 @@ public class BotClientService implements ClientConnectionService {
         if (matches.size() == 1) {
             return Optional.of(matches.get(0));
         } else {
-            return Optional.empty();
+            if(username.contains("_")){
+                //This is where we would rebuild bots that we need.
+                return Optional.of(new GameBot(username.split("_")[0],UUID.fromString(username.split("_")[1])){
+                    @Override
+                    public void receiveEvent(String event, Object data) {
+                        //Do nothing.
+                    }
+                });
+            } else {
+                return Optional.empty();
+            }
         }
     }
 

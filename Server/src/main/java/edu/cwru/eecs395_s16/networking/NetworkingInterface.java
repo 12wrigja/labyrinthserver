@@ -13,6 +13,8 @@ import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionDat
 import edu.cwru.eecs395_s16.networking.requests.gameactions.CaptureObjectiveActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
+import edu.cwru.eecs395_s16.networking.requests.queueing.QueueHeroesRequest;
+import edu.cwru.eecs395_s16.networking.requests.queueing.QueueRequest;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
@@ -58,10 +60,10 @@ public class NetworkingInterface {
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
-    public InternalResponseObject<Boolean> queueUpHeroes(QueueRequest obj, Player p) {
+    public InternalResponseObject<Boolean> queueUpHeroes(QueueHeroesRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
             //TODO update this to pick a random map?
-            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(obj.getMapX(), obj.getMapY()),new DeathmatchGameObjective());
+            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(obj.getMapX(), obj.getMapY()),new DeathmatchGameObjective(),obj.getSelectedHeroesIds(),null);
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -75,7 +77,7 @@ public class NetworkingInterface {
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpArchitect(QueueRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
-            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(obj.getMapX(), obj.getMapY()), new DeathmatchGameObjective());
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(obj.getMapX(), obj.getMapY()), new DeathmatchGameObjective(),null,null);
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -203,7 +205,7 @@ public class NetworkingInterface {
         return new InternalResponseObject<>(matchID, "match_id");
     }
 
-    @NetworkEvent(description = "Leaves the current match. Will terminate the match for other players as well, and end the match for all spectators.")
+    @NetworkEvent(description = "Leaves the current match.")
     public InternalResponseObject<Boolean> leaveMatch(NoInputRequest obj, Player p) {
         Optional<UUID> m = p.getCurrentMatchID();
         if (m.isPresent()) {
@@ -212,10 +214,10 @@ public class NetworkingInterface {
                 if(match.get().getGameState() != GameState.GAME_END) {
                     match.get().end("Player " + p.getUsername() + " left the match.");
                 }
-                return new InternalResponseObject<>(true, "left_match");
             } else {
-                return InternalResponseObject.cloneError(match);
+                p.forceLeaveCurrentMatch();
             }
+            return new InternalResponseObject<>(true, "left_match");
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.NOT_IN_MATCH);
         }
