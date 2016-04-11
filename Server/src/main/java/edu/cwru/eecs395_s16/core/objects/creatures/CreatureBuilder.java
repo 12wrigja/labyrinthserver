@@ -36,6 +36,7 @@ public class CreatureBuilder extends GameObjectFactory {
         this.ownerID = ownerID;
         this.controllerID = controllerID;
         this.objectType = GameObject.TYPE.MONSTER;
+        this.location = new Location(0,0);
     }
 
     public CreatureBuilder setAttack(int attack) {

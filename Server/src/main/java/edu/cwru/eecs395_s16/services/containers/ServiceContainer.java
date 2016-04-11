@@ -92,7 +92,7 @@ public class ServiceContainer {
         this.playerRepository.resetToDefaultData(initialData);
 
         //Map Repository
-        this.mapRepository.initialize(initialData);
+        this.mapRepository.resetToDefaultData(initialData);
 
         //Session Repository
         //TODO implement expiring all sessions (potentially).

@@ -65,11 +65,11 @@ public abstract class InMatchTest extends SerializationTest {
         architectBot.disconnect();
     }
 
-    protected GameBot getHero(){
+    protected GameBot getHero() {
         return new TestBot();
     }
 
-    protected GameBot getArchitect(){
+    protected GameBot getArchitect() {
         return new TestBot();
     }
 
@@ -89,16 +89,14 @@ public abstract class InMatchTest extends SerializationTest {
 
     public void setupMatch() {
         if (initialHeroes == null) {
-            heroBot.replaceBotHeroes(getHeroesForHero(heroBot));
-        } else {
-            heroBot.replaceBotHeroes(initialHeroes);
+            initialHeroes = getHeroesForHero(heroBot);
         }
+        heroBot.replaceBotHeroes(initialHeroes);
         if (initialArchitectObjects == null) {
-            architectBot.replaceArchitectObjects(getObjectsForArchitect(architectBot));
-        } else {
-            architectBot.replaceArchitectObjects(initialArchitectObjects);
+            initialArchitectObjects = getObjectsForArchitect(architectBot);
         }
-        if(initialObjective == null){
+        architectBot.replaceArchitectObjects(initialArchitectObjects);
+        if (initialObjective == null) {
             initialObjective = new DeathmatchGameObjective();
         }
         GameMap gameMap = new AlmostBlankMap(10, 10);
@@ -181,19 +179,19 @@ public abstract class InMatchTest extends SerializationTest {
 
     public InternalResponseObject<Boolean> basicAttackWithCharacter(Player p, UUID characterID, List<Location> inputs, boolean failTestOnFailure) {
         Optional<GameObject> cObj = currentMatchState.getBoardObjects().getByID(characterID);
-        if(!cObj.isPresent() || !(cObj.get() instanceof Creature)){
+        if (!cObj.isPresent() || !(cObj.get() instanceof Creature)) {
             return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_OBJECT);
         }
-        Creature character = (Creature)cObj.get();
+        Creature character = (Creature) cObj.get();
 
         Weapon w = character.getWeapon();
         UsePattern pattern = w.getUsePattern();
 
         //Determine the predicted quantity of action points.
         int initialActionPoints = character.getActionPoints();
-        int predictedNextActionPoints = Math.max(initialActionPoints - 1,0);
-        List<Creature> playerCreatures = currentMatchState.getBoardObjects().getForPlayerOwner(p).stream().filter(obj->obj instanceof Creature && ((Creature)obj).getActionPoints()>0).map(obj->(Creature)obj).collect(Collectors.toList());
-        if(playerCreatures.size() == 1 && playerCreatures.get(0).equals(character) && character.getActionPoints() == 1){
+        int predictedNextActionPoints = Math.max(initialActionPoints - 1, 0);
+        List<Creature> playerCreatures = currentMatchState.getBoardObjects().getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).map(obj -> (Creature) obj).collect(Collectors.toList());
+        if (playerCreatures.size() == 1 && playerCreatures.get(0).equals(character) && character.getActionPoints() == 1) {
             predictedNextActionPoints = character.getMaxActionPoints();
         }
         Map<Creature, Integer> affectedCreatureDamageMap = new HashMap<>();
@@ -206,7 +204,7 @@ public abstract class InMatchTest extends SerializationTest {
                         .stream().filter(obj -> obj instanceof Creature)
                         .map(tmp -> (Creature) tmp).collect(Collectors.toList());
                 for (Creature c : creatures) {
-                    int baseDamage = (int)Math.floor(((100 - c.getDefense()) / 100f) * character.getAttack());
+                    int baseDamage = (int) Math.floor(((100 - c.getDefense()) / 100f) * character.getAttack());
                     affectedCreatureDamageMap.put(c, Math.max(0, c.getHealth() - (int) ((float) baseDamage * entry.getValue())));
                 }
             }

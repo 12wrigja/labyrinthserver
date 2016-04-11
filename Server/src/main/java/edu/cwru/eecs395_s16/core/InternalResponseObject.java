@@ -170,6 +170,7 @@ public class InternalResponseObject<T> extends Response {
                 }
             } catch (JSONException e) {
                 //TODO use logging of sorts.
+                e.printStackTrace();
             }
         }
         return repr;

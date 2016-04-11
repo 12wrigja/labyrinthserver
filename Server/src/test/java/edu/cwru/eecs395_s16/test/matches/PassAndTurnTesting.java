@@ -24,7 +24,7 @@ public class PassAndTurnTesting extends AutoStartInMatchTest {
     @Override
     public List<Hero> getHeroesForHero(Player hero) {
         List<Hero> defaultHeroes = super.getHeroesForHero(hero);
-        defaultHeroes.add(new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE).createHero());
+        defaultHeroes.add(new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE, false).createHero());
         return defaultHeroes;
     }
 

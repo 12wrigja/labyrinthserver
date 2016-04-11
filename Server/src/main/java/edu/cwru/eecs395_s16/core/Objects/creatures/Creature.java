@@ -184,6 +184,7 @@ public class Creature extends GameObject implements DatabaseObject {
             representation.put(ACTION_POINTS_KEY, getActionPoints());
             representation.put(MAX_ACTION_POINTS_KEY, maxActionPoints);
             representation.put(MAX_HEALTH_KEY, maxHealth);
+            representation.put(DatabaseObject.DATABASE_ID_KEY,databaseId);
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }

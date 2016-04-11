@@ -37,12 +37,15 @@ public class HeroBuilder extends CreatureBuilder {
         setMaxHealth(def.startHealth);
         setVision(def.startVision);
         setMovement(def.startMovement);
-        setHeroType(def.type);
+        setHeroType(def.type, false);
         setWeapon(GameEngine.instance().services.heroItemRepository.getWeaponForId(def.defaultWeaponId).get());
     }
 
-    public HeroBuilder setHeroType(HeroType type) {
+    public HeroBuilder setHeroType(HeroType type, boolean shouldResetToDefaultValuesForType) {
         this.type = type;
+        if(shouldResetToDefaultValuesForType){
+            setInitialValuesFromHeroDefinition(GameEngine.instance().services.heroRepository.getHeroDefinitionForType(type).get());
+        }
         return this;
     }
 
@@ -132,7 +135,7 @@ public class HeroBuilder extends CreatureBuilder {
     public HeroBuilder fillFromJSON(JSONObject obj) throws JSONException {
         super.fillFromJSON(obj);
         //Hero Type 
-        setHeroType(HeroType.valueOf(obj.getString(Hero.HERO_TYPE_KEY).toUpperCase()));
+        setHeroType(HeroType.valueOf(obj.getString(Hero.HERO_TYPE_KEY).toUpperCase()), false);
         //Level 
         setLevel(obj.getInt(Hero.LEVEL_KEY));
         //Experience 

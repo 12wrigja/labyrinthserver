@@ -90,6 +90,7 @@ public class AuthenticationMiddleware {
                     response = (Response) next.invoke(instance, obj);
                 }
             }
+            System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());
         } catch (Exception e) {
             Exception actualCause;
             if (e instanceof InvocationTargetException) {
@@ -107,7 +108,6 @@ public class AuthenticationMiddleware {
                 response = new Response(WebStatusCode.SERVER_ERROR);
             }
         }
-        System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());
         return response;
     }
 }

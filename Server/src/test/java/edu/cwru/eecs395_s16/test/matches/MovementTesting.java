@@ -29,7 +29,7 @@ public class MovementTesting extends AutoStartInMatchTest {
     @Override
     public List<Hero> getHeroesForHero(Player hero) {
         List<Hero> baseHeroes = super.getHeroesForHero(hero);
-        Hero h2 = new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE).createHero();
+        Hero h2 = new HeroBuilder(hero.getUsername(), HeroType.WARRIOR).setHeroType(HeroType.MAGE, false).createHero();
         baseHeroes.add(h2);
         return baseHeroes;
     }
