@@ -19,7 +19,7 @@ public abstract class AutoStartInMatchTest extends InMatchTest {
         initialArchitectObjects = new ArrayList<>(architectBot.getArchitectObjects());
         changeHeroesList(heroBot, initialHeroes);
         changeArchitectList(architectBot, initialArchitectObjects);
-        super.setupMatch();
+        super.setupMatch(true);
     }
 
     protected void changeHeroesList(Player hero, List<Hero> heroes){

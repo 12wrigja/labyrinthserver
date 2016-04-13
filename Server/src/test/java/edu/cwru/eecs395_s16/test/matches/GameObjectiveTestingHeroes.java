@@ -40,7 +40,7 @@ public class GameObjectiveTestingHeroes extends InMatchTest {
     @Test
     public void testDeathmatchGameObjective(){
         initialObjective = new DeathmatchGameObjective();
-        setupMatch();
+        setupMatch(true);
 
         //Get a character for the hero
         List<GameObject> heroChars = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
@@ -95,7 +95,7 @@ public class GameObjectiveTestingHeroes extends InMatchTest {
     @Test
     public void testCaptureSingleGameObjective(){
         initialObjective = new CaptureObjectivesGameObjective(1);
-        setupMatch();
+        setupMatch(true);
 
         //Get a character for the hero
         List<GameObject> heroChars = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);

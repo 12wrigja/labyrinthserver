@@ -219,8 +219,11 @@ public class Match implements Jsonable {
 
         //Retrieve heroes for the hero player and place them randomly in the spawn positions
         int numHeroSpaces = this.gameMap.getHeroCapacity();
-        if(pickedHeroes != null && pickedHeroes.size() != numHeroSpaces){
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP,"Not enough heroes were selected to create a match on this map.");
+        if(pickedHeroes != null && pickedHeroes.size() > numHeroSpaces){
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP,"Too many heroes were selected to create a match on this map.");
+        }
+        if(pickedHeroes != null && pickedHeroes.size() == 0){
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP,"No Heroes specified.");
         }
 
         InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
@@ -230,6 +233,9 @@ public class Match implements Jsonable {
         List<Hero> heroHeroes;
         if(pickedHeroes != null) {
             heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID())).collect(Collectors.toList());
+            if(heroHeroes.size() != pickedHeroes.size()){
+                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero identifer was invalid.");
+            }
         } else {
             heroHeroes = heroHeroResponse.get();
         }
@@ -256,22 +262,30 @@ public class Match implements Jsonable {
         if(initialArchitectLocations != null && initialArchitectLocations.size() > numArchitectObjectLocations){
             return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"There are not enough spawn locations for that configuration.");
         }
-        List<MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get();
-
+        if(initialArchitectLocations != null && initialArchitectLocations.size() == 0){
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"There are no monsters specified.");
+        }
+        Map<Integer,MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get().stream().collect(Collectors.toMap(def->def.id,def->def));
+        int totalCollectedMonsters = architectMonsterDefns.values().stream().collect(Collectors.summingInt(d->d.count));
+        if(totalCollectedMonsters <= 0){
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"You don't have any monsters.");
+        }
         if(initialArchitectLocations == null){
-            int numTotalArchitectCreatures = (int)Math.max(1.0f,architectMonsterDefns.stream().collect(Collectors.summingInt(d->d.count)) * 0.25f);
+            int numTotalArchitectCreatures = (int)Math.max(1.0f,totalCollectedMonsters * 0.25f);
             numIterations = Math.min(numTotalArchitectCreatures,numArchitectObjectLocations);
             if(numIterations == 0){
                 return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"The architect doesn't have any monsters.");
             }
             int monstersPlaced = 0;
             int defIndex = 0;
+            List<Integer> availableDefnIDs = new ArrayList<>(architectMonsterDefns.keySet());
+            Collections.shuffle(availableDefnIDs);
             Collections.shuffle(architectSpawnLocations);
             while(monstersPlaced < numIterations){
                 MonsterDefinition def;
                 int numOfTypeToPlace = 0;
                 while(true) {
-                    def = architectMonsterDefns.get(defIndex);
+                    def = architectMonsterDefns.get(availableDefnIDs.get(defIndex));
                     numOfTypeToPlace = Math.min(numIterations - monstersPlaced, def.count);
                     if (numOfTypeToPlace == 0) {
                         defIndex++;
@@ -292,13 +306,30 @@ public class Match implements Jsonable {
                 }
             }
         } else {
+            Map<Integer,Integer> placedMap = new HashMap<>();
             for (Map.Entry<Location,Integer> creaturePlaceMap : initialArchitectLocations.entrySet()) {
-                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(),creaturePlaceMap.getValue(),architectPlayer);
+                if(!gameMap.getArchitectCreatureSpawnLocations().contains(creaturePlaceMap.getKey())){
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"A location specified is not a valid architect spawn point.");
+                }
+
+                int monsterID = creaturePlaceMap.getValue();
+                MonsterDefinition def = architectMonsterDefns.get(monsterID);
+                if(def == null){
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"You don't own any monsters with id "+monsterID);
+                }
+
+                int placeLimit = def.count;
+                int placed = placedMap.containsKey(monsterID)?placedMap.get(monsterID):0;
+                if(placed == placeLimit){
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't own that many of monster with id "+monsterID);
+                }
+                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(),monsterID,architectPlayer);
                 if(!m.isNormal()){
-                    return InternalResponseObject.cloneError(m,"Unable to create monster for architect with id "+creaturePlaceMap.getValue());
+                    return InternalResponseObject.cloneError(m,"You don't own any monsters with id "+monsterID);
                 }
                 Monster monster = m.get();
                 monster.setLocation(creaturePlaceMap.getKey());
+                placedMap.put(monsterID,placedMap.containsKey(monsterID)?placedMap.get(monsterID)+1:1);
                 this.boardObjects.add(monster);
             }
         }

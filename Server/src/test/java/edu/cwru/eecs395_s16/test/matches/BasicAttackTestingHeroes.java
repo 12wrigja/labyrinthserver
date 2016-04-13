@@ -27,7 +27,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
     public void testBasicAttacking() {
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.MAGE).createHero());
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -45,7 +45,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackingOutOfRange() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -69,7 +69,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.WARRIOR).createHero());
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.WARRIOR).createHero());
-        setupMatch();
+        setupMatch(true);
 
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() >= 2);
@@ -87,7 +87,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackWall() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -100,7 +100,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackEmptyTile() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -113,7 +113,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackSelf() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -128,7 +128,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackNonexistantTile() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -143,7 +143,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackWithEnemyUnit() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(h.size() == 1);
         Creature hero = (Creature) h.get(0);
@@ -158,7 +158,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testAttackWithTooManyInputs() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -177,7 +177,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
         Weapon w = GameEngine.instance().services.heroItemRepository.getWeaponForId(6).get();
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.WARRIOR).setWeapon(w).createHero());
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -195,7 +195,7 @@ public class BasicAttackTestingHeroes extends InMatchTest {
         Weapon w = GameEngine.instance().services.heroItemRepository.getWeaponForId(4).get();
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.WARRIOR).setWeapon(w).createHero());
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);

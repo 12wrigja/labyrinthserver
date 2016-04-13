@@ -15,7 +15,6 @@ import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import edu.cwru.eecs395_s16.test.InMatchTest;
 import org.junit.Test;
 
@@ -54,7 +53,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
     public void testBasicAttacking() {
         initialHeroes = new ArrayList<>();
         initialHeroes.add(new HeroBuilder(heroBot.getUsername(), HeroType.MAGE).createHero());
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -73,7 +72,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackingOutOfRange() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -100,7 +99,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
         MonsterDefinition goblinDef = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
         initialArchitectObjects.add(new MonsterBuilder(UUID.randomUUID(),goblinDef,architectBot.getUsername(), Optional.of(architectBot.getUsername())).createMonster());
         initialArchitectObjects.add(new MonsterBuilder(UUID.randomUUID(),goblinDef,architectBot.getUsername(), Optional.of(architectBot.getUsername())).createMonster());
-        setupMatch();
+        setupMatch(true);
 
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() >= 2);
@@ -120,7 +119,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackWall() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() >= 1);
         Monster monster = (Monster) monsters.get(0);
@@ -135,7 +134,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackEmptyTile() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() >= 1);
         Monster monster = (Monster) monsters.get(0);
@@ -150,7 +149,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackSelf() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() == 1);
         Monster monster = (Monster) monsters.get(0);
@@ -167,7 +166,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackNonexistantTile() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() >= 1);
         Monster monster = (Monster) monsters.get(0);
@@ -184,7 +183,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackWithEnemyUnit() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> heroes = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(heroes.size() >= 1);
         Hero hero = (Hero) heroes.get(0);
@@ -201,7 +200,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
 
     @Test
     public void testAttackWithTooManyInputs() {
-        setupMatch();
+        setupMatch(true);
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() >= 1);
         Monster monster = (Monster) monsters.get(0);
@@ -225,7 +224,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
         MonsterBuilder mb = new MonsterBuilder(UUID.randomUUID(), dualShotGoblin, architectBot.getUsername(), Optional.of(architectBot.getUsername()));
         mb.setWeapon(w);
         initialArchitectObjects.add(mb.createMonster());
-        setupMatch();
+        setupMatch(true);
         List<GameObject> monsters = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
         assertTrue(monsters.size() == 1);
         Monster monster = (Monster) monsters.get(0);
@@ -248,7 +247,7 @@ public class BasicAttackTestingArchitect extends InMatchTest {
         MonsterBuilder mb = new MonsterBuilder(UUID.randomUUID(), rangedGoblinDef, architectBot.getUsername(), Optional.of(architectBot.getUsername()));
         mb.setWeapon(w);
         initialArchitectObjects.add(mb.createMonster());
-        setupMatch();
+        setupMatch(true);
         List<GameObject> h = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
@@ -267,10 +266,4 @@ public class BasicAttackTestingArchitect extends InMatchTest {
         basicAttackWithCharacter(architectBot, creature.getGameObjectID(), inputs, true);
     }
 
-    private class WeaponModMonsterDefinition extends MonsterDefinition {
-        public WeaponModMonsterDefinition(int specialID, MonsterDefinition other, int count, int weaponID) {
-            super(specialID,other.name, other.startAttack, other.startDefense, other.startHealth, other.startMovement, other.startVision, weaponID, count);
-
-        }
-    }
 }

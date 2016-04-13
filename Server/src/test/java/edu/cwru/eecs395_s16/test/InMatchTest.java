@@ -42,6 +42,8 @@ public abstract class InMatchTest extends SerializationTest {
     protected List<GameObject> initialArchitectObjects;
     protected GameMap initialGameMap;
     protected GameObjective initialObjective;
+    protected Set<UUID> useHeroIDs;
+    protected Map<Location, Integer> useMonsterIDs;
     protected NetworkingInterface game;
 
     @Override
@@ -49,6 +51,7 @@ public abstract class InMatchTest extends SerializationTest {
         super.setup();
         heroBot = getHero();
         architectBot = getArchitect();
+        initialGameMap = new AlmostBlankMap(10, 10);
     }
 
     @Override
@@ -58,8 +61,10 @@ public abstract class InMatchTest extends SerializationTest {
     }
 
     public void teardownMatch() throws Exception {
-        game.leaveMatch(new NoInputRequest(), heroBot);
-        game.leaveMatch(new NoInputRequest(), architectBot);
+        if (currentMatchState != null) {
+            game.leaveMatch(new NoInputRequest(), heroBot);
+            game.leaveMatch(new NoInputRequest(), architectBot);
+        }
         heroBot.disconnect();
         architectBot.disconnect();
     }
@@ -72,15 +77,15 @@ public abstract class InMatchTest extends SerializationTest {
         return new TestBot();
     }
 
-    protected Set<UUID> useHeros(){
+    protected Set<UUID> useHeros() {
         return null;
     }
 
-    protected Map<Location,Integer> placeArchitectMonsters(){
+    protected Map<Location, Integer> placeArchitectMonsters() {
         return null;
     }
 
-    public void setupMatch() {
+    public InternalResponseObject<Match> setupMatch(boolean shouldAutoFail) {
         if (initialHeroes != null) {
             heroBot.replaceBotHeroes(initialHeroes);
         }
@@ -90,15 +95,23 @@ public abstract class InMatchTest extends SerializationTest {
         if (initialObjective == null) {
             initialObjective = new DeathmatchGameObjective();
         }
-        initialGameMap = new AlmostBlankMap(10, 10);
+        if (useHeroIDs == null) {
+            useHeroIDs = useHeros();
+        }
+        if (useMonsterIDs == null) {
+            useMonsterIDs = placeArchitectMonsters();
+        }
 
-        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, initialGameMap, initialObjective, useHeros(), placeArchitectMonsters());
+        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, initialGameMap, initialObjective, useHeroIDs, useMonsterIDs);
         if (matchOpt.isNormal()) {
             game = engine.networkingInterface;
             updateMatchState(heroBot);
         } else {
-            fail("Unable to setup a match. ERROR: " + matchOpt.getInternalErrorCode().message);
+            if (shouldAutoFail) {
+                fail("Unable to setup a match. ERROR: " + matchOpt.getInternalErrorCode().message);
+            }
         }
+        return matchOpt;
     }
 
     public void updateMatchState(Player player) {
