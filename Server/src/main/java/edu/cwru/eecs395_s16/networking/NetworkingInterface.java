@@ -5,6 +5,7 @@ import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.core.*;
 import edu.cwru.eecs395_s16.core.actions.*;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
@@ -108,7 +109,7 @@ public class NetworkingInterface {
     }
 
     @NetworkEvent(description = "Returns a list of all the player's monsters. This is for use in the monster management and match initialization screens, not in-game.")
-    public InternalResponseObject<List<MonsterRepository.MonsterDefinition>> getMonsters(NoInputRequest obj, Player p) {
+    public InternalResponseObject<List<MonsterDefinition>> getMonsters(NoInputRequest obj, Player p) {
         MonsterRepository heroRepo = GameEngine.instance().services.monsterRepository;
         return heroRepo.getPlayerMonsterTypes(p);
     }

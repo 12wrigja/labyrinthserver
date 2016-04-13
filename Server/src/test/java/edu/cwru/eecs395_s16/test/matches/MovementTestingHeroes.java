@@ -9,6 +9,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
+import edu.cwru.eecs395_s16.core.objects.maps.MapTile;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.test.AutoStartInMatchTest;
 import org.json.JSONException;
@@ -16,11 +17,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by james on 2/27/16.
@@ -42,11 +42,18 @@ public class MovementTestingHeroes extends AutoStartInMatchTest {
 
         //Figure out where the hero is and try and move it one tile away.
         Location l  = h.getLocation();
-        Location t = currentMatchState.getGameMap().getTileNeighbours(l).get(0);
+        Optional<MapTile> t = currentMatchState.getGameMap().getTileNeighbours(l).stream().map(v->currentMatchState.getGameMap().getTile(v).get()).filter(tile->!tile.getTileType().isObstruction && tile.isNeighbourOf(l,false)).findFirst();
+        Location moveLoc;
+        if(t.isPresent()){
+            moveLoc = t.get();
+        } else {
+            fail("Unable to find a suitable adjacent tile to move to. Check game map config.");
+            return;
+        }
 
         //Build path and submit move.
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(t);
+        pathToMove.add(moveLoc);
         moveCharacter(heroBot,heroID,pathToMove,true);
     }
 
@@ -58,7 +65,7 @@ public class MovementTestingHeroes extends AutoStartInMatchTest {
         Hero h = (Hero) heroChars.get(0);
         UUID heroID = h.getGameObjectID();
 
-        forceSetCharacterLocation(heroID,new Location(0,1));
+        forceSetCharacterLocation(heroID,new Location(0,1), heroBot);
 
     }
 
@@ -70,7 +77,7 @@ public class MovementTestingHeroes extends AutoStartInMatchTest {
         Hero h = (Hero) heroChars.get(0);
         UUID heroID = h.getGameObjectID();
 
-        forceSetCharacterLocation(heroID,new Location(0,1));
+        forceSetCharacterLocation(heroID,new Location(0,1), heroBot);
 
         //Get hero location and try and move them their max distance (default units can move 3 units).
         List<Location> pathToMove = new ArrayList<>();
@@ -88,7 +95,7 @@ public class MovementTestingHeroes extends AutoStartInMatchTest {
         Hero h = (Hero) heroChars.get(0);
         UUID heroID = h.getGameObjectID();
 
-        forceSetCharacterLocation(heroID,new Location(2,3));
+        forceSetCharacterLocation(heroID,new Location(2,3), heroBot);
 
         //Get hero location and try and move them really far away
         List<Location> pathToMove = new ArrayList<>();
@@ -109,7 +116,7 @@ public class MovementTestingHeroes extends AutoStartInMatchTest {
         Hero h = (Hero) heroChars.get(0);
         UUID heroID = h.getGameObjectID();
 
-        forceSetCharacterLocation(heroID,new Location(2,3));
+        forceSetCharacterLocation(heroID,new Location(2,3), heroBot);
 
         //Get hero location and try and move them really far away
         List<Location> pathToMove = new ArrayList<>();
@@ -131,7 +138,7 @@ public class MovementTestingHeroes extends AutoStartInMatchTest {
         Hero h = (Hero) heroChars.get(0);
         UUID heroID = h.getGameObjectID();
 
-        forceSetCharacterLocation(heroID,new Location(2,3));
+        forceSetCharacterLocation(heroID,new Location(2,3), heroBot);
 
         //Move the hero 3 times and make sure the last one fails
         List<Location> pathToMove = new ArrayList<>();

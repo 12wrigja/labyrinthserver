@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 /**
  * Created by james on 3/23/16.
  */
-public class BasicAttackTesting extends InMatchTest {
+public class BasicAttackTestingHeroes extends InMatchTest {
 
     @Test
     public void testBasicAttacking() {
@@ -36,8 +36,8 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Creature creature = (Creature) a.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1));
-        forceSetCharacterLocation(creature.getGameObjectID(), new Location(0, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1), heroBot);
+        forceSetCharacterLocation(creature.getGameObjectID(), new Location(0, 2), architectBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(0,2));
         basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
@@ -54,8 +54,8 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Creature creature = (Creature) a.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1));
-        forceSetCharacterLocation(creature.getGameObjectID(), new Location(0, 3));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1),heroBot );
+        forceSetCharacterLocation(creature.getGameObjectID(), new Location(0, 3), architectBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(0, 5));
         InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
@@ -76,8 +76,8 @@ public class BasicAttackTesting extends InMatchTest {
         Hero hero1 = (Hero) h.get(0);
         Hero hero2 = (Hero) h.get(1);
 
-        forceSetCharacterLocation(hero1.getGameObjectID(), new Location(0, 1));
-        forceSetCharacterLocation(hero2.getGameObjectID(), new Location(0, 2));
+        forceSetCharacterLocation(hero1.getGameObjectID(), new Location(0, 1), heroBot);
+        forceSetCharacterLocation(hero2.getGameObjectID(), new Location(0, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(0,2));
         InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero1.getGameObjectID(), inputs, false);
@@ -92,7 +92,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(3, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(3, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(4, 2));
         basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
@@ -105,7 +105,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 3));
         basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, true);
@@ -118,7 +118,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1,2));
         InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
@@ -133,7 +133,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(0, 1), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(-1, 1));
         InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
@@ -148,7 +148,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Creature hero = (Creature) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 3));
         InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
@@ -163,7 +163,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 4));
         inputs.add(new Location(1,3));
@@ -182,7 +182,7 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(h.size() == 1);
         Hero hero = (Hero) h.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2), heroBot);
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1, 4));
         InternalResponseObject<Boolean> resp = basicAttackWithCharacter(heroBot, hero.getGameObjectID(), inputs, false);
@@ -204,8 +204,8 @@ public class BasicAttackTesting extends InMatchTest {
         assertTrue(a.size() == 1);
         Creature creature = (Creature) a.get(0);
 
-        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2));
-        forceSetCharacterLocation(creature.getGameObjectID(), new Location(1,5));
+        forceSetCharacterLocation(hero.getGameObjectID(), new Location(1, 2), heroBot);
+        forceSetCharacterLocation(creature.getGameObjectID(), new Location(1,5), architectBot);
 
         List<Location> inputs = new ArrayList<>();
         inputs.add(new Location(1,5));

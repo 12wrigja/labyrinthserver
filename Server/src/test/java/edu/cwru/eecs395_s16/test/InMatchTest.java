@@ -3,7 +3,6 @@ package edu.cwru.eecs395_s16.test;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.objects.creatures.UsePattern;
 import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
@@ -14,7 +13,6 @@ import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
@@ -78,7 +76,7 @@ public abstract class InMatchTest extends SerializationTest {
         return null;
     }
 
-    protected Map<Location,Integer> useArchitectMonsters(){
+    protected Map<Location,Integer> placeArchitectMonsters(){
         return null;
     }
 
@@ -94,17 +92,17 @@ public abstract class InMatchTest extends SerializationTest {
         }
         initialGameMap = new AlmostBlankMap(10, 10);
 
-        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, initialGameMap, initialObjective, useHeros(), useArchitectMonsters());
+        InternalResponseObject<Match> matchOpt = Match.InitNewMatch(heroBot, architectBot, initialGameMap, initialObjective, useHeros(), placeArchitectMonsters());
         if (matchOpt.isNormal()) {
             game = engine.networkingInterface;
-            updateMatchState();
+            updateMatchState(heroBot);
         } else {
             fail("Unable to setup a match. ERROR: " + matchOpt.getInternalErrorCode().message);
         }
     }
 
-    public void updateMatchState() {
-        InternalResponseObject<Match> r = game.matchState(new NoInputRequest(), heroBot);
+    public void updateMatchState(Player player) {
+        InternalResponseObject<Match> r = game.matchState(new NoInputRequest(), player);
         if (!r.isNormal()) {
             fail("Unable to get current match state. ERROR: " + r.getMessage());
         } else {
@@ -112,16 +110,16 @@ public abstract class InMatchTest extends SerializationTest {
         }
     }
 
-    public void forceSetCharacterLocation(UUID characterID, Location loc) {
-        updateMatchState();
+    public void forceSetCharacterLocation(UUID characterID, Location loc, Player player) {
+        updateMatchState(player);
         Optional<GameObject> objOpt = currentMatchState.getBoardObjects().getByID(characterID);
         if (objOpt.isPresent()) {
             currentMatchState.doAndSnapshot("Forced snapshot for movement", () -> objOpt.get().setLocation(loc), true);
         } else {
-            fail("Your trying to force set a character that doesn exist. STOP.");
+            fail("Your trying to force set a character that doesn't exist. STOP.");
             return;
         }
-        updateMatchState();
+        updateMatchState(player);
         Location newLoc = currentMatchState.getBoardObjects().getByID(characterID).get().getLocation();
         assertEquals(loc, newLoc);
     }
@@ -139,7 +137,7 @@ public abstract class InMatchTest extends SerializationTest {
         if (failTestOnFailure && !response.isNormal()) {
             fail("Incorrect response while moving. ERROR:" + response.getMessage());
         }
-        updateMatchState();
+        updateMatchState(p);
         Creature newHeroState = (Creature) currentMatchState.getBoardObjects().getByID(characterID).get();
         Location newHeroLocation = newHeroState.getLocation();
         if (failTestOnFailure) {
@@ -161,7 +159,7 @@ public abstract class InMatchTest extends SerializationTest {
         if (failTestOnFailure && !response.isNormal()) {
             fail("Incorrect response while moving. ERROR:" + response.getMessage());
         }
-        updateMatchState();
+        updateMatchState(p);
         Creature myCharacter = (Creature) currentMatchState.getBoardObjects().getByID(character.getGameObjectID()).get();
         int newAP = myCharacter.getActionPoints();
         if (failTestOnFailure) {
@@ -215,7 +213,7 @@ public abstract class InMatchTest extends SerializationTest {
         if (failTestOnFailure && !response.isNormal()) {
             fail("Incorrect response while attacking. ERROR:" + response.getMessage());
         }
-        updateMatchState();
+        updateMatchState(p);
         Optional<GameObject> myCreature = currentMatchState.getBoardObjects().getByID(character.getGameObjectID());
         if (myCreature.isPresent() && failTestOnFailure) {
             assertEquals(predictedNextActionPoints, ((Creature) myCreature.get()).getActionPoints());

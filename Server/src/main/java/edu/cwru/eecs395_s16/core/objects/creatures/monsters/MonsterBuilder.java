@@ -1,13 +1,16 @@
 package edu.cwru.eecs395_s16.core.objects.creatures.monsters;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
+import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.creatures.CreatureBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
-import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.xml.crypto.Data;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,22 +20,53 @@ import java.util.UUID;
 public class MonsterBuilder extends CreatureBuilder {
 
     protected String name;
-    protected MonsterRepository.MonsterDefinition def;
 
-    public MonsterBuilder(UUID objectID, MonsterRepository.MonsterDefinition monsterDefinition, String ownerID, Optional<String> controllerID) {
+    public MonsterBuilder(UUID objectID, MonsterDefinition monsterDefinition, String ownerID, Optional<String> controllerID) {
         super(objectID, monsterDefinition.id, ownerID, controllerID);
-        this.def = monsterDefinition;
-        this.attack = def.startAttack;
-        this.defense = def.startDefense;
-        this.movement = def.startMovement;
-        this.vision = def.startVision;
-        this.health = def.startHealth;
-        this.maxHealth = def.startHealth;
-        this.databaseIdentifier = def.id;
-        Optional<Weapon> wep = GameEngine.instance().services.heroItemRepository.getWeaponForId(def.defaultWeaponId);
-        if(wep.isPresent()){
+        this.attack = monsterDefinition.startAttack;
+        this.defense = monsterDefinition.startDefense;
+        this.movement = monsterDefinition.startMovement;
+        this.vision = monsterDefinition.startVision;
+        this.health = monsterDefinition.startHealth;
+        this.maxHealth = monsterDefinition.startHealth;
+        this.databaseIdentifier = monsterDefinition.id;
+        Optional<Weapon> wep = GameEngine.instance().services.heroItemRepository.getWeaponForId(monsterDefinition.defaultWeaponId);
+        if (wep.isPresent()) {
             this.weapon = wep.get();
         }
+        this.name = monsterDefinition.name;
+    }
+
+    private MonsterBuilder(UUID objectID, int databaseID, String ownerID, Optional<String> controllerID){
+        super(objectID,databaseID,ownerID,controllerID);
+    }
+
+    public static InternalResponseObject<MonsterBuilder> fromJSONObject(JSONObject obj){
+        try {
+            UUID gameObjectID = UUID.fromString(obj.getString(GameObject.GAMEOBJECT_ID_KEY));
+            int dbID = obj.getInt(DatabaseObject.DATABASE_ID_KEY);
+            String ownerID = obj.getString(GameObject.OWNER_ID_KEY);
+            Optional<String> controllerID = Optional.ofNullable(obj.getString(GameObject.CONTROLLER_ID_KEY));
+            MonsterBuilder mb = new MonsterBuilder(gameObjectID,dbID,ownerID,controllerID);
+            mb.fillFromJSON(obj);
+            return new InternalResponseObject<>(mb);
+        } catch (JSONException | IllegalArgumentException e){
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR);
+        }
+    }
+
+    public MonsterBuilder(UUID newID, Monster template) {
+        super(newID, template.getDatabaseID(), template.getOwnerID().isPresent() ? template.getOwnerID().get() : null, template.getControllerID());
+        try {
+            JSONObject templateObj = new JSONObject(template.getJSONRepresentation().toString());
+            fillFromJSON(templateObj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        objectID = newID;
     }
 
     @Override
@@ -42,12 +76,16 @@ public class MonsterBuilder extends CreatureBuilder {
         return this;
     }
 
-    public MonsterBuilder setName(String name){
+    public MonsterBuilder setName(String name) {
         this.name = name;
         return this;
     }
 
-    public Monster createMonster(){
-        return new Monster(objectID,Optional.of(ownerID),controllerID,def.id, GameObject.TYPE.MONSTER,attack,defense,health,maxHealth,movement,vision,actionPoints,maxActionPoints,abilities,statuses,location,weapon,def);
+    public MonsterDefinition createMonsterDefinition(int quantity) {
+        return new MonsterDefinition(databaseIdentifier, name, attack, defense, health, movement, vision, weapon.getDatabaseID(), quantity);
+    }
+
+    public Monster createMonster() {
+        return new Monster(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, name, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
     }
 }

@@ -40,6 +40,7 @@ public class BotClientService implements ClientConnectionService {
 
     @Override
     public void stop() {
+        System.out.println("Force disconnect all due to Bot Service Termination.");
         connectedClients.values().forEach(GameBot::onDisconnect);
         executorService.shutdownNow();
         initStorage();

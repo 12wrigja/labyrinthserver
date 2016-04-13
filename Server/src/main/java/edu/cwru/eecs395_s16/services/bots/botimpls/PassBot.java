@@ -22,37 +22,40 @@ public class PassBot extends GameBot {
 
     static final String BOT_NAME = "PASSBOT";
 
+    private boolean enabled = true;
+
     public PassBot() {
         super(BOT_NAME,UUID.randomUUID());
-
     }
 
     @Override
     public void receiveEvent(String event, Object data) {
-        if(event.equals(Match.MATCH_FOUND_KEY)){
-            JSONObject jData = (JSONObject)data;
-            try {
-                String startState = jData.getString(Match.GAME_STATE_KEY);
-                boolean isHeroPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.HERO_PLAYER_KEY).equals(getUsername());
-                boolean isArchitectPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.ARCHITECT_PLAYER_KEY).equals(getUsername());
-                if((startState.equals(GameState.HERO_TURN.toString().toLowerCase()) && isHeroPlayer) ||
-                        (startState.equals(GameState.ARCHITECT_TURN.toString().toLowerCase()) && isArchitectPlayer)){
-                    passAllCharacters();
+        if(enabled) {
+            if (event.equals(Match.MATCH_FOUND_KEY)) {
+                JSONObject jData = (JSONObject) data;
+                try {
+                    String startState = jData.getString(Match.GAME_STATE_KEY);
+                    boolean isHeroPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.HERO_PLAYER_KEY).equals(getUsername());
+                    boolean isArchitectPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.ARCHITECT_PLAYER_KEY).equals(getUsername());
+                    if ((startState.equals(GameState.HERO_TURN.toString().toLowerCase()) && isHeroPlayer) ||
+                            (startState.equals(GameState.ARCHITECT_TURN.toString().toLowerCase()) && isArchitectPlayer)) {
+                        passAllCharacters();
+                    }
+                } catch (JSONException e) {
+                    if (GameEngine.instance().IS_DEBUG_MODE) {
+                        System.err.println("JSON Formatting error for passbot.");
+                        e.printStackTrace();
+                    }
                 }
-            } catch (JSONException e){
-                if(GameEngine.instance().IS_DEBUG_MODE){
-                    System.err.println("JSON Formatting error for passbot.");
-                    e.printStackTrace();
-                }
+            } else if (event.equals(Match.GAME_UPDATE_KEY)) {
+                passAllCharacters();
+            } else if (event.equals(Match.MATCH_END_KEY)) {
+                sendEvent("leave_match", new JSONObject());
             }
-        } else if(event.equals(Match.GAME_UPDATE_KEY)){
-            passAllCharacters();
-        } else if (event.equals(Match.MATCH_END_KEY)){
-            sendEvent("leave_match",new JSONObject());
         }
     }
 
-    private void passAllCharacters(){
+    public void passAllCharacters(){
         Response matchResp = sendEvent("match_state",new JSONObject());
         if(matchResp.getStatus() == WebStatusCode.OK){
             @SuppressWarnings("unchecked")
@@ -66,6 +69,10 @@ public class PassBot extends GameBot {
                 });
             }
         }
+    }
+
+    public void setEnabled(boolean enabled){
+        this.enabled = enabled;
     }
 
 }

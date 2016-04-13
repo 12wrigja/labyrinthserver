@@ -10,7 +10,8 @@ import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
-import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
+import edu.cwru.eecs395_s16.core.objects.maps.MapTile;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
@@ -20,6 +21,7 @@ import org.json.JSONException;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -28,7 +30,7 @@ import static org.junit.Assert.*;
  */
 public class MovementTestingArchitect extends AutoStartInMatchTest {
 
-    public MonsterRepository.MonsterDefinition goblinDef;
+    public MonsterDefinition goblinDef;
 
     @Override
     protected GameBot getHero() {
@@ -42,7 +44,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
     }
 
     @Override
-    protected Map<Location, Integer> useArchitectMonsters() {
+    protected Map<Location, Integer> placeArchitectMonsters() {
         Map<Location,Integer> ret = new HashMap<>();
         List<Location> archSpawnTiles = initialGameMap.getArchitectCreatureSpawnLocations();
         Collections.shuffle(archSpawnTiles);
@@ -66,11 +68,17 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         //Figure out where the hero is and try and move it one tile away.
         Location l  = m.getLocation();
-        Location t = currentMatchState.getGameMap().getTileNeighbours(l).get(0);
-
+        Optional<MapTile> t = currentMatchState.getGameMap().getTileNeighbours(l).stream().map(v->currentMatchState.getGameMap().getTile(v).get()).filter(tile->!tile.getTileType().isObstruction && tile.isNeighbourOf(l,false) && currentMatchState.getBoardObjects().getForLocation(tile).size() == 0).findFirst();
+        Location moveLoc;
+        if(t.isPresent()){
+            moveLoc = t.get();
+        } else {
+            fail("Unable to get a valid tile to move to. Check board config.");
+            return;
+        }
         //Build path and submit move.
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(t);
+        pathToMove.add(moveLoc);
         waitForMyTurn();
         moveCharacter(architectBot,monsterID,pathToMove,true);
     }
@@ -83,7 +91,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         Monster m = (Monster) architectChars.get(0);
         UUID monsterID = m.getGameObjectID();
         waitForMyTurn();
-        forceSetCharacterLocation(monsterID,new Location(0,1));
+        forceSetCharacterLocation(monsterID,new Location(0,1), architectBot);
     }
 
     @Test
@@ -95,7 +103,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         UUID monsterID = m.getGameObjectID();
 
         waitForMyTurn();
-        forceSetCharacterLocation(monsterID,new Location(0,1));
+        forceSetCharacterLocation(monsterID,new Location(0,1), architectBot);
 
         //Get hero location and try and move them their max distance (default units can move 3 units).
         List<Location> pathToMove = new ArrayList<>();
@@ -113,7 +121,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         UUID monsterID = m.getGameObjectID();
 
         waitForMyTurn();
-        forceSetCharacterLocation(monsterID,new Location(3,3));
+        forceSetCharacterLocation(monsterID,new Location(3,3), architectBot);
 
         //Get hero location and try and move them really far away
         List<Location> pathToMove = new ArrayList<>();
@@ -135,7 +143,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         waitForMyTurn();
 
-        forceSetCharacterLocation(monsterID,new Location(2,3));
+        forceSetCharacterLocation(monsterID,new Location(2,3), architectBot);
 
         //Get hero location and try and move them really far away
         List<Location> pathToMove = new ArrayList<>();
@@ -159,7 +167,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         waitForMyTurn();
 
-        forceSetCharacterLocation(monsterID,new Location(2,3));
+        forceSetCharacterLocation(monsterID,new Location(2,3), architectBot);
 
         //Move the hero 3 times and make sure the last one fails
         List<Location> pathToMove = new ArrayList<>();
@@ -219,7 +227,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
     private void waitForMyTurn(){
         do {
-            updateMatchState();
+            updateMatchState(heroBot);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

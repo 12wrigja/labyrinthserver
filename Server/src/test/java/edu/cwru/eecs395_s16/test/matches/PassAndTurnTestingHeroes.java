@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * Created by james on 3/15/16.
  */
-public class PassAndTurnTesting extends AutoStartInMatchTest {
+public class PassAndTurnTestingHeroes extends AutoStartInMatchTest {
 
     @Override
     protected void changeHeroesList(Player hero, List<Hero> heroes) {

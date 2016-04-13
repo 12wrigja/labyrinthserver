@@ -14,6 +14,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.LevelReward;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.containers.DBRepository;
 import edu.cwru.eecs395_s16.services.players.PostgresPlayerRepository;

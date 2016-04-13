@@ -29,6 +29,7 @@ public class InMemoryCacheService implements CacheService {
 
     @Override
     public void removeString(String key) {
+        System.out.println("InMemory Cache: Deleting key: "+key);
         stringStorage.remove(key);
     }
 

@@ -1,6 +1,7 @@
 package edu.cwru.eecs395_s16.services.bots.botimpls;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.GameState;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
@@ -8,6 +9,7 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
@@ -70,7 +72,10 @@ public abstract class GameBot extends Player implements GameClient {
 
     public void onDisconnect(){
         if(getCurrentMatchID().isPresent()){
-            Match.fromCacheWithMatchIdentifier(getCurrentMatchID().get()).get().end("Bot disconnected.", GameObjective.GAME_WINNER.NO_WINNER);
+            Match m =  Match.fromCacheWithMatchIdentifier(getCurrentMatchID().get()).get();
+            if(m.getGameState() != GameState.GAME_END) {
+                m.end("Bot disconnected.", GameObjective.GAME_WINNER.NO_WINNER);
+            }
             setCurrentMatch(Optional.empty());
         }
     };
@@ -99,7 +104,7 @@ public abstract class GameBot extends Player implements GameClient {
 
     protected void populate() {
         heroes.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType.WARRIOR).createHero());
-        MonsterRepository.MonsterDefinition def = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
+        MonsterDefinition def = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
         architectObjects.add(new MonsterBuilder(UUID.randomUUID(), def, getUsername(), Optional.of(getUsername())).createMonster());
-    };
+    }
 }

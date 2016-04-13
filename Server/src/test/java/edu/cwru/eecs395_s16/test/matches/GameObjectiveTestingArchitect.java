@@ -2,10 +2,13 @@ package edu.cwru.eecs395_s16.test.matches;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
 import edu.cwru.eecs395_s16.core.GameState;
+import edu.cwru.eecs395_s16.core.InternalErrorCode;
+import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.maps.MapTile;
 import edu.cwru.eecs395_s16.core.objects.objectives.CaptureObjectivesGameObjective;
 import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
@@ -24,16 +27,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
  * Created by james on 3/26/16.
  */
-public class GameObjectiveTesting extends InMatchTest {
+public class GameObjectiveTestingArchitect extends InMatchTest {
 
     @Override
-    protected GameBot getArchitect() {
+    protected GameBot getHero() {
         return new PassBot();
     }
 
@@ -56,52 +59,56 @@ public class GameObjectiveTesting extends InMatchTest {
         List<MapTile> maptiles = currentMatchState.getGameMap().getTileNeighbours(l).stream().filter(loc->currentMatchState.getGameMap().getTile(loc).isPresent()).map(loc->currentMatchState.getGameMap().getTile(loc).get()).filter(tile->!tile.isObstructionTileType()).collect(Collectors.toList());
         Location moveToLocation = maptiles.get(0);
 
-        forceSetCharacterLocation(h.getGameObjectID(),moveToLocation);
+        waitForMyTurn();
+
+        forceSetCharacterLocation(heroID,moveToLocation, heroBot);
 
         List<Location> attackLocations = new ArrayList<>();
-        attackLocations.add(c.getLocation());
+        attackLocations.add(moveToLocation);
         UUID creatureID = c.getGameObjectID();
         int attackCount = 0;
-        while(c.getHealth() > 0){
+        while(h.getHealth() > 0){
             attackCount++;
             System.out.println(attackCount);
-            basicAttackWithCharacter(heroBot,heroID,attackLocations,false);
-            Optional<GameObject> opt = currentMatchState.getBoardObjects().getByID(creatureID);
+            basicAttackWithCharacter(architectBot,creatureID,attackLocations,false);
+            Optional<GameObject> opt = currentMatchState.getBoardObjects().getByID(heroID);
             if(opt.isPresent()) {
-                c = (Creature)opt.get();
-//                System.out.println(c.getHealth());
+                h = (Hero)opt.get();
             } else {
                 fail("Unable to re-retrieve the character we are attacking.");
             }
-            while(!(currentMatchState.getGameState()== GameState.HERO_TURN || currentMatchState.getGameState()==GameState.GAME_END)){
+            while(!(currentMatchState.getGameState()== GameState.ARCHITECT_TURN || currentMatchState.getGameState()==GameState.GAME_END)){
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                updateMatchState();
+                updateMatchState(architectBot);
             }
         }
+        System.out.println("Well, we made it this far...");
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            fail("WTF EARLY TERMINATION?");
         }
-        updateMatchState();
+        System.out.println("And we also made it this far?");
+        updateMatchState(architectBot);
         assertEquals(GameState.GAME_END,currentMatchState.getGameState());
 
     }
 
     @Test
-    public void testCaptureSingleGameObjective(){
+    public void testCannotCaptureAsArchitect(){
         initialObjective = new CaptureObjectivesGameObjective(1);
         setupMatch();
 
         //Get a character for the hero
-        List<GameObject> heroChars = currentMatchState.getBoardObjects().getForPlayerOwner(heroBot);
-        assertEquals(1,heroChars.size());
-        Hero h = (Hero) heroChars.get(0);
-        UUID heroID = h.getGameObjectID();
+        List<GameObject> architectChars = currentMatchState.getBoardObjects().getForPlayerOwner(architectBot);
+        assertEquals(1,architectChars.size());
+        Monster monster = (Monster) architectChars.get(0);
+        UUID monsterID = monster.getGameObjectID();
 
         List<ObjectiveGameObject> objectiveObjects = currentMatchState.getBoardObjects().stream().filter(obj ->obj instanceof ObjectiveGameObject).map(obj->(ObjectiveGameObject)obj).collect(Collectors.toList());
         assertEquals(1,objectiveObjects.size());
@@ -111,22 +118,35 @@ public class GameObjectiveTesting extends InMatchTest {
         List<MapTile> maptiles = currentMatchState.getGameMap().getTileNeighbours(l).stream().filter(loc->currentMatchState.getGameMap().getTile(loc).isPresent()).map(loc->currentMatchState.getGameMap().getTile(loc).get()).filter(tile->!tile.isObstructionTileType()).collect(Collectors.toList());
         Location moveToLocation = maptiles.get(0);
 
-        forceSetCharacterLocation(h.getGameObjectID(),moveToLocation);
+        waitForMyTurn();
 
-        UUID creatureID = objective.getGameObjectID();
+        forceSetCharacterLocation(monster.getGameObjectID(),moveToLocation, architectBot);
 
-        CaptureObjectiveActionData captureData = new CaptureObjectiveActionData(heroID, creatureID);
+        UUID objectiveID = objective.getGameObjectID();
+
+        CaptureObjectiveActionData captureData = new CaptureObjectiveActionData(monsterID, objectiveID);
         GameActionBaseRequest gameActionRequest = new GameActionBaseRequest();
         try {
             gameActionRequest.fillFromJSON(captureData.convertToJSON());
         } catch (InvalidDataException e) {
             fail("Unable to convert game data.");
         }
-        game.gameAction(gameActionRequest,heroBot);
+        InternalResponseObject<Boolean> resp = game.gameAction(gameActionRequest,architectBot);
+        if(resp.isNormal()){
+            fail("Something is wrong with the architect capturing mechanics.");
+        }
+        assertEquals(InternalErrorCode.INVALID_GAME_ACTION,resp.getInternalErrorCode());
+    }
 
-        updateMatchState();
-        assertEquals(GameState.GAME_END,currentMatchState.getGameState());
+    private void waitForMyTurn(){
+        do {
+            updateMatchState(architectBot);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
 
+            }
+        } while (!currentMatchState.getGameState().equals(GameState.ARCHITECT_TURN));
     }
 
 }

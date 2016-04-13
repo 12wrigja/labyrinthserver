@@ -4,7 +4,9 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Jsonable;
@@ -245,7 +247,7 @@ public class Match implements Jsonable {
 
         //Add all the architect's monsters and traps to the board
         //TODO update to add all the architect's monsters and traps to the board instead of their heroes
-        InternalResponseObject<List<MonsterRepository.MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services.monsterRepository.getPlayerMonsterTypes(architectPlayer);
+        InternalResponseObject<List<MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services.monsterRepository.getPlayerMonsterTypes(architectPlayer);
         if (!architectMonsterResponse.isNormal()) {
             return InternalResponseObject.cloneError(architectMonsterResponse);
         }
@@ -254,7 +256,7 @@ public class Match implements Jsonable {
         if(initialArchitectLocations != null && initialArchitectLocations.size() > numArchitectObjectLocations){
             return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"There are not enough spawn locations for that configuration.");
         }
-        List<MonsterRepository.MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get();
+        List<MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get();
 
         if(initialArchitectLocations == null){
             int numTotalArchitectCreatures = (int)Math.max(1.0f,architectMonsterDefns.stream().collect(Collectors.summingInt(d->d.count)) * 0.25f);
@@ -266,7 +268,7 @@ public class Match implements Jsonable {
             int defIndex = 0;
             Collections.shuffle(architectSpawnLocations);
             while(monstersPlaced < numIterations){
-                MonsterRepository.MonsterDefinition def;
+                MonsterDefinition def;
                 int numOfTypeToPlace = 0;
                 while(true) {
                     def = architectMonsterDefns.get(defIndex);
@@ -279,7 +281,11 @@ public class Match implements Jsonable {
                 }
                 for(int i=0; i<numOfTypeToPlace; i++){
                     Location spawnLoc = architectSpawnLocations.get(monstersPlaced);
-                    Creature obj = new MonsterBuilder(UUID.randomUUID(),def,architectPlayer.getUsername(), Optional.of(architectPlayer.getUsername())).createMonster();
+                    InternalResponseObject<Monster> monster = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(),def.id, architectPlayer);
+                    if(!monster.isNormal()){
+                        return InternalResponseObject.cloneError(monster,"Unable to build monster for given definition.");
+                    }
+                    Creature obj = monster.get();
                     obj.setLocation(spawnLoc);
                     boardObjects.add(obj);
                     monstersPlaced++;
@@ -287,13 +293,13 @@ public class Match implements Jsonable {
             }
         } else {
             for (Map.Entry<Location,Integer> creaturePlaceMap : initialArchitectLocations.entrySet()) {
-                InternalResponseObject<MonsterRepository.MonsterDefinition> defnResp = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(creaturePlaceMap.getValue());
-                if(!defnResp.isNormal()){
-                    return InternalResponseObject.cloneError(defnResp,"Unable to retrieve monster definition for id: "+creaturePlaceMap.getValue());
+                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(),creaturePlaceMap.getValue(),architectPlayer);
+                if(!m.isNormal()){
+                    return InternalResponseObject.cloneError(m,"Unable to create monster for architect with id "+creaturePlaceMap.getValue());
                 }
-                Creature obj = new MonsterBuilder(UUID.randomUUID(),defnResp.get(),architectPlayer.getUsername(), Optional.of(architectPlayer.getUsername())).createMonster();;
-                obj.setLocation(creaturePlaceMap.getKey());
-                this.boardObjects.add(obj);
+                Monster monster = m.get();
+                monster.setLocation(creaturePlaceMap.getKey());
+                this.boardObjects.add(monster);
             }
         }
 
