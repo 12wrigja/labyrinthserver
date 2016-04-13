@@ -13,6 +13,16 @@ public class LoginUserRequest implements RequestData {
     private String username;
     private String password;
 
+    public LoginUserRequest(){
+        this.username = null;
+        this.password = null;
+    }
+
+    public LoginUserRequest(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public String getUsername() {
         return username;
     }

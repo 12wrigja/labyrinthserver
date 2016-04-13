@@ -1,6 +1,6 @@
 package edu.cwru.eecs395_s16.test.stresstest;
 
-import edu.cwru.eecs395_s16.test.NetworkedTest;
+import edu.cwru.eecs395_s16.test.SingleUserNetworkTest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.json.JSONException;
@@ -63,7 +63,7 @@ public class StressTester {
         packet.put("username", TEST_USERNAME);
         packet.put("password", TEST_PASSWORD);
         packet.put("password_confirm", TEST_PASSWORD);
-        res = NetworkedTest.emitEventAndWaitForResult(socket, "register", packet, 10);
+        res = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "register", packet, 10);
         if (res.getInt("status") != 200) {
             fail("Unable to register user.");
         }
@@ -74,7 +74,7 @@ public class StressTester {
         //Login User
         packet.put("username", TEST_USERNAME);
         packet.put("password", TEST_PASSWORD);
-        res = NetworkedTest.emitEventAndWaitForResult(socket, "login", packet, 10);
+        res = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "login", packet, 10);
         if (res.getInt("status") != 200) {
             fail("Unable to login user.");
         }
@@ -84,14 +84,14 @@ public class StressTester {
 
         //Setup a match against a passbot
         packet.put("queue_with_passbot", true);
-        res = NetworkedTest.emitEventAndWaitForResult(socket, "queue_up_heroes", packet, 10);
+        res = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "queue_up_heroes", packet, 10);
         if (res.getInt("status") != 200) {
             fail("Unable to setup match");
         }
 
         System.out.println("Queue,"+ (new Date().getTime()));
 
-        JSONObject matchState = NetworkedTest.emitEventAndWaitForResult(socket, "match_state", new JSONObject(), 10);
+        JSONObject matchState = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "match_state", new JSONObject(), 10);
         if (matchState.getInt("status") != 200) {
             fail("Unable to get match state.");
         }
@@ -123,7 +123,7 @@ public class StressTester {
                 try {
                     pkt.put("type", "pass");
                     pkt.put("character_id", obj.optString("id", "--"));
-                    JSONObject result = NetworkedTest.emitEventAndWaitForResult(socket, "game_action", pkt, 60);
+                    JSONObject result = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "game_action", pkt, 60);
                     if (result.getInt("status") != 200) {
                         fail("Couldn't pass on a character we own!");
                     }
@@ -139,7 +139,7 @@ public class StressTester {
 
         System.out.println("Cleanup,"+ (new Date().getTime()));
 
-        res = NetworkedTest.emitEventAndWaitForResult(socket, "leave_match", packet, 10);
+        res = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "leave_match", packet, 10);
         if(res.getInt("status") != 200){
             fail("Unable to leave match.");
         }

@@ -3,7 +3,7 @@ package edu.cwru.eecs395_s16.test.networking;
 import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.test.NetworkedTest;
+import edu.cwru.eecs395_s16.test.SingleUserNetworkTest;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
 /**
  * Created by james on 1/26/16.
  */
-public class AuthorizationTesting extends NetworkedTest {
+public class AuthorizationTesting extends SingleUserNetworkTest {
 
     private final String TEST_USERNAME = "USERNAMETEST";
     private final String TEST_PASSWORD = "PASSWORDTEST";
@@ -24,7 +24,7 @@ public class AuthorizationTesting extends NetworkedTest {
 
     @Before
     public void setup(){
-        connectSocketIOClient();
+        setupSingleClient();
     }
 
     @Test

@@ -39,7 +39,9 @@ public class QueueHeroesRequest extends QueueRequest {
                     UUID uuid = UUID.fromString(id);
                     selectedHeroesIds.add(uuid);
                 }
-            } catch (JSONException | IllegalArgumentException e1){
+            } catch (IllegalArgumentException e1){
+                throw new InvalidDataException("heroes");
+            } catch (JSONException e){
                 throw new InvalidDataException("heroes");
             }
         }
@@ -57,7 +59,7 @@ public class QueueHeroesRequest extends QueueRequest {
             for(UUID id : selectedHeroesIds){
                 heroIDArray.put(id.toString());
             }
-            repr.put("heroes", repr);
+            repr.put("heroes", heroIDArray);
         } catch (JSONException e){
             //should never happen - no-null keys
         }

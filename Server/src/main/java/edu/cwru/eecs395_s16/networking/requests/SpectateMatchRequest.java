@@ -12,6 +12,14 @@ public class SpectateMatchRequest implements RequestData {
 
     String matchID;
 
+    public SpectateMatchRequest(){
+        this.matchID = null;
+    }
+
+    public SpectateMatchRequest(String matchID) {
+        this.matchID = matchID;
+    }
+
     public String getMatchID() {
         return matchID;
     }

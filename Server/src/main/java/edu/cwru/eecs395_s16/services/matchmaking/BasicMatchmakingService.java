@@ -4,7 +4,11 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.*;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
+import edu.cwru.eecs395_s16.networking.requests.queueing.QueueArchitectRequest;
+import edu.cwru.eecs395_s16.networking.requests.queueing.QueueHeroesRequest;
+import edu.cwru.eecs395_s16.networking.requests.queueing.QueueRequest;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import org.json.JSONObject;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -17,9 +21,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class BasicMatchmakingService implements MatchmakingService {
 
-    private Queue<Player> heroesQueue;
+    private Queue<QueueObject> heroesQueue;
 
-    private Queue<Player> architectQueue;
+    private Queue<QueueObject> architectQueue;
 
     private Set<Player> queuedPlayers;
 
@@ -34,11 +38,11 @@ public class BasicMatchmakingService implements MatchmakingService {
     }
 
     @Override
-    public InternalResponseObject<Boolean> queueAsHeroes(Player p) {
+    public InternalResponseObject<Boolean> queueAsHeroes(Player p, QueueHeroesRequest request) {
         mutex.writeLock().lock();
         try {
             if (!queuedPlayers.contains(p)) {
-                heroesQueue.add(p);
+                heroesQueue.add(new QueueObject(p,request));
                 queuedPlayers.add(p);
             } else {
                 return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.ALREADY_IN_QUEUE);
@@ -50,11 +54,11 @@ public class BasicMatchmakingService implements MatchmakingService {
     }
 
     @Override
-    public InternalResponseObject<Boolean> queueAsArchitect(Player p) {
+    public InternalResponseObject<Boolean> queueAsArchitect(Player p, QueueArchitectRequest request) {
         mutex.writeLock().lock();
         try {
             if (!queuedPlayers.contains(p)) {
-                architectQueue.add(p);
+                architectQueue.add(new QueueObject(p,request));
                 queuedPlayers.add(p);
             } else {
                 return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.ALREADY_IN_QUEUE);
@@ -70,11 +74,12 @@ public class BasicMatchmakingService implements MatchmakingService {
         mutex.writeLock().lock();
         if(queuedPlayers.contains(p)){
             queuedPlayers.remove(p);
-            if(heroesQueue.contains(p)){
-                heroesQueue.remove(p);
+            QueueObject obj = new QueueObject(p,null);
+            if(heroesQueue.contains(obj)){
+                heroesQueue.remove(obj);
             }
-            if(architectQueue.contains(p)){
-                architectQueue.remove(p);
+            if(architectQueue.contains(obj)){
+                architectQueue.remove(obj);
             }
         } else {
             return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.NOT_IN_QUEUE);
@@ -91,9 +96,38 @@ public class BasicMatchmakingService implements MatchmakingService {
                     if(architectQueue.peek() != null){
                         if(heroesQueue.peek() != null){
                             //Deque Players and make match
-                            Player heroPlayer = heroesQueue.poll();
-                            Player architectPlayer = architectQueue.poll();
-                            Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10), new DeathmatchGameObjective(), null, null);
+                            QueueObject heroQueueObj = heroesQueue.poll();
+                            QueueObject architectQueueObj = architectQueue.poll();
+                            Player heroPlayer = heroQueueObj.p;
+                            QueueHeroesRequest heroReq = (QueueHeroesRequest) heroQueueObj.request;
+                            Player architectPlayer = architectQueueObj.p;
+                            queuedPlayers.remove(heroPlayer);
+                            queuedPlayers.remove(architectPlayer);
+                            QueueArchitectRequest archReq = (QueueArchitectRequest) architectQueueObj.request;
+                            InternalResponseObject<Match> match = Match.InitNewMatch(heroPlayer, architectPlayer, new AlmostBlankMap(10,10), new DeathmatchGameObjective(), heroReq.getSelectedHeroesIds(), archReq.getMonsterLocationMap());
+                            if(!match.isNormal()){
+                                if(match.getInternalErrorCode() == InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP){
+                                    architectQueue.add(architectQueueObj);
+                                    queuedPlayers.add(architectPlayer);
+                                    if(heroPlayer.getClient().isPresent()){
+                                        heroPlayer.getClient().get().sendEvent("queue_error",match.getJSONRepresentation());
+                                    }
+                                } else if (match.getInternalErrorCode() == InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP){
+                                    heroesQueue.add(heroQueueObj);
+                                    queuedPlayers.add(heroPlayer);
+                                    if(architectPlayer.getClient().isPresent()){
+                                        architectPlayer.getClient().get().sendEvent("queue_error",match.getJSONRepresentation());
+                                    }
+                                } else {
+                                    JSONObject errorObj = match.getJSONRepresentation();
+                                    if(heroPlayer.getClient().isPresent()){
+                                        heroPlayer.getClient().get().sendEvent("queue_error",errorObj);
+                                    }
+                                    if(architectPlayer.getClient().isPresent()){
+                                        architectPlayer.getClient().get().sendEvent("queue_error",errorObj);
+                                    }
+                                }
+                            }
                         }
                     }
                 mutex.readLock().unlock();
@@ -116,6 +150,32 @@ public class BasicMatchmakingService implements MatchmakingService {
     @Override
     public void stop(){
         this.started = false;
+    }
+
+    private class QueueObject {
+        public final Player p;
+        public final QueueRequest request;
+
+        public QueueObject(Player p, QueueRequest request) {
+            this.p = p;
+            this.request = request;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            QueueObject that = (QueueObject) o;
+
+            return p.equals(that.p);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return p.hashCode();
+        }
     }
 
 }

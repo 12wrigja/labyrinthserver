@@ -50,7 +50,12 @@ public class MonsterBuilder extends CreatureBuilder {
             MonsterBuilder mb = new MonsterBuilder(gameObjectID,dbID,ownerID,controllerID);
             mb.fillFromJSON(obj);
             return new InternalResponseObject<>(mb);
-        } catch (JSONException | IllegalArgumentException e){
+        } catch (JSONException e ){
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
+            }
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR);
+        } catch (IllegalArgumentException e){
             if(GameEngine.instance().IS_DEBUG_MODE){
                 e.printStackTrace();
             }

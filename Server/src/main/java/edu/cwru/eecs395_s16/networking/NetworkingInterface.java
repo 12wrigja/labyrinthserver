@@ -14,8 +14,8 @@ import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionDat
 import edu.cwru.eecs395_s16.networking.requests.gameactions.CaptureObjectiveActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
+import edu.cwru.eecs395_s16.networking.requests.queueing.QueueArchitectRequest;
 import edu.cwru.eecs395_s16.networking.requests.queueing.QueueHeroesRequest;
-import edu.cwru.eecs395_s16.networking.requests.queueing.QueueRequest;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
@@ -78,12 +78,12 @@ public class NetworkingInterface {
                 return InternalResponseObject.cloneError(m);
             }
         } else {
-            return GameEngine.instance().services.matchService.queueAsHeroes(p);
+            return GameEngine.instance().services.matchService.queueAsHeroes(p, obj);
         }
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
-    public InternalResponseObject<Boolean> queueUpArchitect(QueueRequest obj, Player p) {
+    public InternalResponseObject<Boolean> queueUpArchitect(QueueArchitectRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {
             InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(obj.getMapX(), obj.getMapY()), new DeathmatchGameObjective(),null,null);
             if (m.isNormal()) {
@@ -93,7 +93,7 @@ public class NetworkingInterface {
                 return InternalResponseObject.cloneError(m);
             }
         } else {
-            return GameEngine.instance().services.matchService.queueAsArchitect(p);
+            return GameEngine.instance().services.matchService.queueAsArchitect(p, obj);
         }
     }
 
