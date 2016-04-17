@@ -61,10 +61,10 @@ public class NetworkingInterface {
         return newPlayerResp;
     }
 
-    @NetworkEvent(mustAuthenticate = false, description = "DEV ONLY: Returns an almost blank map.")
-    public InternalResponseObject<GameMap> map(NewMapRequest obj) {
+    @NetworkEvent(description = "Returns the full definition for the map with the given id.")
+    public InternalResponseObject<GameMap> map(GetMapRequest obj, Player p) {
         MapRepository mRepo = GameEngine.instance().services.mapRepository;
-        return new InternalResponseObject<>(new AlmostBlankMap(obj.getX(), obj.getY(), mRepo.getTileTypeMap()),"map");
+        return mRepo.getMapByID(obj.getRequestedMapID());
     }
 
     @NetworkEvent(description = "Returns metadata on all maps.")

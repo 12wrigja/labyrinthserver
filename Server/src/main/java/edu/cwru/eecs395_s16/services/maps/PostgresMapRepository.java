@@ -37,6 +37,7 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
         super(conn);
         tileTypeMap = new HashMap<>();
         tileTypeStringMap = new HashMap<>();
+        getTileTypeMap();
     }
 
     @Override

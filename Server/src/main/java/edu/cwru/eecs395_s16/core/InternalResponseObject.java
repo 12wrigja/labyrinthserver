@@ -166,7 +166,11 @@ public class InternalResponseObject<T> extends Response {
                     }
                     repr.put(objectKey,arr);
                 } else {
-                    repr.put(objectKey, object.get());
+                    if(object.get() instanceof Jsonable) {
+                        repr.put(objectKey, ((Jsonable)object.get()).getJSONRepresentation());
+                    } else {
+                        repr.put(objectKey, object.get().toString());
+                    }
                 }
             } catch (JSONException e) {
                 //TODO use logging of sorts.
