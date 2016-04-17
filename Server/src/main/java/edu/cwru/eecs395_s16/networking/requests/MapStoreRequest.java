@@ -66,9 +66,9 @@ public class MapStoreRequest  implements RequestData {
                 }
                 MapRepository.TileType actTerrainType = tileTypeMap.get(terrainType);
                 int rotation = RequestData.getInt(tile,MapTile.ROTATION_KEY);
-                boolean heroSpawn = RequestData.getBoolean(tile,MapTile.HERO_SPAWN_KEY);
-                boolean architectSpawn = RequestData.getBoolean(tile,MapTile.ARCHITECT_SPAWN_KEY);
-                boolean objectiveSpawn = RequestData.getBoolean(tile,MapTile.OBJECTIVE_SPAWN_KEY);
+                boolean heroSpawn = tile.optBoolean(MapTile.HERO_SPAWN_KEY,false);
+                boolean architectSpawn = tile.optBoolean(MapTile.ARCHITECT_SPAWN_KEY,false);
+                boolean objectiveSpawn = tile.optBoolean(MapTile.OBJECTIVE_SPAWN_KEY, false);
                 actTileList.add(new MapTile(tileX,tileY,actTerrainType,rotation,heroSpawn,architectSpawn,objectiveSpawn));
             }
         } catch (JSONException e){

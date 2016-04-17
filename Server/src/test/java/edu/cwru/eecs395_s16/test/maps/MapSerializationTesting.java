@@ -3,7 +3,9 @@ package edu.cwru.eecs395_s16.test.maps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
+import edu.cwru.eecs395_s16.networking.requests.GetMapRequest;
 import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
+import edu.cwru.eecs395_s16.services.bots.botimpls.TestBot;
 import edu.cwru.eecs395_s16.test.SerializationTest;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,14 +19,14 @@ import static org.junit.Assert.*;
  */
 public class MapSerializationTesting extends SerializationTest {
 
-    final int MAP_X = 6;
-    final int MAP_Y = 7;
+    public static final int MAP_X = 10;
+    public static final int MAP_Y = 10;
 
     @Test
     public void testSizeSerialization() throws JSONException, JsonProcessingException {
-        NewMapRequest request = new NewMapRequest(MAP_X,MAP_Y);
+        GetMapRequest request = new GetMapRequest(1);
         //Start request
-        InternalResponseObject<GameMap> obj = engine.networkingInterface.map(request);
+        InternalResponseObject<GameMap> obj = engine.networkingInterface.map(request, new TestBot());
         //Validate the response's values
         assertTrue(obj.isNormal());
         assertTrue(obj.isPresent());
@@ -43,8 +45,8 @@ public class MapSerializationTesting extends SerializationTest {
 
     @Test
     public void testTileSpecification() throws JSONException, JsonProcessingException {
-        NewMapRequest request = new NewMapRequest(MAP_X, MAP_Y);
-        InternalResponseObject<GameMap> response = engine.networkingInterface.map(request);
+        GetMapRequest request = new GetMapRequest(1);
+        InternalResponseObject<GameMap> response = engine.networkingInterface.map(request, new TestBot());
         JSONObject serialized = new JSONObject(objMapper.writeValueAsString(response));
         assertTrue(serialized.has("map"));
         JSONObject map = serialized.getJSONObject("map");

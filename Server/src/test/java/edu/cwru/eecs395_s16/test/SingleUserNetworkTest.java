@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 /**
  * Created by james on 2/12/16.
  */
-public abstract class SingleUserNetworkTest extends NetworkTestCore{
+public abstract class SingleUserNetworkTest extends NetworkTestCore {
 
     protected Socket socket;
 
