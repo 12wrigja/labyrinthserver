@@ -101,4 +101,9 @@ public class AlmostBlankMap implements GameMap {
     public List<Location> getObjectiveSpawnLocations() {
         return objectiveSpawnLocations;
     }
+
+    @Override
+    public int getDatabaseID() {
+        return -1;
+    }
 }

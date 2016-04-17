@@ -18,9 +18,9 @@ public class FromJSONGameMap implements GameMap {
     private int x;
     private int y;
     private MapTile[][] tiles;
-    private String creator;
-    private String mapName;
-    private int heroCapacity;
+    private String creator = "";
+    private String mapName = "";
+    private int heroCapacity = 0;
 
     public FromJSONGameMap(JSONObject obj) throws JSONException {
         JSONObject size = obj.getJSONObject("size");
@@ -90,5 +90,10 @@ public class FromJSONGameMap implements GameMap {
     @Override
     public List<Location> getObjectiveSpawnLocations() {
         return null;
+    }
+
+    @Override
+    public int getDatabaseID() {
+        return -1;
     }
 }

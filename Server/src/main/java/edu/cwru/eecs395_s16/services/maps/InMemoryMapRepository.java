@@ -12,6 +12,7 @@ import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by james on 3/1/16.
@@ -38,15 +39,21 @@ public class InMemoryMapRepository implements MapRepository {
     }
 
     @Override
-    public void storeNewMapInDatabase(String mapName, Player creator, GameMap map) {
+    public InternalResponseObject<Integer> storeNewMapInDatabase(String mapName, Player creator, GameMap map) {
         playersMapFinder.put(creator.getUsername(), map);
-        int nameCode = mapName.hashCode();
-        mapStorage.put(nameCode,map);
+        int id = mapStorage.size()+1;
+        mapStorage.put(id,map);
+        return new InternalResponseObject<>(id,"map_id");
     }
 
     @Override
     public Map<String, TileType> getTileTypeMap() {
         return tileTypeMap;
+    }
+
+    @Override
+    public InternalResponseObject<List<MapMetadata>> getMapData() {
+        return new InternalResponseObject<>(mapStorage.values().stream().map(map -> new MapMetadata(map.getDatabaseID(), map.getName(), map.getCreatorUsername(), map.getSizeX(), map.getSizeY(), map.getHeroCapacity())).collect(Collectors.toList()),"maps");
     }
 
     @Override

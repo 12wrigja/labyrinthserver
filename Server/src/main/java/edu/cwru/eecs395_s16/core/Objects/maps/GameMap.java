@@ -1,5 +1,6 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
+import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.networking.Jsonable;
 import org.json.JSONArray;
@@ -13,7 +14,16 @@ import java.util.Optional;
 /**
  * Created by james on 2/12/16.
  */
-public interface GameMap extends Jsonable {
+public interface GameMap extends Jsonable, DatabaseObject {
+
+    String MAP_X_KEY = "x";
+    String MAP_Y_KEY = "y";
+    String MAP_SIZE_KEY = "size";
+    String MAP_TILES_KEY = "tiles";
+    String MAP_NAME_KEY = "name";
+    String MAP_CREATOR_ID_KEY = "creator_id";
+    String MAP_HERO_CAPACITY_KEY = "hero_capacity";
+    String MAP_ID_KEY = "id";
 
     Optional<MapTile> getTile(int x, int y);
 
@@ -65,9 +75,13 @@ public interface GameMap extends Jsonable {
         JSONObject mapObj = new JSONObject();
         JSONObject sizeObj = new JSONObject();
         try {
-            sizeObj.put("x", getSizeX());
-            sizeObj.put("y", getSizeY());
-            mapObj.put("size", sizeObj);
+            sizeObj.put(MAP_X_KEY, getSizeX());
+            sizeObj.put(MAP_Y_KEY, getSizeY());
+            mapObj.put(MAP_SIZE_KEY, sizeObj);
+            mapObj.put(MAP_NAME_KEY,getName());
+            mapObj.put(MAP_CREATOR_ID_KEY,getCreatorUsername());
+            mapObj.put(MAP_HERO_CAPACITY_KEY,getHeroCapacity());
+            mapObj.put(MAP_ID_KEY,getDatabaseID());
             JSONArray tileArray = new JSONArray();
             for (int i = 0; i < getSizeX(); i++) {
                 for (int j = 0; j < getSizeY(); j++) {
@@ -75,7 +89,7 @@ public interface GameMap extends Jsonable {
                     tileArray.put(getTile(i,j).get().getJSONRepresentation());
                 }
             }
-            mapObj.put("tiles", tileArray);
+            mapObj.put(MAP_TILES_KEY, tileArray);
         }catch(JSONException e){
             //Never will occur - all keys are not null
         }

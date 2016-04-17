@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Created by james on 3/1/16.
  */
-public class FromDatabaseMap implements DatabaseObject, GameMap {
+public class FromDatabaseMap implements GameMap {
 
     private final int databaseID;
     private final String name;

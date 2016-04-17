@@ -2,6 +2,7 @@ package edu.cwru.eecs395_s16.auth.exceptions;
 
 import edu.cwru.eecs395_s16.core.JsonableException;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,5 +21,9 @@ public class InvalidDataException extends JsonableException {
 
     public InvalidDataException(List<String> variableNames) {
         this(variableNames.toArray(new String[variableNames.size()]));
+    }
+
+    public InvalidDataException(String variableName, String longReason){
+        super(WebStatusCode.UNPROCESSABLE_DATA, "The data attribute " + variableName + " is not valid. Reason: "+longReason);
     }
 }

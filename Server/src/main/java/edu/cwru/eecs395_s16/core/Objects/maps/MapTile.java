@@ -11,6 +11,12 @@ import org.json.JSONObject;
  */
 public class MapTile extends Location implements Jsonable {
 
+    public static final String TERRAIN_KEY = "terrain";
+    public static final String ROTATION_KEY = "rotation";
+    public static final String OBSTACLE_KEY = "is_obstacle";
+    public static final String HERO_SPAWN_KEY = "is_hero_spawn_tile";
+    public static final String ARCHITECT_SPAWN_KEY = "is_architect_spawn_tile";
+    public static final String OBJECTIVE_SPAWN_KEY = "is_objective_spawn_tile";
     private MapRepository.TileType tileType;
     private final int rotation;
     private final boolean isHeroSpawn;
@@ -30,14 +36,14 @@ public class MapTile extends Location implements Jsonable {
     public JSONObject getJSONRepresentation() {
         JSONObject json = new JSONObject();
         try {
-            json.put("x", getX());
-            json.put("y",getY());
-            json.put("terrain", tileType.type);
-            json.put("rotation", rotation);
-            json.put("is_obstacle",tileType.isObstruction);
-            json.put("is_hero_spawn_tile",isHeroSpawn);
-            json.put("is_architect_spawn_tile",isArchitectSpawn);
-            json.put("is_objective_spawn_tile",isObjectiveSpawn);
+            json.put(X_KEY, getX());
+            json.put(Y_KEY,getY());
+            json.put(TERRAIN_KEY, tileType.type);
+            json.put(ROTATION_KEY, rotation);
+            json.put(OBSTACLE_KEY,tileType.isObstruction);
+            json.put(HERO_SPAWN_KEY,isHeroSpawn);
+            json.put(ARCHITECT_SPAWN_KEY,isArchitectSpawn);
+            json.put(OBJECTIVE_SPAWN_KEY,isObjectiveSpawn);
         } catch (JSONException e) {
             //Never will happen - all keys are not null
         }

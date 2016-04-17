@@ -67,6 +67,18 @@ public class NetworkingInterface {
         return new InternalResponseObject<>(new AlmostBlankMap(obj.getX(), obj.getY(), mRepo.getTileTypeMap()),"map");
     }
 
+    @NetworkEvent(description = "Returns metadata on all maps.")
+    public InternalResponseObject<List<MapRepository.MapMetadata>> maps(NoInputRequest obj, Player p){
+        MapRepository mRepo = GameEngine.instance().services.mapRepository;
+        return mRepo.getMapData();
+    }
+
+    @NetworkEvent(description = "Stores a map.")
+    public InternalResponseObject<Integer> storeMap(MapStoreRequest obj, Player p){
+        MapRepository mRepo = GameEngine.instance().services.mapRepository;
+        return mRepo.storeNewMapInDatabase(obj.getMap().getName(),p,obj.getMap());
+    }
+
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpHeroes(QueueHeroesRequest obj, Player p) {
         if (obj.shouldQueueWithPassBot()) {

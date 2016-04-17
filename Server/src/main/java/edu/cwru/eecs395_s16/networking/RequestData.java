@@ -39,4 +39,12 @@ public interface RequestData {
             throw new InvalidDataException(key);
         }
     }
+
+    static boolean getBoolean(JSONObject obj, String key) throws InvalidDataException {
+        try{
+            return obj.getBoolean(key);
+        } catch (JSONException e){
+            throw new InvalidDataException(key);
+        }
+    }
 }
