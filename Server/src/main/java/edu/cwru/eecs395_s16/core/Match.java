@@ -29,9 +29,10 @@ import java.util.stream.Collectors;
  * Created by james on 1/19/16.
  */
 public class Match implements Jsonable {
-
-    public static final String MATCH_END_KEY = "match_end";
+    
     public static final String MATCH_FOUND_KEY = "match_found";
+    public static final String MATCH_END_KEY = "end_game";
+    public static final String GAME_UPDATE_TYPE_KEY = "type";
     private final TimerTask pingTask;
 
     //Players
@@ -375,7 +376,7 @@ public class Match implements Jsonable {
                 if (numNotExhausted == 0) {
                     JSONObject turnEndObj = new JSONObject();
                     try {
-                        turnEndObj.put("type","turn_end");
+                        turnEndObj.put(GAME_UPDATE_TYPE_KEY,"turn_end");
                     } catch (JSONException e){
                         //
                     }
@@ -533,7 +534,7 @@ public class Match implements Jsonable {
     public void end(String reason, GameObjective.GAME_WINNER winner) {
         JSONObject endGameReason = new JSONObject();
         try {
-            endGameReason.put("type", "end_game");
+            endGameReason.put(GAME_UPDATE_TYPE_KEY, MATCH_END_KEY);
             endGameReason.put("reason", reason);
             String winnerUsername;
             switch(winner){
@@ -554,17 +555,8 @@ public class Match implements Jsonable {
         }
         doAndSnapshot(endGameReason,()->{
             gameState = GameState.GAME_END;
-        },false);
+        },true);
         //TODO commit match data, update xp, currency, etc
-        JSONObject reasonObj = new JSONObject();
-        try {
-            reasonObj = new JSONObject("{\"reason\":" + reason + "}");
-        } catch (JSONException e) {
-            if (GameEngine.instance().IS_DEBUG_MODE) {
-                e.printStackTrace();
-            }
-        }
-        broadcastToAllParties(MATCH_END_KEY, reasonObj);
         pingTask.cancel();
     }
 

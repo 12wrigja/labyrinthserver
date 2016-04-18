@@ -48,9 +48,12 @@ public class PassBot extends GameBot {
                     }
                 }
             } else if (event.equals(Match.GAME_UPDATE_KEY)) {
-                passAllCharacters();
-            } else if (event.equals(Match.MATCH_END_KEY)) {
-                sendEvent("leave_match", new JSONObject());
+                String gameStateStr = ((JSONObject)data).optString(Match.GAME_UPDATE_TYPE_KEY,null);
+                if(gameStateStr != null && gameStateStr.equals(Match.MATCH_END_KEY)){
+                    sendEvent("leave_match", new JSONObject());
+                } else {
+                    passAllCharacters();
+                }
             }
         }
     }
