@@ -1,13 +1,11 @@
 package edu.cwru.eecs395_s16.networking.requests.queueing;
 
 import edu.cwru.eecs395_s16.auth.exceptions.InvalidDataException;
-import edu.cwru.eecs395_s16.utils.JSONUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,7 +21,7 @@ public class QueueHeroesRequest extends QueueRequest {
     }
 
     public QueueHeroesRequest(boolean queueWithPassBot, int mapX, int mapY, Set<UUID> selectedHeroesIds) {
-        super(queueWithPassBot, mapX, mapY);
+        super(queueWithPassBot, mapX, mapY, -1, "dm");
         this.selectedHeroesIds = selectedHeroesIds;
     }
 

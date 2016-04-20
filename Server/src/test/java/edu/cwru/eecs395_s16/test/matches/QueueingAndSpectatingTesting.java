@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -95,8 +96,8 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
         QueueHeroesRequest heroReq = new QueueHeroesRequest(false, 10, 10, heroIDs);
         JSONObject heroQueueEvent = NetworkTestCore.emitEventAndWaitForResult(heroClient, "queue_up_heroes", heroReq.convertToJSON(), 10);
         assertEquals(200,heroQueueEvent.getInt("status"));
-        NetworkTestCore.storeDataForEvents(heroClient,"queue_error");
-        NetworkTestCore.storeDataForEvents(architectClient,"queue_error");
+        LinkedBlockingQueue<JSONObject> heroQueueErrorQueue = NetworkTestCore.storeDataForEvents(heroClient,"queue_error");
+        LinkedBlockingQueue<JSONObject> archQueueErrorQueue = NetworkTestCore.storeDataForEvents(architectClient,"queue_error");
         LinkedBlockingQueue<JSONObject> heroMatchFoundQueue = NetworkTestCore.storeDataForEvents(heroClient,"match_found");
 
         QueueArchitectRequest archRequest = new QueueArchitectRequest(false,10,10,null);
@@ -104,22 +105,36 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
         assertEquals(200,architectQueueEvent.getInt("status"));
         LinkedBlockingQueue<JSONObject> archMatchFoundQueue = NetworkTestCore.storeDataForEvents(architectClient,"match_found");
 
-        JSONObject matchObj = null;
+        JSONObject heroMatchObj = null;
         try {
-            matchObj = heroMatchFoundQueue.take();
+            heroMatchObj = heroMatchFoundQueue.poll(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
             fail("Interrupted while waiting for the heroes to find a match.");
             return;
         }
+        JSONObject architectMatchObj = null;
         try {
-            archMatchFoundQueue.take();
+            architectMatchObj = archMatchFoundQueue.poll(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
             fail("Interrupted while waiting for the architect to find a match.");
             return;
         }
 
+        if(heroMatchObj == null || architectMatchObj == null){
+            if(heroQueueErrorQueue.peek() != null && archQueueErrorQueue.peek() != null){
+                fail("Hero or Architect have received a queue error.");
+            } else if (heroQueueErrorQueue.peek() != null){
+                fail("Hero has received a queue error.");
+            } else if (archQueueErrorQueue.peek() != null){
+                fail("Architect has received a queue error.");
+            } else {
+                fail("Either heroes or architect have not received their match found events.");
+            }
+            return;
+        }
+        JSONObject matchObj = heroMatchObj;
         UUID matchID = UUID.fromString(matchObj.getString(Match.MATCH_ID_KEY));
 
         SpectateBot bot = new SpectateBot(UUID.randomUUID());

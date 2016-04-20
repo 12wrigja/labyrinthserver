@@ -8,7 +8,9 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.maps.AlmostBlankMap;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
+import edu.cwru.eecs395_s16.core.objects.objectives.CaptureObjectivesGameObjective;
 import edu.cwru.eecs395_s16.core.objects.objectives.DeathmatchGameObjective;
+import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.requests.*;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.BasicAttackActionData;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.CaptureObjectiveActionData;
@@ -81,23 +83,50 @@ public class NetworkingInterface {
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpHeroes(QueueHeroesRequest obj, Player p) {
+        InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj.getMapID());
+        GameMap map;
+        if(mapResp.isNormal()){
+            map = mapResp.get();
+        } else {
+            map = new AlmostBlankMap(10,10);
+        }
+        GameObjective objective = new DeathmatchGameObjective();
+        if(obj.getGameObjectiveShortCode().equals("obj")){
+            objective = new CaptureObjectivesGameObjective(1);
+        } else if (obj.getGameObjectiveShortCode().equals("dm")){
+            objective = new DeathmatchGameObjective();
+        }
         if (obj.shouldQueueWithPassBot()) {
             //TODO update this to pick a random map?
-            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), new AlmostBlankMap(obj.getMapX(), obj.getMapY()),new DeathmatchGameObjective(),obj.getSelectedHeroesIds(),null);
+            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), map, objective,obj.getSelectedHeroesIds(),null);
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
                 return InternalResponseObject.cloneError(m);
             }
         } else {
-            return GameEngine.instance().services.matchService.queueAsHeroes(p, obj);
+
+            return GameEngine.instance().services.matchService.queueAsHeroes(p, obj, map, objective);
         }
     }
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpArchitect(QueueArchitectRequest obj, Player p) {
+        InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj.getMapID());
+        GameMap map;
+        if(mapResp.isNormal()){
+            map = mapResp.get();
+        } else {
+            map = new AlmostBlankMap(10,10);
+        }
+        GameObjective objective = new DeathmatchGameObjective();
+        if(obj.getGameObjectiveShortCode().equals("obj")){
+            objective = new CaptureObjectivesGameObjective(1);
+        } else if (obj.getGameObjectiveShortCode().equals("dm")){
+            objective = new DeathmatchGameObjective();
+        }
         if (obj.shouldQueueWithPassBot()) {
-            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, new AlmostBlankMap(obj.getMapX(), obj.getMapY()), new DeathmatchGameObjective(),null,null);
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, map, objective, null,null);
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -105,7 +134,7 @@ public class NetworkingInterface {
                 return InternalResponseObject.cloneError(m);
             }
         } else {
-            return GameEngine.instance().services.matchService.queueAsArchitect(p, obj);
+            return GameEngine.instance().services.matchService.queueAsArchitect(p, obj, map, objective);
         }
     }
 
