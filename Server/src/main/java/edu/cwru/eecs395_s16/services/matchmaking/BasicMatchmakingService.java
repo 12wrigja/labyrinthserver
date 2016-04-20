@@ -179,21 +179,21 @@ public class BasicMatchmakingService implements MatchmakingService {
                                     architectQueue.add(architectQueueObj);
                                     queuedPlayers.add(architectPlayer);
                                     if(heroClient.isPresent()){
-                                        heroClient.get().sendEvent("queue_error",match.getJSONRepresentation());
+                                        heroClient.get().receiveEvent("queue_error",match.getJSONRepresentation());
                                     }
                                 } else if (match.getInternalErrorCode() == InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP){
                                     heroesQueue.add(heroQueueObj);
                                     queuedPlayers.add(heroPlayer);
                                     if(architectClient.isPresent()){
-                                        architectClient.get().sendEvent("queue_error",match.getJSONRepresentation());
+                                        architectClient.get().receiveEvent("queue_error",match.getJSONRepresentation());
                                     }
                                 } else {
                                     JSONObject errorObj = match.getJSONRepresentation();
                                     if(heroClient.isPresent()){
-                                        heroClient.get().sendEvent("queue_error",errorObj);
+                                        heroClient.get().receiveEvent("queue_error",errorObj);
                                     }
                                     if(architectClient.isPresent()){
-                                        architectClient.get().sendEvent("queue_error",errorObj);
+                                        architectClient.get().receiveEvent("queue_error",errorObj);
                                     }
                                 }
                             }

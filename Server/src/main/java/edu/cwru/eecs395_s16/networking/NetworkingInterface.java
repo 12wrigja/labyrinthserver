@@ -83,6 +83,9 @@ public class NetworkingInterface {
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpHeroes(QueueHeroesRequest obj, Player p) {
+        if(p.getCurrentMatchID().isPresent()){
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY,"You are in a match. Leave the match before queueing.");
+        }
         InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj.getMapID());
         GameMap map;
         if(mapResp.isNormal()){
@@ -112,6 +115,9 @@ public class NetworkingInterface {
 
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpArchitect(QueueArchitectRequest obj, Player p) {
+        if(p.getCurrentMatchID().isPresent()){
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY,"You are in a match. Leave the match before queueing.");
+        }
         InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj.getMapID());
         GameMap map;
         if(mapResp.isNormal()){
@@ -157,6 +163,9 @@ public class NetworkingInterface {
 
     @NetworkEvent(description = "Allows a player to spectate a match between other players.")
     public InternalResponseObject<String> spectate(SpectateMatchRequest obj, Player p) {
+        if(p.getCurrentMatchID().isPresent()){
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY,"You are in a match. Leave the match before spectating a match.");
+        }
         InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(obj.getMatchID());
         if (m.isNormal()) {
             Match match = m.get();
