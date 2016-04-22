@@ -60,8 +60,8 @@ public abstract class GameObject implements Jsonable {
         this.controllerID = controllerID;
     }
 
-    public boolean doesBlockMovement(){
-        return getGameObjectType()!=TYPE.TRAP;
+    public boolean doesBlockMovement() {
+        return getGameObjectType() != TYPE.TRAP;
     }
 
     @Override
@@ -75,11 +75,16 @@ public abstract class GameObject implements Jsonable {
             representation.put(GAMEOBJECT_TYPE_KEY, getGameObjectType().toString().toLowerCase());
             representation.put(OWNER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
             representation.put(CONTROLLER_ID_KEY, getOwnerID().isPresent() ? getOwnerID().get() : null);
-            representation.put(BLOCKS_MOVEMENT_KEY,doesBlockMovement());
+            representation.put(BLOCKS_MOVEMENT_KEY, doesBlockMovement());
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }
         return representation;
+    }
+
+    @Override
+    public int hashCode() {
+        return objectID.hashCode();
     }
 
     @Override
@@ -91,11 +96,6 @@ public abstract class GameObject implements Jsonable {
 
         return objectID.equals(object.objectID);
 
-    }
-
-    @Override
-    public int hashCode() {
-        return objectID.hashCode();
     }
 
     public enum TYPE {

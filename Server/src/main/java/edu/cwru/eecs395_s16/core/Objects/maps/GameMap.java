@@ -27,15 +27,15 @@ public interface GameMap extends Jsonable, DatabaseObject {
 
     Optional<MapTile> getTile(int x, int y);
 
-    default Optional<MapTile> getTile(Location loc){
-        return getTile(loc.getX(),loc.getY());
-    };
+    default Optional<MapTile> getTile(Location loc) {
+        return getTile(loc.getX(), loc.getY());
+    }
 
     int getSizeX();
 
     int getSizeY();
 
-    default List<Location> getTileNeighbours(Location tile){
+    default List<Location> getTileNeighbours(Location tile) {
         List<Location> neighbours = new ArrayList<>();
         int x = tile.getX();
         int y = tile.getY();
@@ -43,54 +43,54 @@ public interface GameMap extends Jsonable, DatabaseObject {
         int mapX = getSizeX();
         int mapY = getSizeY();
 
-        if( x-1 >= 0){
-            neighbours.add(new Location(x-1,y));
-            if(y-1 >= 0){
-                neighbours.add(new Location(x-1,y-1));
+        if (x - 1 >= 0) {
+            neighbours.add(new Location(x - 1, y));
+            if (y - 1 >= 0) {
+                neighbours.add(new Location(x - 1, y - 1));
             }
-            if(y+1 < mapY){
-                neighbours.add(new Location(x-1,y+1));
-            }
-        }
-        if(x+1 < mapX){
-            neighbours.add(new Location(x+1,y));
-            if(y-1 >= 0){
-                neighbours.add(new Location(x+1,y-1));
-            }
-            if(y+1 < mapY){
-                neighbours.add(new Location(x+1,y+1));
+            if (y + 1 < mapY) {
+                neighbours.add(new Location(x - 1, y + 1));
             }
         }
-        if(y-1 >= 0){
-            neighbours.add(new Location(x,y-1));
+        if (x + 1 < mapX) {
+            neighbours.add(new Location(x + 1, y));
+            if (y - 1 >= 0) {
+                neighbours.add(new Location(x + 1, y - 1));
+            }
+            if (y + 1 < mapY) {
+                neighbours.add(new Location(x + 1, y + 1));
+            }
         }
-        if(y+1 < mapY){
-            neighbours.add(new Location(x,y+1));
+        if (y - 1 >= 0) {
+            neighbours.add(new Location(x, y - 1));
+        }
+        if (y + 1 < mapY) {
+            neighbours.add(new Location(x, y + 1));
         }
         return neighbours;
     }
 
     @Override
-    default JSONObject getJSONRepresentation(){
+    default JSONObject getJSONRepresentation() {
         JSONObject mapObj = new JSONObject();
         JSONObject sizeObj = new JSONObject();
         try {
             sizeObj.put(MAP_X_KEY, getSizeX());
             sizeObj.put(MAP_Y_KEY, getSizeY());
             mapObj.put(MAP_SIZE_KEY, sizeObj);
-            mapObj.put(MAP_NAME_KEY,getName());
-            mapObj.put(MAP_CREATOR_ID_KEY,getCreatorUsername());
-            mapObj.put(MAP_HERO_CAPACITY_KEY,getHeroCapacity());
-            mapObj.put(MAP_ID_KEY,getDatabaseID());
+            mapObj.put(MAP_NAME_KEY, getName());
+            mapObj.put(MAP_CREATOR_ID_KEY, getCreatorUsername());
+            mapObj.put(MAP_HERO_CAPACITY_KEY, getHeroCapacity());
+            mapObj.put(MAP_ID_KEY, getDatabaseID());
             JSONArray tileArray = new JSONArray();
             for (int i = 0; i < getSizeX(); i++) {
                 for (int j = 0; j < getSizeY(); j++) {
                     //JSONRepresentation Change
-                    tileArray.put(getTile(i,j).get().getJSONRepresentation());
+                    tileArray.put(getTile(i, j).get().getJSONRepresentation());
                 }
             }
             mapObj.put(MAP_TILES_KEY, tileArray);
-        }catch(JSONException e){
+        } catch (JSONException e) {
             //Never will occur - all keys are not null
         }
         return mapObj;

@@ -1,16 +1,16 @@
 package edu.cwru.eecs395_s16.auth;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.JsonableException;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.RequestData;
 import edu.cwru.eecs395_s16.networking.Response;
-import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
-import edu.cwru.eecs395_s16.services.connections.GameClient;
-import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
@@ -24,11 +24,10 @@ import java.util.UUID;
 public class AuthenticationMiddleware {
 
     private final Method next;
-    private boolean needsAuthentication = false;
     private final NetworkingInterface instance;
     private final SessionRepository sessions;
-
     private final Class<? extends RequestData> objClass;
+    private boolean needsAuthentication = false;
 
     public AuthenticationMiddleware(NetworkingInterface instance, SessionRepository sessions, Method next, boolean needsAuthentication) {
         this.next = next;
@@ -68,7 +67,7 @@ public class AuthenticationMiddleware {
                     p = Optional.of((GameBot) client);
                 } else {
                     InternalResponseObject<Player> pResp = sessions.findPlayer(token);
-                    if(pResp.isNormal()){
+                    if (pResp.isNormal()) {
                         p = Optional.of(pResp.get());
                     } else {
                         response = new InternalResponseObject<>(WebStatusCode.UNAUTHENTICATED);
@@ -77,7 +76,7 @@ public class AuthenticationMiddleware {
                 if (p.isPresent()) {
                     p.get().setClient(Optional.of(client));
                     //Check to see if you need to re-join the client room
-                    if(p.get().getCurrentMatchID().isPresent()){
+                    if (p.get().getCurrentMatchID().isPresent()) {
                         client.joinRoom(p.get().getCurrentMatchID().toString());
                     }
                     //We are all good. Invoke the next method.

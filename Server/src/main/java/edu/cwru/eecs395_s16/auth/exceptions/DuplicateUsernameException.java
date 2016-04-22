@@ -9,7 +9,7 @@ import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 public class DuplicateUsernameException extends JsonableException {
 
     public DuplicateUsernameException(String username) {
-        super(WebStatusCode.UNPROCESSABLE_DATA,"The username "+username+" is not valid.");
+        super(WebStatusCode.UNPROCESSABLE_DATA, "The username " + username + " is not valid.");
     }
 
 }

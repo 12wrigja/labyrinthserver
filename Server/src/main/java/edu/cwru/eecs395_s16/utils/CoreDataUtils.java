@@ -1,6 +1,9 @@
 package edu.cwru.eecs395_s16.utils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -14,7 +17,11 @@ public class CoreDataUtils {
 
     private static final String DEFAULT_CORE_DATA_FILE = "new_base_data.data";
     private static final String TABLE_EXISTS_QUERY = "select exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = ?);";
+    private static final Pattern startCreateSchemaPattern = Pattern.compile("create\\s+table\\s+(?:if not exists)?\\s+(.*?)\\s+\\(", Pattern.CASE_INSENSITIVE);
+    private static final Pattern startDataSetPattern = Pattern.compile("start\\s+(.*)?\\r?\\n?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern endDataSetPattern = Pattern.compile("end\\s+(.*)\\r?\\n?", Pattern.CASE_INSENSITIVE);
     private static Map<String, CoreDataEntry> coreData;
+    private static Map<String, String> createSchemaMap;
 
     public static Map<String, CoreDataEntry> defaultCoreData() {
         if (coreData == null) {
@@ -22,11 +29,6 @@ public class CoreDataUtils {
         }
         return coreData;
     }
-
-    private static Map<String, String> createSchemaMap;
-    private static final Pattern startCreateSchemaPattern = Pattern.compile("create\\s+table\\s+(?:if not exists)?\\s+(.*?)\\s+\\(", Pattern.CASE_INSENSITIVE);
-    private static final Pattern startDataSetPattern = Pattern.compile("start\\s+(.*)?\\r?\\n?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern endDataSetPattern = Pattern.compile("end\\s+(.*)\\r?\\n?", Pattern.CASE_INSENSITIVE);
 
     public static Map<String, CoreDataEntry> parse(String fileName) {
         Map<String, CoreDataEntry> entries = new HashMap<>();
@@ -73,27 +75,11 @@ public class CoreDataUtils {
         return entries;
     }
 
-    public static class CoreDataEntry {
-        public final int order;
-        public final String name;
-        public final List<String> entries;
-
-        public CoreDataEntry(int order, String name) {
-            this.order = order;
-            this.name = name;
-            this.entries = new ArrayList<>();
-        }
-
-        public void addEntry(String entry) {
-            entries.add(entry);
-        }
-    }
-
     public static boolean setCreateSchemaMap(String schemaFileName) {
         if (createSchemaMap == null) {
             List<String> lines = getSqlLines(schemaFileName);
             createSchemaMap = new HashMap<>();
-            for(String line : lines) {
+            for (String line : lines) {
                 Matcher m = startCreateSchemaPattern.matcher(line);
                 if (m.find()) {
                     String tableName = m.group(1);
@@ -138,7 +124,7 @@ public class CoreDataUtils {
         if (!createSchemaMap.containsKey(tableName)) {
             return false;
         }
-        if(isSchemaInitialized(conn,tableName)){
+        if (isSchemaInitialized(conn, tableName)) {
             return true;
         }
         String createLine = createSchemaMap.get(tableName);
@@ -150,7 +136,7 @@ public class CoreDataUtils {
             e.printStackTrace();
             return false;
         }
-        return isSchemaInitialized(conn,tableName);
+        return isSchemaInitialized(conn, tableName);
     }
 
     public static List<String> sqlCSVSplit(String line) {
@@ -216,6 +202,22 @@ public class CoreDataUtils {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static class CoreDataEntry {
+        public final int order;
+        public final String name;
+        public final List<String> entries;
+
+        public CoreDataEntry(int order, String name) {
+            this.order = order;
+            this.name = name;
+            this.entries = new ArrayList<>();
+        }
+
+        public void addEntry(String entry) {
+            entries.add(entry);
         }
     }
 

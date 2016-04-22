@@ -4,12 +4,12 @@ import edu.cwru.eecs395_s16.annotations.NetworkEvent;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.services.connections.ClientConnectionService;
-import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.networking.NetworkingInterface;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
-import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
 import edu.cwru.eecs395_s16.services.bots.BotClientService;
+import edu.cwru.eecs395_s16.services.connections.ClientConnectionService;
+import edu.cwru.eecs395_s16.services.connections.GameClient;
+import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 
 import java.io.IOException;
@@ -21,24 +21,37 @@ import java.util.*;
  */
 public class GameEngine {
 
-    private boolean isStarted = false;
-
-    private Map<String, FunctionDescription> functionDescriptions;
-
-    private UUID instanceID;
-
     public static final InheritableThreadLocal<GameEngine> threadLocalGameEngine = new InheritableThreadLocal<>();
-
-    public static GameEngine instance() {
-        return threadLocalGameEngine.get();
-    }
-
     public final boolean IS_DEBUG_MODE;
-
     public final NetworkingInterface networkingInterface;
     public final ServiceContainer services;
     public final Timer gameTimer;
     public final BotClientService botService;
+    private boolean isStarted = false;
+    private Map<String, FunctionDescription> functionDescriptions;
+    private UUID instanceID;
+    private List<ClientConnectionService> clientConnectionServices;
+
+    public GameEngine(ServiceContainer container) {
+        this(false, container);
+    }
+
+    public GameEngine(boolean debugMode, ServiceContainer serviceContainer) {
+        this.instanceID = UUID.randomUUID();
+        threadLocalGameEngine.set(this);
+        this.services = serviceContainer;
+        this.IS_DEBUG_MODE = debugMode;
+        this.gameTimer = new Timer();
+        this.networkingInterface = new NetworkingInterface();
+        this.clientConnectionServices = new ArrayList<>();
+        this.botService = new BotClientService();
+        clientConnectionServices.add(botService);
+        System.out.println("GameEngine created with ID: " + instanceID.toString());
+    }
+
+    public static GameEngine instance() {
+        return threadLocalGameEngine.get();
+    }
 
     public void broadcastEventForRoom(String roomName, String eventName, Object data) {
         for (ClientConnectionService service : clientConnectionServices) {
@@ -54,25 +67,6 @@ public class GameEngine {
             }
         }
         return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
-    }
-
-    public GameEngine(ServiceContainer container) {
-        this(false, container);
-    }
-
-    private List<ClientConnectionService> clientConnectionServices;
-
-    public GameEngine(boolean debugMode, ServiceContainer serviceContainer) {
-        this.instanceID = UUID.randomUUID();
-        threadLocalGameEngine.set(this);
-        this.services = serviceContainer;
-        this.IS_DEBUG_MODE = debugMode;
-        this.gameTimer = new Timer();
-        this.networkingInterface = new NetworkingInterface();
-        this.clientConnectionServices = new ArrayList<>();
-        this.botService = new BotClientService();
-        clientConnectionServices.add(botService);
-        System.out.println("GameEngine created with ID: " + instanceID.toString());
     }
 
     public void addClientService(ClientConnectionService service) {
@@ -117,21 +111,6 @@ public class GameEngine {
         this.gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
     }
 
-    private String convertMethodNameToEventName(String methodName) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < methodName.length(); i++) {
-            char letter = methodName.charAt(i);
-            if (letter <= 'Z' && letter >= 'A') {
-                sb.append('_');
-                sb.append((char) ((int) letter + 32));
-            } else {
-                sb.append(letter);
-            }
-        }
-        return sb.toString();
-
-    }
-
     public List<FunctionDescription> getAllFunctions() {
         return new ArrayList<>(functionDescriptions.values());
     }
@@ -157,5 +136,20 @@ public class GameEngine {
 
     public boolean isStarted() {
         return isStarted;
+    }
+
+    private String convertMethodNameToEventName(String methodName) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < methodName.length(); i++) {
+            char letter = methodName.charAt(i);
+            if (letter <= 'Z' && letter >= 'A') {
+                sb.append('_');
+                sb.append((char) ((int) letter + 32));
+            } else {
+                sb.append(letter);
+            }
+        }
+        return sb.toString();
+
     }
 }

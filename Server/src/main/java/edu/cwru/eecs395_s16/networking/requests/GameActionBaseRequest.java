@@ -10,6 +10,10 @@ import org.json.JSONObject;
  */
 public class GameActionBaseRequest implements RequestData {
 
+    private static final String ENUM_APPEND = "_ACTION";
+    private JSONObject originalData;
+    private ACTION_TYPE type;
+
     public JSONObject getOriginalData() {
         return originalData;
     }
@@ -18,25 +22,11 @@ public class GameActionBaseRequest implements RequestData {
         return type;
     }
 
-    public enum ACTION_TYPE {
-        MOVE_ACTION,
-        BASIC_ATTACK_ACTION,
-        ABILITY_ACTION,
-        PASS_ACTION,
-        CAPTURE_OBJECTIVE_ACTION;
-    }
-
-    private static final String ENUM_APPEND = "_ACTION";
-
-    private JSONObject originalData;
-
-    private ACTION_TYPE type;
-
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         this.originalData = obj;
         try {
-            type = ACTION_TYPE.valueOf(obj.getString("type").toUpperCase()+ENUM_APPEND);
+            type = ACTION_TYPE.valueOf(obj.getString("type").toUpperCase() + ENUM_APPEND);
         } catch (JSONException e) {
             throw new InvalidDataException("type");
         }
@@ -46,10 +36,18 @@ public class GameActionBaseRequest implements RequestData {
     public JSONObject convertToJSON() {
         try {
             JSONObject repr = new JSONObject(this.originalData.toString());
-            repr.put("type",this.type.toString().split("_")[0]);
+            repr.put("type", this.type.toString().split("_")[0]);
             return repr;
         } catch (JSONException e) {
             return new JSONObject();
         }
+    }
+
+    public enum ACTION_TYPE {
+        MOVE_ACTION,
+        BASIC_ATTACK_ACTION,
+        ABILITY_ACTION,
+        PASS_ACTION,
+        CAPTURE_OBJECTIVE_ACTION
     }
 }

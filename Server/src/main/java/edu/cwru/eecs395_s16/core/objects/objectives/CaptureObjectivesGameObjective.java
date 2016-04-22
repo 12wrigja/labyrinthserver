@@ -5,7 +5,6 @@ import edu.cwru.eecs395_s16.core.objects.Location;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -29,25 +28,25 @@ public class CaptureObjectivesGameObjective extends DeathmatchGameObjective {
     }
 
     @Override
-    public void setup(Match match) {
-        List<Location> objectiveSpawnLocations = match.getGameMap().getObjectiveSpawnLocations();
-        Collections.shuffle(objectiveSpawnLocations);
-        if (objectiveSpawnLocations.size() > 0) {
-            numberOfObjectives = Math.min(objectiveSpawnLocations.size(),numberOfObjectives);
-            for(int i=0; i<numberOfObjectives; i++){
-                ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID(), objectiveSpawnLocations.get(i));
-                match.getBoardObjects().add(obj);
-            }
-        }
-    }
-
-    @Override
     public GAME_WINNER checkForGameEnd(Match match) {
-        numObjectivesCaptured = (int) match.getBoardObjects().stream().filter(obj->obj instanceof ObjectiveGameObject).map(obj -> (ObjectiveGameObject)obj).filter(objective -> objective.getControllerID().isPresent() && objective.getControllerID().get().equals(match.getHeroPlayer().getUsername())).count();
+        numObjectivesCaptured = (int) match.getBoardObjects().stream().filter(obj -> obj instanceof ObjectiveGameObject).map(obj -> (ObjectiveGameObject) obj).filter(objective -> objective.getControllerID().isPresent() && objective.getControllerID().get().equals(match.getHeroPlayer().getUsername())).count();
         if (numberOfObjectives == numObjectivesCaptured) {
             return GAME_WINNER.HERO_WINNER;
         } else {
             return super.checkForGameEnd(match);
+        }
+    }
+
+    @Override
+    public void setup(Match match) {
+        List<Location> objectiveSpawnLocations = match.getGameMap().getObjectiveSpawnLocations();
+        Collections.shuffle(objectiveSpawnLocations);
+        if (objectiveSpawnLocations.size() > 0) {
+            numberOfObjectives = Math.min(objectiveSpawnLocations.size(), numberOfObjectives);
+            for (int i = 0; i < numberOfObjectives; i++) {
+                ObjectiveGameObject obj = new ObjectiveGameObject(UUID.randomUUID(), objectiveSpawnLocations.get(i));
+                match.getBoardObjects().add(obj);
+            }
         }
     }
 

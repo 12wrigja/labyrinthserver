@@ -16,7 +16,7 @@ public class QueueHeroesRequest extends QueueRequest {
 
     Set<UUID> selectedHeroesIds;
 
-    public QueueHeroesRequest(){
+    public QueueHeroesRequest() {
         selectedHeroesIds = null;
     }
 
@@ -28,25 +28,21 @@ public class QueueHeroesRequest extends QueueRequest {
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
         super.fillFromJSON(obj);
-        if(obj.has("heroes")){
+        if (obj.has("heroes")) {
             selectedHeroesIds = new HashSet<>();
-            try{
+            try {
                 JSONArray heroesArr = obj.getJSONArray("heroes");
-                for(int i=0; i<heroesArr.length(); i++) {
+                for (int i = 0; i < heroesArr.length(); i++) {
                     String id = heroesArr.getString(i);
                     UUID uuid = UUID.fromString(id);
                     selectedHeroesIds.add(uuid);
                 }
-            } catch (IllegalArgumentException e1){
+            } catch (IllegalArgumentException e1) {
                 throw new InvalidDataException("heroes");
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 throw new InvalidDataException("heroes");
             }
         }
-    }
-
-    public Set<UUID> getSelectedHeroesIds() {
-        return selectedHeroesIds;
     }
 
     @Override
@@ -54,13 +50,17 @@ public class QueueHeroesRequest extends QueueRequest {
         JSONObject repr = super.convertToJSON();
         try {
             JSONArray heroIDArray = new JSONArray();
-            for(UUID id : selectedHeroesIds){
+            for (UUID id : selectedHeroesIds) {
                 heroIDArray.put(id.toString());
             }
             repr.put("heroes", heroIDArray);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             //should never happen - no-null keys
         }
         return repr;
+    }
+
+    public Set<UUID> getSelectedHeroesIds() {
+        return selectedHeroesIds;
     }
 }

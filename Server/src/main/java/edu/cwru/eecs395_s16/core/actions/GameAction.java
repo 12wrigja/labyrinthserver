@@ -19,10 +19,6 @@ import java.util.*;
  */
 public interface GameAction extends Jsonable {
 
-    InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player);
-
-    void doGameAction(GameMap map, GameObjectCollection boardObjects);
-
     static boolean isControlledByPlayer(GameObject object, Player p) {
         return object.getControllerID().isPresent() && object.getControllerID().get().equals(p.getUsername());
     }
@@ -87,13 +83,10 @@ public interface GameAction extends Jsonable {
             }
             if (node.dist < radius) {
                 List<Location> neighbours = map.getTileNeighbours(node.loc);
-                for (Location neighbour : neighbours) {
-                    if (node.loc.isNeighbourOf(neighbour, includeDiagonals) && !map.getTile(neighbour).get().isObstructionTileType()) {
-                        if (!openList.contains(neighbour) || closedList.contains(neighbour)) {
-                            openList.add(new BFSNode(neighbour, node.dist + 1));
-                        }
-                    }
-                }
+                neighbours.stream()
+                        .filter(neighbour -> node.loc.isNeighbourOf(neighbour, includeDiagonals) && map.getTile(neighbour).isPresent() && !map.getTile(neighbour).get().isObstructionTileType())
+                        .filter(neighbour -> !openList.contains(neighbour) || closedList.contains(neighbour))
+                        .forEachOrdered(neighbour -> openList.add(new BFSNode(neighbour, node.dist + 1)));
             }
         }
         return closedList;
@@ -121,12 +114,16 @@ public interface GameAction extends Jsonable {
             return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS, "The " + objectIDKey + " creature has no action points remaining.");
         }
 
-        if(creature.getHealth() == 0){
+        if (creature.getHealth() == 0) {
             return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " creature is dead.");
         }
 
-        return new InternalResponseObject<>(true,"valid_object");
+        return new InternalResponseObject<>(true, "valid_object");
     }
+
+    InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player);
+
+    void doGameAction(GameMap map, GameObjectCollection boardObjects);
 
     class BFSNode {
         Location loc;

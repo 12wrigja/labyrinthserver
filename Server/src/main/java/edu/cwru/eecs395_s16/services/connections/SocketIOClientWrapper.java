@@ -26,7 +26,7 @@ public final class SocketIOClientWrapper implements GameClient {
     @Override
     public final void receiveEvent(String event, Object data) {
         //This should just work as Socket.IO uses Jackson to auto-serialize the data
-        this.client.sendEvent(event,data);
+        this.client.sendEvent(event, data);
     }
 
     @Override

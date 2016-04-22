@@ -4,7 +4,10 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.services.maps.MapRepository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by james on 2/23/16.
@@ -19,10 +22,10 @@ public class AlmostBlankMap implements GameMap {
     private List<Location> objectiveSpawnLocations;
 
     public AlmostBlankMap(int x, int y) {
-        this(x,y,GameEngine.instance().services.mapRepository.getTileTypeMap());
+        this(x, y, GameEngine.instance().services.mapRepository.getTileTypeMap());
     }
 
-    public AlmostBlankMap(int x, int y, Map<String,MapRepository.TileType> tileMap){
+    public AlmostBlankMap(int x, int y, Map<String, MapRepository.TileType> tileMap) {
         tiles = new MapTile[x][y];
         this.heroSpawnLocations = new ArrayList<>();
         this.architectSpawnLocations = new ArrayList<>();
@@ -34,19 +37,19 @@ public class AlmostBlankMap implements GameMap {
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
                 MapTile t;
-                MapRepository.TileType tType = (i % 4 == 0 && i != 0 && y >= 2 && j >= 2 && j <= y-2)?wallType:dirtType;
-                boolean isHeroSpawnPoint = (i>=0 && i<=2 && j >= 0 && j <= 2) && !tType.isObstruction;
-                boolean isArchitectSpawnPoint = (i>=0 && i >= x-2 && i < x && j>=0 && j>=y-2 && j < y) && !tType.isObstruction;
-                boolean isObjectiveSpawnPoint = (i == x/2 && j==y/2);
+                MapRepository.TileType tType = (i % 4 == 0 && i != 0 && y >= 2 && j >= 2 && j <= y - 2) ? wallType : dirtType;
+                boolean isHeroSpawnPoint = (i >= 0 && i <= 2 && j >= 0 && j <= 2) && !tType.isObstruction;
+                boolean isArchitectSpawnPoint = (i >= 0 && i >= x - 2 && i < x && j >= 0 && j >= y - 2 && j < y) && !tType.isObstruction;
+                boolean isObjectiveSpawnPoint = (i == x / 2 && j == y / 2);
                 t = new MapTile(i, j, tType, 0, isHeroSpawnPoint, isArchitectSpawnPoint, isObjectiveSpawnPoint);
                 tiles[i][j] = t;
-                if(isHeroSpawnPoint){
+                if (isHeroSpawnPoint) {
                     heroSpawnLocations.add(t);
                 }
-                if(isArchitectSpawnPoint){
+                if (isArchitectSpawnPoint) {
                     architectSpawnLocations.add(t);
                 }
-                if(isObjectiveSpawnPoint){
+                if (isObjectiveSpawnPoint) {
                     objectiveSpawnLocations.add(t);
                 }
             }

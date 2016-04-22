@@ -12,7 +12,10 @@ import java.util.UUID;
  */
 public interface SessionRepository {
     InternalResponseObject<Player> findPlayer(UUID clientID);
+
     Optional<GameClient> findClient(Player player);
+
     void storePlayer(UUID clientID, Player player);
+
     void expirePlayerSession(UUID clientID);
 }

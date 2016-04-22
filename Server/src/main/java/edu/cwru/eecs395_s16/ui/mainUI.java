@@ -1,9 +1,9 @@
 package edu.cwru.eecs395_s16.ui;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.services.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.services.connections.SocketIOConnectionService;
 import edu.cwru.eecs395_s16.services.containers.ServiceContainer;
+import edu.cwru.eecs395_s16.services.matchmaking.BasicMatchmakingService;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 import redis.clients.jedis.JedisPool;
 
@@ -21,15 +21,13 @@ import java.util.*;
  */
 public class mainUI {
 
-    private static GameEngine activeEngine;
-
-    private static Scanner scan;
-
-    private static final String DEFAULT_DATA_FILE_NAME = "new_base_data.data";
-
     public static final String JDBC_CONN_STRING = "jdbc:postgresql:vagrant";
     public static final String DB_USERNAME = "vagrant";
     public static final String DB_PASSWORD = "vagrant";
+    private static final String DEFAULT_DATA_FILE_NAME = "new_base_data.data";
+    private static GameEngine activeEngine;
+    private static Scanner scan;
+
     public static Connection getDBConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_CONN_STRING, DB_USERNAME, DB_PASSWORD);
     }
@@ -59,15 +57,15 @@ public class mainUI {
                             dbConnection = getDBConnection();
                         } catch (SQLException e) {
                             System.err.println("Unable to create connection to Postgres Database.");
-                            if(enableTrace){
+                            if (enableTrace) {
                                 e.printStackTrace();
                             }
                             return;
                         }
                         JedisPool jedisPool = new JedisPool("localhost");
-                        container = ServiceContainer.buildPersistantContainer(data,dbConnection,jedisPool, new BasicMatchmakingService());
+                        container = ServiceContainer.buildPersistantContainer(data, dbConnection, jedisPool, new BasicMatchmakingService());
                     } else {
-                        container = ServiceContainer.buildInMemoryContainer(data,new BasicMatchmakingService());
+                        container = ServiceContainer.buildInMemoryContainer(data, new BasicMatchmakingService());
                     }
                     GameEngine engine = new GameEngine(enableTrace, container);
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
@@ -95,14 +93,14 @@ public class mainUI {
                         if (enableTrace) {
                             e.printStackTrace();
                         }
-                    } catch (UnknownHostException e){
+                    } catch (UnknownHostException e) {
                         System.err.println("Unable to start engine - a provided interface for one of the client services is not valid.");
                         if (enableTrace) {
                             e.printStackTrace();
                         }
                     } catch (IOException e) {
                         System.err.println("An unknown error occurred.");
-                        if(enableTrace) {
+                        if (enableTrace) {
                             e.printStackTrace();
                         } else {
                             System.err.println(" Run this command again with the trace option set to true to print a stacktrace.");
@@ -135,10 +133,10 @@ public class mainUI {
                     ConsoleCommand specificCommand = cmdMap.get(cmd);
                     if (specificCommand != null) {
                         //Print specific command help here.
-                        System.out.println("Command: "+specificCommand.phrase);
-                        System.out.println("Description: "+specificCommand.description);
+                        System.out.println("Command: " + specificCommand.phrase);
+                        System.out.println("Description: " + specificCommand.description);
                         System.out.println("Required Parameters: ");
-                        if(specificCommand.requiredParameters.size() > 0) {
+                        if (specificCommand.requiredParameters.size() > 0) {
                             for (String param : specificCommand.requiredParameters) {
                                 System.out.println(" - " + param);
                             }
@@ -146,7 +144,7 @@ public class mainUI {
                             System.out.println("none");
                         }
                         System.out.println("Optional Parameters: ");
-                        if(specificCommand.optionalParameters.size() > 0){
+                        if (specificCommand.optionalParameters.size() > 0) {
                             for (String param : specificCommand.optionalParameters) {
                                 System.out.println(" - " + param);
                             }
@@ -160,7 +158,7 @@ public class mainUI {
                     ConsoleTable tbl = new ConsoleTable();
                     tbl.setRowHeaders("Command", "Description", "Required Parameters", "Optional Parameters");
                     for (ConsoleCommand c : cmds) {
-                        tbl.addRow(c.phrase, c.description, c.requiredParameters.toString().replaceAll("\\[|\\]",""), c.optionalParameters.toString().replaceAll("\\[|\\]",""));
+                        tbl.addRow(c.phrase, c.description, c.requiredParameters.toString().replaceAll("\\[|\\]", ""), c.optionalParameters.toString().replaceAll("\\[|\\]", ""));
                     }
                     System.out.println(tbl);
                 }
@@ -190,10 +188,10 @@ public class mainUI {
             public void run() {
                 String fn = getOption("fn");
                 FunctionDescription fd = activeEngine.getFunctionDescription(fn);
-                System.out.println("Function: "+fd.humanName);
-                System.out.println("Socket Event: "+fd.name);
-                System.out.println("Description: "+fd.description);
-                System.out.println("Parameters: "+ Arrays.toString(fd.parameters));
+                System.out.println("Function: " + fd.humanName);
+                System.out.println("Socket Event: " + fd.name);
+                System.out.println("Description: " + fd.description);
+                System.out.println("Parameters: " + Arrays.toString(fd.parameters));
             }
         };
 
@@ -208,17 +206,17 @@ public class mainUI {
             }
         };
 
-        ConsoleCommand seedDBCommand = new ConsoleCommand("seed","Seeds the database with initial data. WILL DROP ALL EXISTING DATA.","dataFile") {
+        ConsoleCommand seedDBCommand = new ConsoleCommand("seed", "Seeds the database with initial data. WILL DROP ALL EXISTING DATA.", "dataFile") {
             @Override
             public void run() {
                 System.out.println(new File(".").getAbsolutePath());
                 String dataFile;
-                if(getOption("dataFile") != null){
+                if (getOption("dataFile") != null) {
                     dataFile = getOption("dataFile");
                 } else {
                     dataFile = DEFAULT_DATA_FILE_NAME;
                 }
-                Map<String,CoreDataUtils.CoreDataEntry> coreData = CoreDataUtils.parse(dataFile);
+                Map<String, CoreDataUtils.CoreDataEntry> coreData = CoreDataUtils.parse(dataFile);
                 Connection dbConnection;
                 try {
                     dbConnection = getDBConnection();
@@ -228,7 +226,7 @@ public class mainUI {
                     return;
                 }
                 JedisPool jedisPool = new JedisPool("localhost");
-                ServiceContainer c = ServiceContainer.buildPersistantContainer(coreData,dbConnection,jedisPool,new BasicMatchmakingService());
+                ServiceContainer c = ServiceContainer.buildPersistantContainer(coreData, dbConnection, jedisPool, new BasicMatchmakingService());
                 c.cleanAndInit(coreData);
             }
         };
@@ -254,7 +252,7 @@ public class mainUI {
             String command;
             try {
                 command = scan.nextLine();
-            }catch(Exception e){
+            } catch (Exception e) {
                 exitCommand.run();
                 break;
             }

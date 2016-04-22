@@ -12,7 +12,7 @@ public class GetMapRequest implements RequestData {
 
     int requestedMapID;
 
-    public GetMapRequest(){
+    public GetMapRequest() {
         requestedMapID = -1;
     }
 
@@ -22,15 +22,15 @@ public class GetMapRequest implements RequestData {
 
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        requestedMapID = obj.optInt("map_id",-1);
+        requestedMapID = obj.optInt("map_id", -1);
     }
 
     @Override
     public JSONObject convertToJSON() {
         JSONObject repr = new JSONObject();
         try {
-            repr.put("map_id",requestedMapID);
-        } catch (JSONException e){
+            repr.put("map_id", requestedMapID);
+        } catch (JSONException e) {
             //Should not happen - non-null keys
         }
         return repr;

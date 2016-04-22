@@ -30,7 +30,7 @@ public class Monster extends Creature {
     public JSONObject getJSONRepresentation() {
         JSONObject repr = super.getJSONRepresentation();
         try {
-            repr.put(NAME_KEY,name);
+            repr.put(NAME_KEY, name);
         } catch (JSONException e) {
             //DO nothing should never happen
         }

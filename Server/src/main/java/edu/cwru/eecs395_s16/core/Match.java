@@ -1,22 +1,20 @@
 package edu.cwru.eecs395_s16.core;
 
 import edu.cwru.eecs395_s16.GameEngine;
+import edu.cwru.eecs395_s16.core.actions.GameAction;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
+import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
-import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.maps.FromJSONGameMap;
+import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Jsonable;
-import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
-import edu.cwru.eecs395_s16.core.actions.GameAction;
-import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
-import edu.cwru.eecs395_s16.core.objects.GameObject;
-import edu.cwru.eecs395_s16.services.cache.CacheService;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
-import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
+import edu.cwru.eecs395_s16.services.cache.CacheService;
 import edu.cwru.eecs395_s16.utils.JSONDiff;
 import edu.cwru.eecs395_s16.utils.JSONUtils;
 import org.json.JSONException;
@@ -29,56 +27,67 @@ import java.util.stream.Collectors;
  * Created by james on 1/19/16.
  */
 public class Match implements Jsonable {
-    
+
     public static final String MATCH_FOUND_KEY = "match_found";
     public static final String MATCH_END_KEY = "end_game";
     public static final String GAME_UPDATE_TYPE_KEY = "type";
-    private final TimerTask pingTask;
-
     //Players
     public static final String PLAYER_OBJ_KEY = "players";
     public static final String HERO_PLAYER_KEY = "heroes";
     public static final String ARCHITECT_PLAYER_KEY = "architect";
-    private final Player heroPlayer;
-    private final Player architectPlayer;
-
-    private final Set<Player> spectators;
-
-    //Match Identifier
-    private final UUID matchIdentifier;
     public static final String MATCH_ID_KEY = "match_identifier";
-
-    //Game Map
-    private final GameMap gameMap;
     public static final String GAME_MAP_KEY = "map";
-
-    //Game state
-    private GameState gameState;
     public static final String GAME_STATE_KEY = "game_state";
-
-    //Board Object collection
-    private final GameObjectCollection boardObjects;
     public static final String BOARD_COLLECTION_KEY = "board_objects";
-
-
     //Sequence Numbers for actions
     public static final String GAME_SEQUENCE_KEY = ":SEQUENCE:";
     public static final String CURRENT_SEQUENCE_CACHE_KEY = ":CURRENTSEQUENCE";
     public static final String CURRENT_SNAPSHOT_CACHE_KEY = ":CURRENTSNAPSHOT";
     public static final String CURRENT_SEQUENCE_JSON_KEY = "current_sequence";
     public static final int INITIAL_SEQUENCE_NUMBER = 0;
-    private int gameSequenceID = INITIAL_SEQUENCE_NUMBER;
-
     //TODO Turn numbers
     //Turn numbers
     public static final String TURN_NUMBER_KEY = "turn_number";
-    private int turnNumber = 0;
-
     public static final String MATCH_OBJECTIVE_KEY = "objective";
-    private final GameObjective objective;
-
     //Event Keys
     public static final String GAME_UPDATE_KEY = "game_update";
+    private final TimerTask pingTask;
+    private final Player heroPlayer;
+    private final Player architectPlayer;
+    private final Set<Player> spectators;
+    //Match Identifier
+    private final UUID matchIdentifier;
+    //Game Map
+    private final GameMap gameMap;
+    //Board Object collection
+    private final GameObjectCollection boardObjects;
+    private final GameObjective objective;
+    //Game state
+    private GameState gameState;
+    private int gameSequenceID = INITIAL_SEQUENCE_NUMBER;
+    private int turnNumber = 0;
+
+    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap, GameObjective objective) {
+        this.heroPlayer = heroPlayer;
+        this.architectPlayer = architectPlayer;
+        this.matchIdentifier = matchIdentifier;
+        this.gameMap = gameMap;
+        this.objective = objective;
+        this.boardObjects = new GameObjectCollection();
+
+        pingTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        spectators = new HashSet<>(5);
+    }
 
     public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective, Set<UUID> useHeroes, Map<Location, Integer> initialArchitectLocations) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
@@ -104,7 +113,7 @@ public class Match implements Jsonable {
         if (temp.isPresent()) {
             int latestSequenceNumber = Integer.parseInt(temp.get());
             Optional<String> snapshot = cache.getString(id.toString() + CURRENT_SNAPSHOT_CACHE_KEY);
-            if(snapshot.isPresent()){
+            if (snapshot.isPresent()) {
                 try {
                     matchData = new JSONObject(snapshot.get());
                 } catch (JSONException e) {
@@ -172,7 +181,7 @@ public class Match implements Jsonable {
                 m.boardObjects.fillFromJSONData(gameObjectCollectionData);
 
                 return new InternalResponseObject<>(m, "match");
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 if (GameEngine.instance().IS_DEBUG_MODE) {
                     e.printStackTrace();
                 }
@@ -189,174 +198,6 @@ public class Match implements Jsonable {
         return fromCacheWithMatchIdentifier(uuidID);
     }
 
-    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap, GameObjective objective) {
-        this.heroPlayer = heroPlayer;
-        this.architectPlayer = architectPlayer;
-        this.matchIdentifier = matchIdentifier;
-        this.gameMap = gameMap;
-        this.objective = objective;
-        this.boardObjects = new GameObjectCollection();
-
-        pingTask = new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        spectators = new HashSet<>(5);
-    }
-
-    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<Location, Integer> initialArchitectLocations) {
-
-        //Set initial turn data
-        this.gameState = GameState.HERO_TURN;
-        this.turnNumber = 1;
-        this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
-
-        //Retrieve heroes for the hero player and place them randomly in the spawn positions
-        int numHeroSpaces = this.gameMap.getHeroCapacity();
-        if(pickedHeroes != null && pickedHeroes.size() > numHeroSpaces){
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP,"Too many heroes were selected to create a match on this map.");
-        }
-        if(pickedHeroes != null && pickedHeroes.size() == 0){
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP,"No Heroes specified.");
-        }
-
-        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
-        if (!heroHeroResponse.isNormal()) {
-            return InternalResponseObject.cloneError(heroHeroResponse);
-        }
-        List<Hero> heroHeroes;
-        if(pickedHeroes != null) {
-            heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID())).collect(Collectors.toList());
-            if(heroHeroes.size() != pickedHeroes.size()){
-                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero identifer was invalid.");
-            }
-        } else {
-            heroHeroes = heroHeroResponse.get();
-        }
-
-        int numHeroes = heroHeroes.size();
-        List<Location> heroSpawnLocations = this.gameMap.getHeroSpawnLocations();
-        Collections.shuffle(heroHeroes);
-        int numIterations = Math.min(numHeroes, numHeroSpaces);
-        for (int i = 0; i < numIterations; i++) {
-            GameObject hero = heroHeroes.get(i);
-            Location newLoc = heroSpawnLocations.get(i);
-            hero.setLocation(newLoc);
-            this.boardObjects.add(hero);
-        }
-
-        //Add all the architect's monsters and traps to the board
-        //TODO update to add all the architect's monsters and traps to the board instead of their heroes
-        InternalResponseObject<List<MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services.monsterRepository.getPlayerMonsterTypes(architectPlayer);
-        if (!architectMonsterResponse.isNormal()) {
-            return InternalResponseObject.cloneError(architectMonsterResponse);
-        }
-        List<Location> architectSpawnLocations = gameMap.getArchitectCreatureSpawnLocations();
-        int numArchitectObjectLocations = architectSpawnLocations.size();
-        if(initialArchitectLocations != null && initialArchitectLocations.size() > numArchitectObjectLocations){
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"There are not enough spawn locations for that configuration.");
-        }
-        if(initialArchitectLocations != null && initialArchitectLocations.size() == 0){
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"There are no monsters specified.");
-        }
-        Map<Integer,MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get().stream().collect(Collectors.toMap(def->def.id,def->def));
-        int totalCollectedMonsters = architectMonsterDefns.values().stream().collect(Collectors.summingInt(d->d.count));
-        if(totalCollectedMonsters <= 0){
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"You don't have any monsters.");
-        }
-        if(initialArchitectLocations == null){
-            int numTotalArchitectCreatures = (int)Math.max(1.0f,totalCollectedMonsters * 0.25f);
-            numIterations = Math.min(numTotalArchitectCreatures,numArchitectObjectLocations);
-            if(numIterations == 0){
-                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"The architect doesn't have any monsters.");
-            }
-            int monstersPlaced = 0;
-            int defIndex = 0;
-            List<Integer> availableDefnIDs = new ArrayList<>(architectMonsterDefns.keySet());
-            Collections.shuffle(availableDefnIDs);
-            Collections.shuffle(architectSpawnLocations);
-            while(monstersPlaced < numIterations){
-                MonsterDefinition def;
-                int numOfTypeToPlace = 0;
-                while(true) {
-                    def = architectMonsterDefns.get(availableDefnIDs.get(defIndex));
-                    numOfTypeToPlace = Math.min(numIterations - monstersPlaced, def.count);
-                    if (numOfTypeToPlace == 0) {
-                        defIndex++;
-                    } else {
-                        break;
-                    }
-                }
-                for(int i=0; i<numOfTypeToPlace; i++){
-                    Location spawnLoc = architectSpawnLocations.get(monstersPlaced);
-                    InternalResponseObject<Monster> monster = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(),def.id, architectPlayer);
-                    if(!monster.isNormal()){
-                        return InternalResponseObject.cloneError(monster,"Unable to build monster for given definition.");
-                    }
-                    Creature obj = monster.get();
-                    obj.setLocation(spawnLoc);
-                    boardObjects.add(obj);
-                    monstersPlaced++;
-                }
-            }
-        } else {
-            Map<Integer,Integer> placedMap = new HashMap<>();
-            for (Map.Entry<Location,Integer> creaturePlaceMap : initialArchitectLocations.entrySet()) {
-                if(!gameMap.getArchitectCreatureSpawnLocations().contains(creaturePlaceMap.getKey())){
-                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"A location specified is not a valid architect spawn point.");
-                }
-
-                int monsterID = creaturePlaceMap.getValue();
-                MonsterDefinition def = architectMonsterDefns.get(monsterID);
-                if(def == null){
-                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP,"You don't own any monsters with id "+monsterID);
-                }
-
-                int placeLimit = def.count;
-                int placed = placedMap.containsKey(monsterID)?placedMap.get(monsterID):0;
-                if(placed == placeLimit){
-                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't own that many of monster with id "+monsterID);
-                }
-                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(),monsterID,architectPlayer);
-                if(!m.isNormal()){
-                    return InternalResponseObject.cloneError(m,"You don't own any monsters with id "+monsterID);
-                }
-                Monster monster = m.get();
-                monster.setLocation(creaturePlaceMap.getKey());
-                placedMap.put(monsterID,placedMap.containsKey(monsterID)?placedMap.get(monsterID)+1:1);
-                this.boardObjects.add(monster);
-            }
-        }
-
-        //Add in an objective if the map calls for one
-        objective.setup(this);
-
-        //Take initial snapshots and store them.
-        setCurrentSequence(this.gameSequenceID);
-        JSONObject matchBaseline = this.getJSONRepresentation();
-        storeSnapshotForSequence(this.gameSequenceID, matchBaseline);
-
-        //Schedule the ping task once every second and have the players join the room for the match
-        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
-        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
-        GameEngine.instance().gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
-
-        //Set the player's current match identifiers
-        this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
-        this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
-
-        //Broadcast that a match has been found to all interested parties
-        broadcastToAllParties(MATCH_FOUND_KEY, matchBaseline);
-        return new InternalResponseObject<>();
-    }
-
     public synchronized InternalResponseObject<Boolean> updateGameState(Player p, GameAction action) {
         //First check and see if it is your turn
         if (isPlayerTurn(p)) {
@@ -368,7 +209,7 @@ public class Match implements Jsonable {
             doAndSnapshot(action.getJSONRepresentation(), () ->
                     action.doGameAction(this.gameMap, this.boardObjects), true);
             GameObjective.GAME_WINNER winner = objective.checkForGameEnd(this);
-            if(winner != GameObjective.GAME_WINNER.NO_WINNER){
+            if (winner != GameObjective.GAME_WINNER.NO_WINNER) {
                 end("Objective Satisfied", winner);
             } else {
                 //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
@@ -376,8 +217,8 @@ public class Match implements Jsonable {
                 if (numNotExhausted == 0) {
                     JSONObject turnEndObj = new JSONObject();
                     try {
-                        turnEndObj.put(GAME_UPDATE_TYPE_KEY,"turn_end");
-                    } catch (JSONException e){
+                        turnEndObj.put(GAME_UPDATE_TYPE_KEY, "turn_end");
+                    } catch (JSONException e) {
                         //
                     }
                     doAndSnapshot(turnEndObj, this::swapSides, true);
@@ -422,6 +263,9 @@ public class Match implements Jsonable {
                     JSONObject newRepresentation = JSONUtils.patch(objSnapshot, diff);
                     modifiedState.getJSONObject(BOARD_COLLECTION_KEY).put(key, newRepresentation);
                 } catch (JSONException e) {
+                    if(GameEngine.instance().IS_DEBUG_MODE){
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -437,21 +281,7 @@ public class Match implements Jsonable {
             //should never happen - keys are non-null
         }
         storeSnapshotForSequence(this.gameSequenceID, gameUpdate);
-        broadcastToAllParties(GAME_UPDATE_KEY,gameUpdate);
-    }
-
-    private void swapSides() {
-        if (gameState == GameState.HERO_TURN) {
-            gameState = GameState.ARCHITECT_TURN;
-        } else if (gameState == GameState.ARCHITECT_TURN) {
-            gameState = GameState.HERO_TURN;
-        }
-        boardObjects.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
-            Creature c = (Creature) obj;
-            c.resetActionPoints();
-            c.triggerPassive(gameMap, boardObjects);
-        });
-        this.turnNumber++;
+        broadcastToAllParties(GAME_UPDATE_KEY, gameUpdate);
     }
 
     public Player getHeroPlayer() {
@@ -486,15 +316,6 @@ public class Match implements Jsonable {
             //This should never happen as all the keys are not null
         }
         return gameUpdate;
-    }
-
-    private void setCurrentSequence(int sequence) {
-        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
-        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SNAPSHOT_CACHE_KEY, this.getJSONRepresentation().toString());
-    }
-
-    private void storeSnapshotForSequence(int sequenceNumber, JSONObject snapshot) {
-        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier + GAME_SEQUENCE_KEY + sequenceNumber, snapshot.toString());
     }
 
     public boolean isPlayerTurn(Player p) {
@@ -537,7 +358,7 @@ public class Match implements Jsonable {
             endGameReason.put(GAME_UPDATE_TYPE_KEY, MATCH_END_KEY);
             endGameReason.put("reason", reason);
             String winnerUsername;
-            switch(winner){
+            switch (winner) {
                 case ARCHITECT_WINNER:
                     winnerUsername = architectPlayer.getUsername();
                     break;
@@ -549,13 +370,13 @@ public class Match implements Jsonable {
                 default:
                     winnerUsername = "No Winner.";
             }
-            endGameReason.put("winner",winnerUsername);
-        } catch (JSONException e){
+            endGameReason.put("winner", winnerUsername);
+        } catch (JSONException e) {
             //Should never be called - non-null keys
         }
-        doAndSnapshot(endGameReason,()->{
+        doAndSnapshot(endGameReason, () -> {
             gameState = GameState.GAME_END;
-        },true);
+        }, true);
         //TODO commit match data, update xp, currency, etc
         pingTask.cancel();
     }
@@ -617,6 +438,11 @@ public class Match implements Jsonable {
     }
 
     @Override
+    public int hashCode() {
+        return getMatchIdentifier().hashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -627,16 +453,180 @@ public class Match implements Jsonable {
 
     }
 
-    @Override
-    public int hashCode() {
-        return getMatchIdentifier().hashCode();
-    }
-
     public int getGameSequenceID() {
         return gameSequenceID;
     }
 
     public GameObjective getObjective() {
         return objective;
+    }
+
+    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<Location, Integer> initialArchitectLocations) {
+
+        //Set initial turn data
+        this.gameState = GameState.HERO_TURN;
+        this.turnNumber = 1;
+        this.gameSequenceID = INITIAL_SEQUENCE_NUMBER;
+
+        //Retrieve heroes for the hero player and place them randomly in the spawn positions
+        int numHeroSpaces = this.gameMap.getHeroCapacity();
+        if (pickedHeroes != null && pickedHeroes.size() > numHeroSpaces) {
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "Too many heroes were selected to create a match on this map.");
+        }
+        if (pickedHeroes != null && pickedHeroes.size() == 0) {
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "No Heroes specified.");
+        }
+
+        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
+        if (!heroHeroResponse.isNormal()) {
+            return InternalResponseObject.cloneError(heroHeroResponse);
+        }
+        List<Hero> heroHeroes;
+        if (pickedHeroes != null) {
+            heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID())).collect(Collectors.toList());
+            if (heroHeroes.size() != pickedHeroes.size()) {
+                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero identifer was invalid.");
+            }
+        } else {
+            heroHeroes = heroHeroResponse.get();
+        }
+
+        int numHeroes = heroHeroes.size();
+        List<Location> heroSpawnLocations = this.gameMap.getHeroSpawnLocations();
+        Collections.shuffle(heroHeroes);
+        int numIterations = Math.min(numHeroes, numHeroSpaces);
+        for (int i = 0; i < numIterations; i++) {
+            GameObject hero = heroHeroes.get(i);
+            Location newLoc = heroSpawnLocations.get(i);
+            hero.setLocation(newLoc);
+            this.boardObjects.add(hero);
+        }
+
+        //Add all the architect's monsters and traps to the board
+        //TODO update to add all the architect's monsters and traps to the board instead of their heroes
+        InternalResponseObject<List<MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services.monsterRepository.getPlayerMonsterTypes(architectPlayer);
+        if (!architectMonsterResponse.isNormal()) {
+            return InternalResponseObject.cloneError(architectMonsterResponse);
+        }
+        List<Location> architectSpawnLocations = gameMap.getArchitectCreatureSpawnLocations();
+        int numArchitectObjectLocations = architectSpawnLocations.size();
+        if (initialArchitectLocations != null && initialArchitectLocations.size() > numArchitectObjectLocations) {
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "There are not enough spawn locations for that configuration.");
+        }
+        if (initialArchitectLocations != null && initialArchitectLocations.size() == 0) {
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "There are no monsters specified.");
+        }
+        Map<Integer, MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get().stream().collect(Collectors.toMap(def -> def.id, def -> def));
+        int totalCollectedMonsters = architectMonsterDefns.values().stream().collect(Collectors.summingInt(d -> d.count));
+        if (totalCollectedMonsters <= 0) {
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't have any monsters.");
+        }
+        if (initialArchitectLocations == null) {
+            int numTotalArchitectCreatures = (int) Math.max(1.0f, totalCollectedMonsters * 0.25f);
+            numIterations = Math.min(numTotalArchitectCreatures, numArchitectObjectLocations);
+            if (numIterations == 0) {
+                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "The architect doesn't have any monsters.");
+            }
+            int monstersPlaced = 0;
+            int defIndex = 0;
+            List<Integer> availableDefnIDs = new ArrayList<>(architectMonsterDefns.keySet());
+            Collections.shuffle(availableDefnIDs);
+            Collections.shuffle(architectSpawnLocations);
+            while (monstersPlaced < numIterations) {
+                MonsterDefinition def;
+                int numOfTypeToPlace = 0;
+                while (true) {
+                    def = architectMonsterDefns.get(availableDefnIDs.get(defIndex));
+                    numOfTypeToPlace = Math.min(numIterations - monstersPlaced, def.count);
+                    if (numOfTypeToPlace == 0) {
+                        defIndex++;
+                    } else {
+                        break;
+                    }
+                }
+                for (int i = 0; i < numOfTypeToPlace; i++) {
+                    Location spawnLoc = architectSpawnLocations.get(monstersPlaced);
+                    InternalResponseObject<Monster> monster = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(), def.id, architectPlayer);
+                    if (!monster.isNormal()) {
+                        return InternalResponseObject.cloneError(monster, "Unable to build monster for given definition.");
+                    }
+                    Creature obj = monster.get();
+                    obj.setLocation(spawnLoc);
+                    boardObjects.add(obj);
+                    monstersPlaced++;
+                }
+            }
+        } else {
+            Map<Integer, Integer> placedMap = new HashMap<>();
+            for (Map.Entry<Location, Integer> creaturePlaceMap : initialArchitectLocations.entrySet()) {
+                if (!gameMap.getArchitectCreatureSpawnLocations().contains(creaturePlaceMap.getKey())) {
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "A location specified is not a valid architect spawn point.");
+                }
+
+                int monsterID = creaturePlaceMap.getValue();
+                MonsterDefinition def = architectMonsterDefns.get(monsterID);
+                if (def == null) {
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't own any monsters with id " + monsterID);
+                }
+
+                int placeLimit = def.count;
+                int placed = placedMap.containsKey(monsterID) ? placedMap.get(monsterID) : 0;
+                if (placed == placeLimit) {
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't own that many of monster with id " + monsterID);
+                }
+                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(), monsterID, architectPlayer);
+                if (!m.isNormal()) {
+                    return InternalResponseObject.cloneError(m, "You don't own any monsters with id " + monsterID);
+                }
+                Monster monster = m.get();
+                monster.setLocation(creaturePlaceMap.getKey());
+                placedMap.put(monsterID, placedMap.containsKey(monsterID) ? placedMap.get(monsterID) + 1 : 1);
+                this.boardObjects.add(monster);
+            }
+        }
+
+        //Add in an objective if the map calls for one
+        objective.setup(this);
+
+        //Take initial snapshots and store them.
+        setCurrentSequence(this.gameSequenceID);
+        JSONObject matchBaseline = this.getJSONRepresentation();
+        storeSnapshotForSequence(this.gameSequenceID, matchBaseline);
+
+        //Schedule the ping task once every second and have the players join the room for the match
+        this.heroPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        this.architectPlayer.getClient().get().joinRoom(this.matchIdentifier.toString());
+        GameEngine.instance().gameTimer.scheduleAtFixedRate(pingTask, 0, 1000);
+
+        //Set the player's current match identifiers
+        this.heroPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
+        this.architectPlayer.setCurrentMatch(Optional.of(this.matchIdentifier));
+
+        //Broadcast that a match has been found to all interested parties
+        broadcastToAllParties(MATCH_FOUND_KEY, matchBaseline);
+        return new InternalResponseObject<>();
+    }
+
+    private void swapSides() {
+        if (gameState == GameState.HERO_TURN) {
+            gameState = GameState.ARCHITECT_TURN;
+        } else if (gameState == GameState.ARCHITECT_TURN) {
+            gameState = GameState.HERO_TURN;
+        }
+        boardObjects.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
+            Creature c = (Creature) obj;
+            c.resetActionPoints();
+            c.triggerPassive(gameMap, boardObjects);
+        });
+        this.turnNumber++;
+    }
+
+    private void setCurrentSequence(int sequence) {
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SNAPSHOT_CACHE_KEY, this.getJSONRepresentation().toString());
+    }
+
+    private void storeSnapshotForSequence(int sequenceNumber, JSONObject snapshot) {
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier + GAME_SEQUENCE_KEY + sequenceNumber, snapshot.toString());
     }
 }

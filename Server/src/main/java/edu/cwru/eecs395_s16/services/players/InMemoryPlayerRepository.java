@@ -18,17 +18,17 @@ public class InMemoryPlayerRepository implements PlayerRepository {
 
     @Override
     public InternalResponseObject<Player> registerPlayer(String username, String password, String passwordConfirm) {
-        if(username == null || !username.matches("[a-zA-Z0-9]+")){
+        if (username == null || !username.matches("[a-zA-Z0-9]+")) {
             return new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME);
         }
-        if(password == null || passwordConfirm == null || !password.equals(passwordConfirm)){
+        if (password == null || passwordConfirm == null || !password.equals(passwordConfirm)) {
             return new InternalResponseObject<>(InternalErrorCode.MISMATCHED_PASSWORD);
         }
         if (playerMap.containsKey(username)) {
             return new InternalResponseObject<>(InternalErrorCode.DUPLICATE_USERNAME);
         } else {
             //TODO change this back. Probably. Need a different way to specify dev or not.
-            Player p = new Player(-1,username, password, true);
+            Player p = new Player(-1, username, password, true);
             playerMap.put(username, p);
             return new InternalResponseObject<>(p);
         }
@@ -60,7 +60,7 @@ public class InMemoryPlayerRepository implements PlayerRepository {
 
     @Override
     public boolean deletePlayer(Player p) {
-        if(playerMap.containsKey(p.getUsername())) {
+        if (playerMap.containsKey(p.getUsername())) {
             playerMap.remove(p.getUsername());
         }
         return true;
@@ -69,9 +69,9 @@ public class InMemoryPlayerRepository implements PlayerRepository {
     @Override
     public void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
         List<List<String>> players = CoreDataUtils.splitEntries(baseData.get("players"));
-        for(List<String> playerData : players){
-            Player p = new Player(-1,playerData.get(1),playerData.get(2),Boolean.parseBoolean(playerData.get(4)));
-            playerMap.put(p.getUsername(),p);
+        for (List<String> playerData : players) {
+            Player p = new Player(-1, playerData.get(1), playerData.get(2), Boolean.parseBoolean(playerData.get(4)));
+            playerMap.put(p.getUsername(), p);
         }
     }
 

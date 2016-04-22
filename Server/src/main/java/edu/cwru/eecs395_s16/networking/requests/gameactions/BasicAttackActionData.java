@@ -42,7 +42,7 @@ public class BasicAttackActionData {
                     JSONObject target = arr.getJSONObject(i);
                     int x = target.getInt(Location.X_KEY);
                     int y = target.getInt(Location.Y_KEY);
-                    targets.add(new Location(x,y));
+                    targets.add(new Location(x, y));
                 }
             } catch (IllegalArgumentException e) {
                 return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "One of the target identifiers is invalid.");
@@ -59,7 +59,7 @@ public class BasicAttackActionData {
         try {
             repr.put("attacker_id", attacker.toString());
             repr.put("targets", targets);
-            repr.put("type","basic_attack");
+            repr.put("type", "basic_attack");
         } catch (JSONException e) {
             //This should not happen - the keys are nonnull
         }

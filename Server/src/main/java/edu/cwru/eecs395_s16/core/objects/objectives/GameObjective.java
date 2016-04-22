@@ -12,16 +12,7 @@ public abstract class GameObjective implements Jsonable {
 
     public static final String OBJECTIVE_TYPE_KEY = "objective_type";
 
-    public enum GAME_WINNER {
-        NO_WINNER,
-        HERO_WINNER,
-        ARCHITECT_WINNER,
-        TIE
-    }
-
-    public abstract GAME_WINNER checkForGameEnd(Match m);
-
-    public static GameObjective objectiveForJSON(JSONObject json){
+    public static GameObjective objectiveForJSON(JSONObject json) {
         try {
             String typeKey = json.getString(GameObjective.OBJECTIVE_TYPE_KEY);
             switch (typeKey) {
@@ -33,11 +24,20 @@ public abstract class GameObjective implements Jsonable {
                 default:
                     return null;
             }
-        } catch (JSONException e){
+        } catch (JSONException e) {
             return null;
         }
     }
 
+    public abstract GAME_WINNER checkForGameEnd(Match m);
+
     public abstract void setup(Match match);
+
+    public enum GAME_WINNER {
+        NO_WINNER,
+        HERO_WINNER,
+        ARCHITECT_WINNER,
+        TIE
+    }
 
 }

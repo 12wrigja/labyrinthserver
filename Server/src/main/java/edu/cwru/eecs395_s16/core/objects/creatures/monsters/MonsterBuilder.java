@@ -10,7 +10,6 @@ import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.xml.crypto.Data;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,30 +36,8 @@ public class MonsterBuilder extends CreatureBuilder {
         this.name = monsterDefinition.name;
     }
 
-    private MonsterBuilder(UUID objectID, int databaseID, String ownerID, Optional<String> controllerID){
-        super(objectID,databaseID,ownerID,controllerID);
-    }
-
-    public static InternalResponseObject<MonsterBuilder> fromJSONObject(JSONObject obj){
-        try {
-            UUID gameObjectID = UUID.fromString(obj.getString(GameObject.GAMEOBJECT_ID_KEY));
-            int dbID = obj.getInt(DatabaseObject.DATABASE_ID_KEY);
-            String ownerID = obj.getString(GameObject.OWNER_ID_KEY);
-            Optional<String> controllerID = Optional.ofNullable(obj.getString(GameObject.CONTROLLER_ID_KEY));
-            MonsterBuilder mb = new MonsterBuilder(gameObjectID,dbID,ownerID,controllerID);
-            mb.fillFromJSON(obj);
-            return new InternalResponseObject<>(mb);
-        } catch (JSONException e ){
-            if(GameEngine.instance().IS_DEBUG_MODE){
-                e.printStackTrace();
-            }
-            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR);
-        } catch (IllegalArgumentException e){
-            if(GameEngine.instance().IS_DEBUG_MODE){
-                e.printStackTrace();
-            }
-            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR);
-        }
+    private MonsterBuilder(UUID objectID, int databaseID, String ownerID, Optional<String> controllerID) {
+        super(objectID, databaseID, ownerID, controllerID);
     }
 
     public MonsterBuilder(UUID newID, Monster template) {
@@ -72,6 +49,28 @@ public class MonsterBuilder extends CreatureBuilder {
             e.printStackTrace();
         }
         objectID = newID;
+    }
+
+    public static InternalResponseObject<MonsterBuilder> fromJSONObject(JSONObject obj) {
+        try {
+            UUID gameObjectID = UUID.fromString(obj.getString(GameObject.GAMEOBJECT_ID_KEY));
+            int dbID = obj.getInt(DatabaseObject.DATABASE_ID_KEY);
+            String ownerID = obj.getString(GameObject.OWNER_ID_KEY);
+            Optional<String> controllerID = Optional.ofNullable(obj.getString(GameObject.CONTROLLER_ID_KEY));
+            MonsterBuilder mb = new MonsterBuilder(gameObjectID, dbID, ownerID, controllerID);
+            mb.fillFromJSON(obj);
+            return new InternalResponseObject<>(mb);
+        } catch (JSONException e) {
+            if (GameEngine.instance().IS_DEBUG_MODE) {
+                e.printStackTrace();
+            }
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR);
+        } catch (IllegalArgumentException e) {
+            if (GameEngine.instance().IS_DEBUG_MODE) {
+                e.printStackTrace();
+            }
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR);
+        }
     }
 
     @Override

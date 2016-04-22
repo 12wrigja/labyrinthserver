@@ -13,11 +13,11 @@ public class Weapon implements DatabaseObject, Jsonable {
     public static final String IMAGE_KEY = "image";
     public static final String RANGE_KEY = "range";
     public static final Weapon DEFAULT_NO_WEAPON = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, UsePattern.singleTargetPattern);
-    private final int range;
     public static final String NAME_KEY = "name";
     public static final String DESCRIPTION_KEY = "description";
     public static final String DAMAGE_MOD_KEY = "damage_mod";
     private static final String ATTACK_PATTERN_KEY = "attack_pattern";
+    private final int range;
     private final int databaseID;
     private final String image;
     private final String name;
@@ -65,6 +65,18 @@ public class Weapon implements DatabaseObject, Jsonable {
     }
 
     @Override
+    public int hashCode() {
+        int result = getRange();
+        result = 31 * result + getDatabaseID();
+        result = 31 * result + getImage().hashCode();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + getDescription().hashCode();
+        result = 31 * result + getDamageModifier();
+        result = 31 * result + getUsePattern().hashCode();
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -82,18 +94,6 @@ public class Weapon implements DatabaseObject, Jsonable {
     }
 
     @Override
-    public int hashCode() {
-        int result = getRange();
-        result = 31 * result + getDatabaseID();
-        result = 31 * result + getImage().hashCode();
-        result = 31 * result + getName().hashCode();
-        result = 31 * result + getDescription().hashCode();
-        result = 31 * result + getDamageModifier();
-        result = 31 * result + getUsePattern().hashCode();
-        return result;
-    }
-
-    @Override
     public JSONObject getJSONRepresentation() {
         JSONObject representation = new JSONObject();
         try {
@@ -101,7 +101,7 @@ public class Weapon implements DatabaseObject, Jsonable {
             representation.put(DATABASE_ID_KEY, getDatabaseID());
             representation.put(NAME_KEY, getName());
             representation.put(DESCRIPTION_KEY, getDescription());
-            representation.put(RANGE_KEY,getRange());
+            representation.put(RANGE_KEY, getRange());
             representation.put(DAMAGE_MOD_KEY, getDamageModifier());
             representation.put(ATTACK_PATTERN_KEY, getUsePattern().getJSONRepresentation());
         } catch (JSONException e) {

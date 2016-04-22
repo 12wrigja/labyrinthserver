@@ -4,9 +4,9 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.GameState;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
-import edu.cwru.eecs395_s16.networking.Response;
-import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
+import edu.cwru.eecs395_s16.networking.Response;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import org.json.JSONException;
@@ -25,12 +25,12 @@ public class PassBot extends GameBot {
     private boolean enabled = true;
 
     public PassBot() {
-        super(BOT_NAME,UUID.randomUUID());
+        super(BOT_NAME, UUID.randomUUID());
     }
 
     @Override
     public void receiveEvent(String event, Object data) {
-        if(enabled) {
+        if (enabled) {
             if (event.equals(Match.MATCH_FOUND_KEY)) {
                 JSONObject jData = (JSONObject) data;
                 try {
@@ -48,8 +48,8 @@ public class PassBot extends GameBot {
                     }
                 }
             } else if (event.equals(Match.GAME_UPDATE_KEY)) {
-                String gameStateStr = ((JSONObject)data).optString(Match.GAME_UPDATE_TYPE_KEY,null);
-                if(gameStateStr != null && gameStateStr.equals(Match.MATCH_END_KEY)){
+                String gameStateStr = ((JSONObject) data).optString(Match.GAME_UPDATE_TYPE_KEY, null);
+                if (gameStateStr != null && gameStateStr.equals(Match.MATCH_END_KEY)) {
                     sendEvent("leave_match", new JSONObject());
                 } else {
                     passAllCharacters();
@@ -58,13 +58,13 @@ public class PassBot extends GameBot {
         }
     }
 
-    public void passAllCharacters(){
-        Response matchResp = sendEvent("match_state",new JSONObject());
-        if(matchResp.getStatus() == WebStatusCode.OK){
+    public void passAllCharacters() {
+        Response matchResp = sendEvent("match_state", new JSONObject());
+        if (matchResp.getStatus() == WebStatusCode.OK) {
             @SuppressWarnings("unchecked")
-            InternalResponseObject<Match> actualResp = (InternalResponseObject<Match>)matchResp;
+            InternalResponseObject<Match> actualResp = (InternalResponseObject<Match>) matchResp;
             Match match = actualResp.get();
-            if(match.isPlayerTurn(this)) {
+            if (match.isPlayerTurn(this)) {
                 List<GameObject> myCreatures = match.getBoardObjects().getForPlayerOwner(this);
                 myCreatures.stream().filter(obj -> obj instanceof Creature).forEach(obj -> {
                     PassGameActionData passData = new PassGameActionData(obj.getGameObjectID());
@@ -74,7 +74,7 @@ public class PassBot extends GameBot {
         }
     }
 
-    public void setEnabled(boolean enabled){
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 

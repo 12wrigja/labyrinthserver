@@ -29,6 +29,13 @@ public class Location implements Jsonable {
     }
 
     @Override
+    public int hashCode() {
+        int result = getX();
+        result = 31 * result + getY();
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Location)) return false;
@@ -41,17 +48,18 @@ public class Location implements Jsonable {
     }
 
     @Override
-    public int hashCode() {
-        int result = getX();
-        result = 31 * result + getY();
-        return result;
+    public String toString() {
+        return "Location{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 
-    public boolean isNeighbourOf(Location other, boolean allowDiagonalNeighbours){
-        if(allowDiagonalNeighbours){
-            return Math.abs(this.getX()-other.getX()) == 1 || Math.abs(this.getY()-other.getY()) == 1;
+    public boolean isNeighbourOf(Location other, boolean allowDiagonalNeighbours) {
+        if (allowDiagonalNeighbours) {
+            return Math.abs(this.getX() - other.getX()) == 1 || Math.abs(this.getY() - other.getY()) == 1;
         } else {
-            return Math.abs(this.getX()-other.getX()) == 1 ^ Math.abs(this.getY()-other.getY()) == 1;
+            return Math.abs(this.getX() - other.getX()) == 1 ^ Math.abs(this.getY() - other.getY()) == 1;
         }
     }
 
@@ -61,22 +69,14 @@ public class Location implements Jsonable {
         try {
             repr.put("x", getX());
             repr.put("y", getY());
-        }catch(JSONException e){
+        } catch (JSONException e) {
             //This should never be called because the keys arent null.
         }
         return repr;
     }
 
-    @Override
-    public String toString() {
-        return "Location{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
-    }
-
-    public Location locationRelativeTo(Location otherLocation){
-        return new Location(otherLocation.x-this.x,otherLocation.y-this.y);
+    public Location locationRelativeTo(Location otherLocation) {
+        return new Location(otherLocation.x - this.x, otherLocation.y - this.y);
     }
 
 }

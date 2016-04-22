@@ -11,9 +11,13 @@ import java.util.UUID;
 public interface GameClient {
 
     Response sendEvent(String event, JSONObject data);
+
     void receiveEvent(String event, Object data);
+
     UUID getSessionId();
+
     void joinRoom(String roomName);
+
     void leaveRoom(String roomName);
 
 }

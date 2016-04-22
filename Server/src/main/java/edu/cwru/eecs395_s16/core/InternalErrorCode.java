@@ -63,7 +63,6 @@ public enum InternalErrorCode {
     NOT_VISIBLE("Target is not visible to character. This could be because the character is blocked by either another character or an obstruction tile.");
 
 
-
     public final String message;
 
     InternalErrorCode(String message) {

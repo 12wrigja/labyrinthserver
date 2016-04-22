@@ -13,7 +13,7 @@ public class LoginUserRequest implements RequestData {
     private String username;
     private String password;
 
-    public LoginUserRequest(){
+    public LoginUserRequest() {
         this.username = null;
         this.password = null;
     }
@@ -33,16 +33,16 @@ public class LoginUserRequest implements RequestData {
 
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        this.username = RequestData.getString(obj,"username");
-        this.password = RequestData.getString(obj,"password");
+        this.username = RequestData.getString(obj, "username");
+        this.password = RequestData.getString(obj, "password");
     }
 
     @Override
     public JSONObject convertToJSON() {
         JSONObject repr = new JSONObject();
         try {
-            repr.put("username",username);
-            repr.put("password",password);
+            repr.put("username", username);
+            repr.put("password", password);
         } catch (JSONException e) {
             //Should never happen b/c keys are not null
         }

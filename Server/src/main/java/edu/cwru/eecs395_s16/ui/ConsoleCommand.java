@@ -8,11 +8,11 @@ import java.util.*;
 public abstract class ConsoleCommand implements Runnable {
 
     public final String phrase;
-    private Map<String, String> commandOptionMapping;
     public final String description;
     public final List<String> requiredParameters;
     public final List<String> optionalParameters;
     private final String[] orderedParams;
+    private Map<String, String> commandOptionMapping;
 
     public ConsoleCommand(String phrase, String description, String... opts) {
         this.phrase = phrase;
@@ -21,7 +21,7 @@ public abstract class ConsoleCommand implements Runnable {
         List<String> reqParams = new ArrayList<>();
         List<String> optParams = new ArrayList<>();
         this.orderedParams = new String[opts.length];
-        for (int i=0; i<opts.length; i++) {
+        for (int i = 0; i < opts.length; i++) {
             String opt = opts[i];
             if (opt.charAt(0) == '*') {
                 opt = opt.substring(1);
@@ -40,10 +40,10 @@ public abstract class ConsoleCommand implements Runnable {
         setInitialCommandOpts();
         Set<String> specifiedParams = new HashSet<>();
         List<String> unspecifiedParamStrings = new ArrayList<>();
-        for(String optVal : optVals){
-            if(optVal.contains("=")){
+        for (String optVal : optVals) {
+            if (optVal.contains("=")) {
                 String[] temp = optVal.split("=", 2);
-                storeOption(temp[0],temp[1]);
+                storeOption(temp[0], temp[1]);
                 specifiedParams.add(temp[0]);
             } else {
                 unspecifiedParamStrings.add(optVal);
@@ -51,16 +51,16 @@ public abstract class ConsoleCommand implements Runnable {
         }
         int insertIndex = 0;
         for (String optVal : unspecifiedParamStrings) {
-            while(true){
-                if(insertIndex >= orderedParams.length){
-                    System.err.println("Unable to insert parameter '"+optVal+"'");
+            while (true) {
+                if (insertIndex >= orderedParams.length) {
+                    System.err.println("Unable to insert parameter '" + optVal + "'");
                     break;
                 }
                 String key = orderedParams[insertIndex];
-                if(specifiedParams.contains(key)) {
+                if (specifiedParams.contains(key)) {
                     insertIndex++;
                 } else {
-                    storeOption(key,optVal);
+                    storeOption(key, optVal);
                     insertIndex++;
                     break;
                 }
@@ -75,16 +75,16 @@ public abstract class ConsoleCommand implements Runnable {
         this.run();
     }
 
-    private void storeOption(String key, String value){
+    private void storeOption(String key, String value) {
         if (commandOptionMapping.keySet().contains(key)) {
             commandOptionMapping.put(key, value);
         }
     }
 
-    private void setInitialCommandOpts(){
+    private void setInitialCommandOpts() {
         commandOptionMapping = new HashMap<>();
-        for(String key: orderedParams){
-            commandOptionMapping.put(key,null);
+        for (String key : orderedParams) {
+            commandOptionMapping.put(key, null);
         }
     }
 

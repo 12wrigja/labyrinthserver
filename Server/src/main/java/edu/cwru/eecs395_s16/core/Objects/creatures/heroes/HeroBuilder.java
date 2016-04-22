@@ -1,13 +1,19 @@
 package edu.cwru.eecs395_s16.core.objects.creatures.heroes;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.core.objects.*;
-import edu.cwru.eecs395_s16.core.objects.creatures.*;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.Location;
+import edu.cwru.eecs395_s16.core.objects.creatures.Ability;
+import edu.cwru.eecs395_s16.core.objects.creatures.CreatureBuilder;
+import edu.cwru.eecs395_s16.core.objects.creatures.CreatureStatus;
+import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
 import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class HeroBuilder extends CreatureBuilder {
 
@@ -30,20 +36,9 @@ public class HeroBuilder extends CreatureBuilder {
         this(UUID.randomUUID(), ownerID, Optional.of(ownerID), -1, type);
     }
 
-    private void setInitialValuesFromHeroDefinition(HeroRepository.HeroDefinition def) {
-        setAttack(def.startAttack);
-        setDefense(def.startDefense);
-        setHealth(def.startHealth);
-        setMaxHealth(def.startHealth);
-        setVision(def.startVision);
-        setMovement(def.startMovement);
-        setHeroType(def.type, false);
-        setWeapon(GameEngine.instance().services.heroItemRepository.getWeaponForId(def.defaultWeaponId).get());
-    }
-
     public HeroBuilder setHeroType(HeroType type, boolean shouldResetToDefaultValuesForType) {
         this.type = type;
-        if(shouldResetToDefaultValuesForType){
+        if (shouldResetToDefaultValuesForType) {
             setInitialValuesFromHeroDefinition(GameEngine.instance().services.heroRepository.getHeroDefinitionForType(type).get());
         }
         return this;
@@ -121,17 +116,6 @@ public class HeroBuilder extends CreatureBuilder {
         return this;
     }
 
-    public HeroBuilder setLevel(int level) {
-        this.level = level;
-        return this;
-    }
-
-    public HeroBuilder setExp(long exp, boolean applyRewards) {
-        this.exp = exp;
-        this.applyExpRewards = applyRewards;
-        return this;
-    }
-
     public HeroBuilder fillFromJSON(JSONObject obj) throws JSONException {
         super.fillFromJSON(obj);
         //Hero Type 
@@ -140,6 +124,17 @@ public class HeroBuilder extends CreatureBuilder {
         setLevel(obj.getInt(Hero.LEVEL_KEY));
         //Experience 
         setExp(obj.getLong(Hero.EXP_KEY), false);
+        return this;
+    }
+
+    public HeroBuilder setLevel(int level) {
+        this.level = level;
+        return this;
+    }
+
+    public HeroBuilder setExp(long exp, boolean applyRewards) {
+        this.exp = exp;
+        this.applyExpRewards = applyRewards;
         return this;
     }
 
@@ -153,5 +148,16 @@ public class HeroBuilder extends CreatureBuilder {
             }
         }
         return h;
+    }
+
+    private void setInitialValuesFromHeroDefinition(HeroRepository.HeroDefinition def) {
+        setAttack(def.startAttack);
+        setDefense(def.startDefense);
+        setHealth(def.startHealth);
+        setMaxHealth(def.startHealth);
+        setVision(def.startVision);
+        setMovement(def.startMovement);
+        setHeroType(def.type, false);
+        setWeapon(GameEngine.instance().services.heroItemRepository.getWeaponForId(def.defaultWeaponId).get());
     }
 }

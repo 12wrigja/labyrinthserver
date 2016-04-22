@@ -7,8 +7,11 @@ import java.util.Optional;
  */
 public interface CacheService {
 
-    void storeString(String key,String str);
+    void storeString(String key, String str);
+
     Optional<String> getString(String key);
+
     void removeString(String key);
+
     void stop();
 }

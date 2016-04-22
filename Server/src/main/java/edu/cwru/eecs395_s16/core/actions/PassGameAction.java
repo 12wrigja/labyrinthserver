@@ -4,10 +4,10 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
-import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.PassGameActionData;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +21,8 @@ import java.util.UUID;
 public class PassGameAction implements GameAction {
 
     UUID characterID;
-    public PassGameAction(PassGameActionData data){
+
+    public PassGameAction(PassGameActionData data) {
         this.characterID = data.getCharacterID();
     }
 
@@ -32,9 +33,9 @@ public class PassGameAction implements GameAction {
         if (boardObj.isPresent()) {
             if (!(boardObj.get() instanceof Creature)) {
                 return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT);
-            } else if(!GameAction.isControlledByPlayer(boardObj.get(),player)){
-                    return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER);
-            } else if (((Creature)boardObj.get()).getActionPoints() == 0){
+            } else if (!GameAction.isControlledByPlayer(boardObj.get(), player)) {
+                return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER);
+            } else if (((Creature) boardObj.get()).getActionPoints() == 0) {
                 return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS);
             }
         } else {
@@ -45,7 +46,7 @@ public class PassGameAction implements GameAction {
 
     @Override
     public void doGameAction(GameMap map, GameObjectCollection boardObjects) {
-        Creature c = (Creature)boardObjects.getByID(characterID).get();
+        Creature c = (Creature) boardObjects.getByID(characterID).get();
         c.drainActionPoints();
     }
 
@@ -53,9 +54,9 @@ public class PassGameAction implements GameAction {
     public JSONObject getJSONRepresentation() {
         JSONObject repr = new JSONObject();
         try {
-            repr.put("type","pass");
-            repr.put("character_id",characterID.toString());
-        } catch (JSONException e){
+            repr.put("type", "pass");
+            repr.put("character_id", characterID.toString());
+        } catch (JSONException e) {
             //Should not be thrown - all keys are non-null
         }
         return repr;

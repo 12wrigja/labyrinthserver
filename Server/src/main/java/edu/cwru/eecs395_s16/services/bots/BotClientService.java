@@ -2,15 +2,13 @@ package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.auth.AuthenticationMiddleware;
-import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.networking.Response;
-import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.services.bots.botimpls.TestBot;
+import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.connections.ClientConnectionService;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
-import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.ui.FunctionDescription;
 import org.json.JSONObject;
 
@@ -46,16 +44,32 @@ public class BotClientService implements ClientConnectionService {
         initStorage();
     }
 
-    private void initStorage() {
-        connectedClients = new HashMap<>();
-        roomMap = new HashMap<>();
-    }
-
     @Override
     public void linkToGameEngine(GameEngine g) {
         fds = new HashMap<>();
         for (FunctionDescription fd : g.getAllFunctions()) {
             fds.put(fd.name, fd.invocationPoint);
+        }
+    }
+
+    @Override
+    public void broadcastEventForRoom(String roomName, String eventName, Object data) {
+        Set<GameBot> botsInRoom = roomMap.get(roomName);
+        if (botsInRoom != null) {
+            for (GameBot bot : botsInRoom) {
+                executorService.execute(() -> {
+                    bot.receiveEvent(eventName, data);
+                });
+            }
+        }
+    }
+
+    @Override
+    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
+        if (connectedClients.containsKey(clientID)) {
+            return new InternalResponseObject<>(connectedClients.get(clientID));
+        } else {
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
         }
     }
 
@@ -89,27 +103,6 @@ public class BotClientService implements ClientConnectionService {
         }
     }
 
-    @Override
-    public void broadcastEventForRoom(String roomName, String eventName, Object data) {
-        Set<GameBot> botsInRoom = roomMap.get(roomName);
-        if (botsInRoom != null) {
-            for (GameBot bot : botsInRoom) {
-                executorService.execute(() -> {
-                    bot.receiveEvent(eventName, data);
-                });
-            }
-        }
-    }
-
-    @Override
-    public InternalResponseObject<GameClient> findClientFromUUID(UUID clientID) {
-        if (connectedClients.containsKey(clientID)) {
-            return new InternalResponseObject<>(connectedClients.get(clientID));
-        } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
-        }
-    }
-
     public Response submitEventForClient(GameBot client, String eventName, JSONObject data) {
         AuthenticationMiddleware fd = fds.get(eventName);
         if (fd != null) {
@@ -125,9 +118,9 @@ public class BotClientService implements ClientConnectionService {
             return Optional.of(matches.get(0));
         } else {
             //There is not an active bot with that name
-            if(username.contains("_")){
+            if (username.contains("_")) {
                 //There was a bot with that name. If they terminated, then they automatically ended whatever match they were a part of. Return a shell here.
-                return Optional.of(new GameBot(username.split("_")[0],UUID.fromString(username.split("_")[1])){
+                return Optional.of(new GameBot(username.split("_")[0], UUID.fromString(username.split("_")[1])) {
                     @Override
                     public void receiveEvent(String event, Object data) {
                         //Do nothing.
@@ -146,5 +139,10 @@ public class BotClientService implements ClientConnectionService {
         } else {
             return Optional.empty();
         }
+    }
+
+    private void initStorage() {
+        connectedClients = new HashMap<>();
+        roomMap = new HashMap<>();
     }
 }

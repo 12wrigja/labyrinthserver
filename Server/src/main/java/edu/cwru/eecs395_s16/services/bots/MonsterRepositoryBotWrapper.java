@@ -1,11 +1,9 @@
 package edu.cwru.eecs395_s16.services.bots;
 
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
-import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
@@ -29,31 +27,31 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
 
     @Override
     public InternalResponseObject<List<MonsterDefinition>> getPlayerMonsterTypes(Player p) {
-        if(p instanceof GameBot){
-            List<GameObject> architectObjects = ((GameBot)p).getArchitectObjects();
-            List<Monster> allMonsters = architectObjects.stream().filter(obj->obj.getGameObjectType() == GameObject.TYPE.MONSTER).map(obj->(Monster)obj).collect(Collectors.toList());
-            Map<MonsterDefinition,Integer> applicableDefinitions = new HashMap<>();
-            for(Monster m : allMonsters){
+        if (p instanceof GameBot) {
+            List<GameObject> architectObjects = ((GameBot) p).getArchitectObjects();
+            List<Monster> allMonsters = architectObjects.stream().filter(obj -> obj.getGameObjectType() == GameObject.TYPE.MONSTER).map(obj -> (Monster) obj).collect(Collectors.toList());
+            Map<MonsterDefinition, Integer> applicableDefinitions = new HashMap<>();
+            for (Monster m : allMonsters) {
                 MonsterDefinition def;
-                if(m.getDatabaseID() >= 0){
+                if (m.getDatabaseID() >= 0) {
                     InternalResponseObject<MonsterDefinition> defResp = getMonsterDefinitionForId(m.getDatabaseID());
-                    if(defResp.isNormal()){
+                    if (defResp.isNormal()) {
                         def = defResp.get();
                     } else {
-                        return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"Unable to find monster definition for id: "+m.getDatabaseID());
+                        return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "Unable to find monster definition for id: " + m.getDatabaseID());
                     }
                 } else {
-                     def = new MonsterBuilder(UUID.randomUUID(),m).createMonsterDefinition(1);
+                    def = new MonsterBuilder(UUID.randomUUID(), m).createMonsterDefinition(1);
                 }
-                if(applicableDefinitions.containsKey(def)){
+                if (applicableDefinitions.containsKey(def)) {
                     int oldCount = applicableDefinitions.get(def);
-                    applicableDefinitions.put(def,oldCount+1);
+                    applicableDefinitions.put(def, oldCount + 1);
                 } else {
-                    applicableDefinitions.put(def,1);
+                    applicableDefinitions.put(def, 1);
                 }
             }
             List<MonsterDefinition> actualDefinitions = applicableDefinitions.entrySet().stream().map(oldDef -> new MonsterDefinition(oldDef.getKey(), oldDef.getValue(), false)).collect(Collectors.toList());
-            return new InternalResponseObject<>(actualDefinitions,"monsters");
+            return new InternalResponseObject<>(actualDefinitions, "monsters");
         } else {
             return actualRepo.getPlayerMonsterTypes(p);
         }
@@ -61,8 +59,8 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
 
     @Override
     public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int quantity) {
-        if(!(p instanceof GameBot)){
-            return actualRepo.addMonsterForPlayer(p, monsterDefinition,quantity);
+        if (!(p instanceof GameBot)) {
+            return actualRepo.addMonsterForPlayer(p, monsterDefinition, quantity);
         } else {
             return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
         }
@@ -70,10 +68,10 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
 
     @Override
     public InternalResponseObject<Boolean> createDefaultMonstersForPlayer(Player p) {
-        if(!(p instanceof GameBot)){
+        if (!(p instanceof GameBot)) {
             return actualRepo.createDefaultMonstersForPlayer(p);
         } else {
-            return new InternalResponseObject<>(true,"created");
+            return new InternalResponseObject<>(true, "created");
         }
     }
 
@@ -85,16 +83,16 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
 
     @Override
     public InternalResponseObject<Monster> buildMonsterForPlayer(UUID gameID, int monsterDBId, Player p) {
-        if(p instanceof GameBot){
-            Optional<Monster> monster = ((GameBot)p).getArchitectObjects().stream().filter(obj->obj instanceof Monster).map(obj->(Monster)obj).filter(m->m.getDatabaseID() == monsterDBId).findFirst();
-            if(monster.isPresent()){
-                MonsterBuilder mb = new MonsterBuilder(gameID,monster.get());
-                return new InternalResponseObject<>(mb.createMonster(),"monster");
+        if (p instanceof GameBot) {
+            Optional<Monster> monster = ((GameBot) p).getArchitectObjects().stream().filter(obj -> obj instanceof Monster).map(obj -> (Monster) obj).filter(m -> m.getDatabaseID() == monsterDBId).findFirst();
+            if (monster.isPresent()) {
+                MonsterBuilder mb = new MonsterBuilder(gameID, monster.get());
+                return new InternalResponseObject<>(mb.createMonster(), "monster");
             } else {
-                return actualRepo.buildMonsterForPlayer(gameID,monsterDBId,p);
+                return actualRepo.buildMonsterForPlayer(gameID, monsterDBId, p);
             }
         } else {
-            return actualRepo.buildMonsterForPlayer(gameID,monsterDBId,p);
+            return actualRepo.buildMonsterForPlayer(gameID, monsterDBId, p);
         }
     }
 

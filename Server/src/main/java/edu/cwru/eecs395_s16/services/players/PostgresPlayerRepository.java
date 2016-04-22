@@ -3,9 +3,9 @@ package edu.cwru.eecs395_s16.services.players;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.services.containers.DBRepository;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
+import edu.cwru.eecs395_s16.services.containers.DBRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
                     playerDBID = newKeys.getInt(1);
                 }
                 Player p = new Player(playerDBID, username, password, false);
-                return new InternalResponseObject<>(p,"player");
+                return new InternalResponseObject<>(p, "player");
             }
         } catch (SQLException e) {
             if (GameEngine.instance().IS_DEBUG_MODE) {
@@ -88,7 +88,7 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
                 }
                 if (id >= 0) {
                     Player p = new Player(id, username, password, false);
-                    return new InternalResponseObject<>(p,"player");
+                    return new InternalResponseObject<>(p, "player");
                 } else {
                     return new InternalResponseObject<>(InternalErrorCode.INVALID_PASSWORD);
                 }
@@ -122,7 +122,7 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
                 int id = rst2.getInt("id");
                 String password = rst2.getString("password");
                 Player p = new Player(id, username, password, false);
-                return new InternalResponseObject<>(p,"player");
+                return new InternalResponseObject<>(p, "player");
             } else {
                 return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_USERNAME);
             }
@@ -177,7 +177,7 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
 
     @Override
     protected List<String> getTables() {
-        return new ArrayList<String>(){
+        return new ArrayList<String>() {
             {
                 add(PLAYERS_TABLE);
             }

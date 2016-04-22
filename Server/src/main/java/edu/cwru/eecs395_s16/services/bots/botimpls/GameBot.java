@@ -4,17 +4,15 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.GameState;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
-import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.objectives.GameObjective;
 import edu.cwru.eecs395_s16.networking.Response;
-import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
-import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -32,7 +30,7 @@ public abstract class GameBot extends Player implements GameClient {
     final List<GameObject> architectObjects;
 
     public GameBot(String botTypeName, UUID botID) {
-        super(-1, botTypeName+"_"+botID.toString(), "", false);
+        super(-1, botTypeName + "_" + botID.toString(), "", false);
         this.botID = botID;
         setClient(Optional.of(this));
         GameEngine.instance().botService.register(this);
@@ -43,7 +41,7 @@ public abstract class GameBot extends Player implements GameClient {
 
     @Override
     public final Response sendEvent(String event, JSONObject data) {
-        return GameEngine.instance().botService.submitEventForClient(this,event,data);
+        return GameEngine.instance().botService.submitEventForClient(this, event, data);
     }
 
     @Override
@@ -56,47 +54,48 @@ public abstract class GameBot extends Player implements GameClient {
 
     @Override
     public final void joinRoom(String roomName) {
-        GameEngine.instance().botService.addClientToRoom(roomName,this);
+        GameEngine.instance().botService.addClientToRoom(roomName, this);
     }
 
     @Override
     public void leaveRoom(String roomName) {
-        GameEngine.instance().botService.removeClientFromRoom(roomName,this);
+        GameEngine.instance().botService.removeClientFromRoom(roomName, this);
     }
 
-    public void onConnect(){};
+    public void onConnect() {
+    }
 
-    public final void disconnect(){
+    public final void disconnect() {
         GameEngine.instance().botService.unregister(this);
     }
 
-    public void onDisconnect(){
-        if(getCurrentMatchID().isPresent()){
-            Match m =  Match.fromCacheWithMatchIdentifier(getCurrentMatchID().get()).get();
-            if(m.getGameState() != GameState.GAME_END) {
+    public void onDisconnect() {
+        if (getCurrentMatchID().isPresent()) {
+            Match m = Match.fromCacheWithMatchIdentifier(getCurrentMatchID().get()).get();
+            if (m.getGameState() != GameState.GAME_END) {
                 m.end("Bot disconnected.", GameObjective.GAME_WINNER.NO_WINNER);
             }
             setCurrentMatch(Optional.empty());
         }
-    };
+    }
 
-    public final List<Hero> getBotsHeroes(){
+    public final List<Hero> getBotsHeroes() {
         return heroes;
     }
 
-    public final void replaceBotHeroes(List<Hero> heroes){
-        if(!getCurrentMatchID().isPresent()) {
+    public final void replaceBotHeroes(List<Hero> heroes) {
+        if (!getCurrentMatchID().isPresent()) {
             this.heroes.clear();
             this.heroes.addAll(heroes);
         }
     }
 
-    public final List<GameObject> getArchitectObjects(){
+    public final List<GameObject> getArchitectObjects() {
         return architectObjects;
     }
 
-    public final void replaceArchitectObjects(List<GameObject> architectObjects){
-        if(!getCurrentMatchID().isPresent()){
+    public final void replaceArchitectObjects(List<GameObject> architectObjects) {
+        if (!getCurrentMatchID().isPresent()) {
             this.architectObjects.clear();
             this.architectObjects.addAll(architectObjects);
         }

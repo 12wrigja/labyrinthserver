@@ -21,7 +21,7 @@ public interface MapRepository extends Repository {
 
     InternalResponseObject<Integer> storeNewMapInDatabase(String mapName, Player creator, GameMap map);
 
-    Map<String,TileType> getTileTypeMap();
+    Map<String, TileType> getTileTypeMap();
 
     InternalResponseObject<List<MapMetadata>> getMapData();
 
@@ -64,14 +64,14 @@ public interface MapRepository extends Repository {
             JSONObject repr = new JSONObject();
             try {
                 JSONObject sizeObj = new JSONObject();
-                sizeObj.put(GameMap.MAP_X_KEY,width);
+                sizeObj.put(GameMap.MAP_X_KEY, width);
                 sizeObj.put(GameMap.MAP_Y_KEY, depth);
                 repr.put(GameMap.MAP_SIZE_KEY, sizeObj);
-                repr.put(GameMap.MAP_NAME_KEY,name);
+                repr.put(GameMap.MAP_NAME_KEY, name);
                 repr.put(GameMap.MAP_CREATOR_ID_KEY, creator_id);
                 repr.put(GameMap.MAP_HERO_CAPACITY_KEY, heroCapacity);
-                repr.put(GameMap.MAP_ID_KEY,id);
-            } catch (JSONException e){
+                repr.put(GameMap.MAP_ID_KEY, id);
+            } catch (JSONException e) {
                 //Should not happen - non null keys
             }
             return repr;

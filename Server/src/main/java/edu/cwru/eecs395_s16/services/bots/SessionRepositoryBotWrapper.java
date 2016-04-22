@@ -1,9 +1,9 @@
 package edu.cwru.eecs395_s16.services.bots;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
 import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 
@@ -24,8 +24,8 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
     @Override
     public InternalResponseObject<Player> findPlayer(UUID clientID) {
         Optional<GameBot> bot = GameEngine.instance().botService.botForSessionID(clientID);
-        if(bot.isPresent()){
-            return new InternalResponseObject<>(bot.get(),"bot");
+        if (bot.isPresent()) {
+            return new InternalResponseObject<>(bot.get(), "bot");
         } else {
             return actualRepo.findPlayer(clientID);
         }
@@ -33,8 +33,8 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
 
     @Override
     public Optional<GameClient> findClient(Player player) {
-        if(player instanceof GameBot){
-            return Optional.of((GameBot)player);
+        if (player instanceof GameBot) {
+            return Optional.of((GameBot) player);
         } else {
             return actualRepo.findClient(player);
         }
@@ -43,8 +43,8 @@ public class SessionRepositoryBotWrapper implements SessionRepository {
     @Override
     public void storePlayer(UUID clientID, Player player) {
         Optional<GameBot> bot = GameEngine.instance().botService.botForSessionID(clientID);
-        if(!bot.isPresent()){
-            actualRepo.storePlayer(clientID,player);
+        if (!bot.isPresent()) {
+            actualRepo.storePlayer(clientID, player);
         }
     }
 

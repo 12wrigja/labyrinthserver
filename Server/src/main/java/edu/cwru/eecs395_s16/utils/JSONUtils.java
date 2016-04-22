@@ -1,6 +1,5 @@
 package edu.cwru.eecs395_s16.utils;
 
-import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
 import edu.cwru.eecs395_s16.networking.Jsonable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +15,14 @@ import java.util.Map;
 public class JSONUtils {
 
     public static final String REMOVED = "REMOVED";
+
+    public interface ObjectReducer<T> {
+        JSONObject reduce(T object);
+    }
+
+    public interface MapReducer<K, V> {
+        JSONObject reduce(Map.Entry<K, V> entry);
+    }
 
     public static JSONDiff getDiff(JSONObject oldObj, JSONObject newObj) {
         JSONObject added = new JSONObject();
@@ -93,7 +100,7 @@ public class JSONUtils {
         JSONObject changes = diff.getChanged();
         patched = doRemovals(patched, removals);
         patched = doAdditions(patched, additions);
-        patched = doChanges(patched,changes);
+        patched = doChanges(patched, changes);
         return patched;
     }
 
@@ -155,17 +162,17 @@ public class JSONUtils {
             String key = (String) changesIterator.next();
             Object value = changes.get(key);
             Object currentVal = current.opt(key);
-            if(currentVal != null){
-                if(value instanceof JSONObject){
-                    if(!(currentVal instanceof JSONObject)){
+            if (currentVal != null) {
+                if (value instanceof JSONObject) {
+                    if (!(currentVal instanceof JSONObject)) {
                         throw new JSONException("Trying to change a sub-key on a key that is not an object!");
                     } else {
-                        JSONObject innerObj = (JSONObject)currentVal;
-                        JSONObject innerChanges = (JSONObject)value;
-                        current.put(key,doChanges(innerObj,innerChanges));
+                        JSONObject innerObj = (JSONObject) currentVal;
+                        JSONObject innerChanges = (JSONObject) value;
+                        current.put(key, doChanges(innerObj, innerChanges));
                     }
                 } else {
-                    current.put(key,value);
+                    current.put(key, value);
                 }
             } else {
                 throw new JSONException("Trying to change a key that doesn't exist!");
@@ -183,21 +190,13 @@ public class JSONUtils {
         return !diff.hasChanges();
     }
 
-    public static <T extends  Jsonable> JSONArray listify(List<T> list){
+    public static <T extends Jsonable> JSONArray listify(List<T> list) {
         JSONArray arr = new JSONArray();
         list.forEach(t -> arr.put(t.getJSONRepresentation()));
         return arr;
     }
 
-    public interface ObjectReducer<T> {
-        JSONObject reduce(T object);
-    }
-
-    public interface MapReducer<K,V> {
-        JSONObject reduce(Map.Entry<K,V> entry);
-    }
-
-    public static <K,V> JSONArray listify(Map<K,V> map, MapReducer<K,V> reducer){
+    public static <K, V> JSONArray listify(Map<K, V> map, MapReducer<K, V> reducer) {
         JSONArray arr = new JSONArray();
         map.entrySet().forEach(entry -> arr.put(reducer.reduce(entry)));
         return arr;

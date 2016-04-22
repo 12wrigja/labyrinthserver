@@ -1,6 +1,9 @@
 package edu.cwru.eecs395_s16.core.objects.creatures;
 
-import edu.cwru.eecs395_s16.core.objects.*;
+import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +28,7 @@ public class Creature extends GameObject implements DatabaseObject {
     public static final String STATUSES_KEY = "statuses";
     public static final String ACTION_POINTS_KEY = "action_points";
     public static final String MAX_ACTION_POINTS_KEY = "max_action_points";
+    public static final String WEAPON_KEY = "weapon";
     private int attack = 10;
     private int defense = 10;
     private int health = 50;
@@ -36,7 +40,7 @@ public class Creature extends GameObject implements DatabaseObject {
     private int databaseId;
     private List<Ability> abilities = new ArrayList<>();
     private List<CreatureStatus> statuses = new ArrayList<>();
-
+    private Weapon weapon;
     public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, int databaseId, TYPE objectType, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses, Location location, Weapon weapon) {
         super(objectID, ownerID, controllerID, objectType, location);
         this.databaseId = databaseId;
@@ -53,9 +57,6 @@ public class Creature extends GameObject implements DatabaseObject {
         this.weapon = weapon;
     }
 
-    public static final String WEAPON_KEY = "weapon";
-    private Weapon weapon;
-
     public Weapon getWeapon() {
         return this.weapon;
     }
@@ -68,24 +69,49 @@ public class Creature extends GameObject implements DatabaseObject {
         return attack;
     }
 
+    protected void setAttack(int attack) {
+        this.attack = attack;
+    }
+
     public int getDefense() {
         return defense;
+    }
+
+    protected void setDefense(int defense) {
+        this.defense = defense;
     }
 
     public int getHealth() {
         return health;
     }
 
+    protected void setHealth(int health) {
+        this.health = health;
+    }
+
     public int getMaxHealth() {
         return maxHealth;
+    }
+
+    protected void setMaxHealth(int maxHealth) {
+        this.maxHealth = maxHealth;
+        this.health = maxHealth;
     }
 
     public int getMovement() {
         return movement;
     }
 
+    public void setMovement(int movement) {
+        this.movement = movement;
+    }
+
     public int getVision() {
         return vision;
+    }
+
+    protected void setVision(int vision) {
+        this.vision = vision;
     }
 
     @Override
@@ -93,45 +119,12 @@ public class Creature extends GameObject implements DatabaseObject {
         return databaseId;
     }
 
-    protected void setAttack(int attack) {
-        this.attack = attack;
-    }
-
-    protected void setDefense(int defense) {
-        this.defense = defense;
-    }
-
-    protected void setHealth(int health) {
-        this.health = health;
-    }
-
-    protected void setMaxHealth(int maxHealth){
-        this.maxHealth = maxHealth;
-        this.health = maxHealth;
-    }
-
-    public void setMovement(int movement) {
-        this.movement = movement;
-    }
-
-    protected void setVision(int vision) {
-        this.vision = vision;
-    }
-
-    protected void setCurrentActionPoints(int currentActionPoints) {
-        this.currentActionPoints = currentActionPoints;
-    }
-
-    protected void setStatuses(List<CreatureStatus> statuses) {
-        this.statuses = statuses;
+    public List<Ability> getAbilities() {
+        return abilities;
     }
 
     protected void setAbilities(List<Ability> abilities) {
         this.abilities = abilities;
-    }
-
-    public List<Ability> getAbilities() {
-        return abilities;
     }
 
     public void triggerPassive(GameMap map, GameObjectCollection boardObjects) {
@@ -139,6 +132,10 @@ public class Creature extends GameObject implements DatabaseObject {
 
     public List<CreatureStatus> getStatuses() {
         return statuses;
+    }
+
+    protected void setStatuses(List<CreatureStatus> statuses) {
+        this.statuses = statuses;
     }
 
     public int getActionPoints() {
@@ -184,11 +181,15 @@ public class Creature extends GameObject implements DatabaseObject {
             representation.put(ACTION_POINTS_KEY, getActionPoints());
             representation.put(MAX_ACTION_POINTS_KEY, maxActionPoints);
             representation.put(MAX_HEALTH_KEY, maxHealth);
-            representation.put(DatabaseObject.DATABASE_ID_KEY,databaseId);
+            representation.put(DatabaseObject.DATABASE_ID_KEY, databaseId);
             representation.put(WEAPON_KEY, getWeapon().getJSONRepresentation());
         } catch (JSONException e) {
             //Never will occur - all keys are non-null
         }
         return representation;
+    }
+
+    protected void setCurrentActionPoints(int currentActionPoints) {
+        this.currentActionPoints = currentActionPoints;
     }
 }

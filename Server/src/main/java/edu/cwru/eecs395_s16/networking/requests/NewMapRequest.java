@@ -13,6 +13,16 @@ public class NewMapRequest implements RequestData {
     private int x;
     private int y;
 
+    public NewMapRequest() {
+        this.x = -1;
+        this.y = -1;
+    }
+
+    public NewMapRequest(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public int getY() {
         return y;
     }
@@ -21,28 +31,18 @@ public class NewMapRequest implements RequestData {
         return x;
     }
 
-    public NewMapRequest(){
-        this.x = -1;
-        this.y = -1;
-    };
-
-    public NewMapRequest(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        this.x = RequestData.getInt(obj,"x");
-        this.y = RequestData.getInt(obj,"y");
+        this.x = RequestData.getInt(obj, "x");
+        this.y = RequestData.getInt(obj, "y");
     }
 
     @Override
     public JSONObject convertToJSON() {
         JSONObject repr = new JSONObject();
         try {
-            repr.put("x",x);
-            repr.put("y",y);
+            repr.put("x", x);
+            repr.put("y", y);
         } catch (JSONException e) {
             //Should not happen b/c keys are not null.
         }

@@ -18,13 +18,13 @@ public class DeathmatchGameObjective extends GameObjective {
 
     @Override
     public GAME_WINNER checkForGameEnd(Match match) {
-        numAliveHeroesObjects = match.getBoardObjects().getForPlayerOwner(match.getHeroPlayer()).stream().filter(obj-> (obj instanceof Creature) && ((Creature)obj).getHealth()>0).count();
-        numAliveArchitectObjects = match.getBoardObjects().getForPlayerOwner(match.getArchitectPlayer()).stream().filter(obj -> (obj instanceof Creature) && ((Creature)obj).getHealth()>0).count();
-        if(numAliveArchitectObjects == 0 && numAliveHeroesObjects == 0){
+        numAliveHeroesObjects = match.getBoardObjects().getForPlayerOwner(match.getHeroPlayer()).stream().filter(obj -> (obj instanceof Creature) && ((Creature) obj).getHealth() > 0).count();
+        numAliveArchitectObjects = match.getBoardObjects().getForPlayerOwner(match.getArchitectPlayer()).stream().filter(obj -> (obj instanceof Creature) && ((Creature) obj).getHealth() > 0).count();
+        if (numAliveArchitectObjects == 0 && numAliveHeroesObjects == 0) {
             return GAME_WINNER.TIE;
-        } else if (numAliveArchitectObjects > 0 && numAliveHeroesObjects > 0){
+        } else if (numAliveArchitectObjects > 0 && numAliveHeroesObjects > 0) {
             return GAME_WINNER.NO_WINNER;
-        } else if (numAliveHeroesObjects > 0){
+        } else if (numAliveHeroesObjects > 0) {
             return GAME_WINNER.HERO_WINNER;
         } else {
             return GAME_WINNER.ARCHITECT_WINNER;
@@ -41,9 +41,9 @@ public class DeathmatchGameObjective extends GameObjective {
     public JSONObject getJSONRepresentation() {
         JSONObject representation = new JSONObject();
         try {
-            representation.put(OBJECTIVE_TYPE_KEY,DEATHMATCH_KEY);
-            representation.put(ALIVE_HERO_OBJECTS_KEY,numAliveHeroesObjects);
-            representation.put(ALIVE_ARCHITECT_OBJECTS_KEY,numAliveArchitectObjects);
+            representation.put(OBJECTIVE_TYPE_KEY, DEATHMATCH_KEY);
+            representation.put(ALIVE_HERO_OBJECTS_KEY, numAliveHeroesObjects);
+            representation.put(ALIVE_ARCHITECT_OBJECTS_KEY, numAliveArchitectObjects);
         } catch (JSONException e) {
             e.printStackTrace();
             //Should never happen as all the keys are non-null

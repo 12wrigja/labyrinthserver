@@ -24,9 +24,9 @@ public class PassGameActionData {
     public static InternalResponseObject<PassGameActionData> fillFromJSON(JSONObject obj) {
         UUID characterUUID;
         try {
-            characterUUID = RequestData.getUUID(obj,"character_id");
+            characterUUID = RequestData.getUUID(obj, "character_id");
         } catch (InvalidDataException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.DATA_PARSE_ERROR,"The character_id is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
         }
         return new InternalResponseObject<>(new PassGameActionData(characterUUID));
     }
@@ -35,7 +35,7 @@ public class PassGameActionData {
         JSONObject repr = new JSONObject();
         try {
             repr.put("character_id", character_id.toString());
-            repr.put("type","pass");
+            repr.put("type", "pass");
         } catch (JSONException e) {
             //Should not happen b/c keys are not null.
         }

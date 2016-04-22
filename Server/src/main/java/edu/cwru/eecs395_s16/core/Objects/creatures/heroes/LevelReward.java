@@ -15,8 +15,8 @@ public class LevelReward {
         this.heroType = heroType;
     }
 
-    public void apply(Hero h){
-        if(h.getHeroType() == heroType && h.getExp() >= expThreshold) {
+    public void apply(Hero h) {
+        if (h.getHeroType() == heroType && h.getExp() >= expThreshold) {
             h.setLevel(levelApplied);
         }
     }

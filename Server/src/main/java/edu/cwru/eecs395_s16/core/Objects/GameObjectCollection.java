@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  */
 public class GameObjectCollection implements Jsonable {
 
-    Map<UUID,GameObject> allObjects = new ConcurrentHashMap<>();
+    Map<UUID, GameObject> allObjects = new ConcurrentHashMap<>();
 
     public Optional<GameObject> getByID(UUID gameObjectID) {
         GameObject matchingUUID = allObjects.get(gameObjectID);
@@ -62,25 +62,25 @@ public class GameObjectCollection implements Jsonable {
         return allObjects.values().stream().filter(gameObject -> gameObject.getLocation().equals(loc)).collect(Collectors.toList());
     }
 
-    public void addAll(Collection<? extends GameObject> gameObjects){
-        for(GameObject gObj : gameObjects){
+    public void addAll(Collection<? extends GameObject> gameObjects) {
+        for (GameObject gObj : gameObjects) {
             this.add(gObj);
         }
     }
 
-    public void fillFromJSONData(JSONObject data){
+    public void fillFromJSONData(JSONObject data) {
         GameObjectFactory gFact = new GameObjectFactory();
         Iterator uuidIterator = data.keys();
-        while(uuidIterator.hasNext()){
-            String key = (String)uuidIterator.next();
+        while (uuidIterator.hasNext()) {
+            String key = (String) uuidIterator.next();
             try {
                 Optional<GameObject> gOpt = gFact.fillFromJson(data.getJSONObject(key));
-                if(gOpt.isPresent()) {
+                if (gOpt.isPresent()) {
                     GameObject gObj = gOpt.get();
                     this.add(gObj);
                 }
             } catch (JSONException e) {
-                if(GameEngine.instance().IS_DEBUG_MODE) {
+                if (GameEngine.instance().IS_DEBUG_MODE) {
                     e.printStackTrace();
                 }
             }
@@ -91,10 +91,10 @@ public class GameObjectCollection implements Jsonable {
     @Override
     public JSONObject getJSONRepresentation() {
         JSONObject repr = new JSONObject();
-        for(UUID key : allObjects.keySet()){
+        for (UUID key : allObjects.keySet()) {
             try {
                 //JSONRepresentation Change
-                repr.put(key.toString(),allObjects.get(key).getJSONRepresentation());
+                repr.put(key.toString(), allObjects.get(key).getJSONRepresentation());
             } catch (JSONException e) {
                 //This should never be called - the key is always non-null
             }

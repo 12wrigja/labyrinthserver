@@ -47,7 +47,7 @@ public class RedisSessionRepository implements SessionRepository {
     public Optional<GameClient> findClient(Player player) {
         try (Jedis j = pool.getResource()) {
             String clientIDString = j.get(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());
-            if(clientIDString == null){
+            if (clientIDString == null) {
                 return Optional.empty();
             }
             UUID clientID;
@@ -57,7 +57,7 @@ public class RedisSessionRepository implements SessionRepository {
                 return Optional.empty();
             }
             InternalResponseObject<GameClient> client = GameEngine.instance().findClientFromUUID(clientID);
-            if(client.isNormal()){
+            if (client.isNormal()) {
                 return Optional.of(client.get());
             } else {
                 return Optional.empty();
@@ -76,7 +76,7 @@ public class RedisSessionRepository implements SessionRepository {
     @Override
     public void expirePlayerSession(UUID clientID) {
         InternalResponseObject<Player> p = findPlayer(clientID);
-        if(p.isPresent()) {
+        if (p.isPresent()) {
             Player player = p.get();
             try (Jedis j = pool.getResource()) {
                 j.del(SESSION_KEY_PREFIX + SESSION_USERNAME_PREFIX + player.getUsername());

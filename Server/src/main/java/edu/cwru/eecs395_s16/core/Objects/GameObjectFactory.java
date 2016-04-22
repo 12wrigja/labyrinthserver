@@ -1,17 +1,11 @@
 package edu.cwru.eecs395_s16.core.objects;
 
-import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.core.objects.creatures.CreatureBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
-import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
-import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.core.objects.objectives.ObjectiveGameObject;
-import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 

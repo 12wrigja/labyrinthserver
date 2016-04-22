@@ -23,18 +23,21 @@ public class FromJSONGameMap implements GameMap {
     private int heroCapacity = 0;
 
     public FromJSONGameMap(JSONObject obj) throws JSONException {
-        JSONObject size = obj.getJSONObject("size");
-        this.x = size.getInt("x");
-        this.y = size.getInt("y");
+        JSONObject size = obj.getJSONObject(GameMap.MAP_SIZE_KEY);
+        this.x = size.getInt(GameMap.MAP_X_KEY);
+        this.y = size.getInt(GameMap.MAP_Y_KEY);
         this.tiles = new MapTile[x][y];
-        JSONArray tiles = obj.getJSONArray("tiles");
+        this.creator = obj.optString(GameMap.MAP_CREATOR_ID_KEY,"");
+        this.mapName = obj.optString(GameMap.MAP_NAME_KEY,"");
+        this.heroCapacity = obj.optInt(GameMap.MAP_HERO_CAPACITY_KEY,0);
+        JSONArray tiles = obj.getJSONArray(GameMap.MAP_TILES_KEY);
         for (int i = 0; i < tiles.length(); i++) {
             JSONObject tile = tiles.getJSONObject(i);
-            String terrain = tile.getString("terrain");
+            String terrain = tile.getString(MapTile.TERRAIN_KEY);
             MapRepository.TileType tileType = GameEngine.instance().services.mapRepository.getTileTypeMap().get(terrain);
-            int tileX = tile.getInt("x");
-            int tileY = tile.getInt("y");
-            int rotation = tile.getInt("rotation");
+            int tileX = tile.getInt(MapTile.X_KEY);
+            int tileY = tile.getInt(MapTile.Y_KEY);
+            int rotation = tile.getInt(MapTile.ROTATION_KEY);
             MapTile t = new MapTile(tileX, tileY, tileType, rotation, false, false, false);
             this.tiles[tileX][tileY] = t;
         }

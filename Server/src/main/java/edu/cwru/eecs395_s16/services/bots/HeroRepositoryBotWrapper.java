@@ -1,11 +1,11 @@
 package edu.cwru.eecs395_s16.services.bots;
 
-import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.LevelReward;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.heroes.HeroRepository;
 import edu.cwru.eecs395_s16.utils.CoreDataUtils;
 
@@ -25,8 +25,8 @@ public class HeroRepositoryBotWrapper implements HeroRepository {
 
     @Override
     public InternalResponseObject<List<Hero>> getPlayerHeroes(Player p) {
-        if(p instanceof GameBot){
-            return new InternalResponseObject<>(((GameBot)p).getBotsHeroes());
+        if (p instanceof GameBot) {
+            return new InternalResponseObject<>(((GameBot) p).getBotsHeroes());
         } else {
             return actualRepo.getPlayerHeroes(p);
         }
@@ -34,17 +34,17 @@ public class HeroRepositoryBotWrapper implements HeroRepository {
 
     @Override
     public InternalResponseObject<Boolean> saveHeroForPlayer(Player p, Hero h) {
-        if(p instanceof GameBot){
-            return new InternalResponseObject<>(true,"saved");
+        if (p instanceof GameBot) {
+            return new InternalResponseObject<>(true, "saved");
         } else {
-            return actualRepo.saveHeroForPlayer(p,h);
+            return actualRepo.saveHeroForPlayer(p, h);
         }
     }
 
     @Override
     public InternalResponseObject<Boolean> createDefaultHeroesForPlayer(Player p) {
-        if(p instanceof GameBot){
-            return new InternalResponseObject<>(true,"created");
+        if (p instanceof GameBot) {
+            return new InternalResponseObject<>(true, "created");
         } else {
             return actualRepo.createDefaultHeroesForPlayer(p);
         }

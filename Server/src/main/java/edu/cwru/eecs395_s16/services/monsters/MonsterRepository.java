@@ -1,18 +1,11 @@
 package edu.cwru.eecs395_s16.services.monsters;
 
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
-import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
-import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
-import edu.cwru.eecs395_s16.networking.Jsonable;
 import edu.cwru.eecs395_s16.services.containers.Repository;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +26,11 @@ public interface MonsterRepository extends Repository {
 
     default InternalResponseObject<Monster> buildMonsterForPlayer(UUID gameID, int monsterDBId, Player player) {
         InternalResponseObject<MonsterDefinition> def = getMonsterDefinitionForId(monsterDBId);
-        if(!def.isNormal()){
+        if (!def.isNormal()) {
             return InternalResponseObject.cloneError(def);
         }
         MonsterBuilder mb = new MonsterBuilder(gameID, def.get(), player.getUsername(), Optional.ofNullable(player.getUsername()));
-        return new InternalResponseObject<>(mb.createMonster(),"monster");
+        return new InternalResponseObject<>(mb.createMonster(), "monster");
     }
 
 }

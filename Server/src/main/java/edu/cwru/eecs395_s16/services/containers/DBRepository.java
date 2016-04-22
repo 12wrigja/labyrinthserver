@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
  */
 public abstract class DBRepository implements Repository {
 
-    protected abstract List<String> getTables();
-
     protected Connection conn;
 
     protected DBRepository(Connection conn) {
@@ -24,19 +22,19 @@ public abstract class DBRepository implements Repository {
     @Override
     public final void initialize(Map<String, CoreDataUtils.CoreDataEntry> baseData) {
         Set<String> tableNames = new HashSet<>(getTables());
-        List<CoreDataUtils.CoreDataEntry> data = new ArrayList<>(baseData.values().stream().filter(entry -> getTables().contains(entry.name) && !CoreDataUtils.isSchemaInitialized(conn,entry.name)).collect(Collectors.toList()));
+        List<CoreDataUtils.CoreDataEntry> data = new ArrayList<>(baseData.values().stream().filter(entry -> getTables().contains(entry.name) && !CoreDataUtils.isSchemaInitialized(conn, entry.name)).collect(Collectors.toList()));
         data.sort((o1, o2) -> Integer.compare(o1.order, o2.order));
         data.forEach(entry -> {
-            if(!CoreDataUtils.createTableForData(conn, entry.name)){
-                System.err.println("Failed to make a table for : "+entry.name);
+            if (!CoreDataUtils.createTableForData(conn, entry.name)) {
+                System.err.println("Failed to make a table for : " + entry.name);
             } else {
                 tableNames.remove(entry.name);
             }
         });
-        tableNames.stream().map(name ->{
-            boolean val = CoreDataUtils.createTableForData(conn,name);
+        tableNames.stream().map(name -> {
+            boolean val = CoreDataUtils.createTableForData(conn, name);
             return new AbstractMap.SimpleEntry<>(name, val);
-        }).filter(entry->!entry.getValue()).forEach(entry->System.err.println("Failed to make a table for: "+entry.getKey()));
+        }).filter(entry -> !entry.getValue()).forEach(entry -> System.err.println("Failed to make a table for: " + entry.getKey()));
         CoreDataUtils.insertIntoDB(conn, data);
     }
 
@@ -61,5 +59,7 @@ public abstract class DBRepository implements Repository {
         }
         initialize(baseData);
     }
+
+    protected abstract List<String> getTables();
 
 }

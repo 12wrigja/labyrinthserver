@@ -4,12 +4,12 @@ import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.GameObjectCollection;
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.maps.MapTile;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
-import edu.cwru.eecs395_s16.core.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.maps.MapTile;
 import edu.cwru.eecs395_s16.networking.requests.gameactions.MoveGameActionData;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.utils.JSONUtils;
@@ -19,20 +19,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Created by james on 2/21/16.
  */
 public class MoveGameAction implements GameAction {
 
+    public List<Location> actualPath = new ArrayList<>();
     private MoveGameActionData data;
 
     public MoveGameAction(MoveGameActionData data) {
         this.data = data;
     }
-
-    public List<Location> actualPath = new ArrayList<>();
 
     @Override
     public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
@@ -96,7 +94,7 @@ public class MoveGameAction implements GameAction {
     @Override
     public void doGameAction(GameMap map, GameObjectCollection boardObjects) {
         Location last = this.actualPath.get(this.actualPath.size() - 1);
-        Creature c = (Creature)boardObjects.getByID(data.getCharacterID()).get();
+        Creature c = (Creature) boardObjects.getByID(data.getCharacterID()).get();
         //TODO check for damage, traps, etc.
         c.setLocation(last);
         c.useActionPoint();

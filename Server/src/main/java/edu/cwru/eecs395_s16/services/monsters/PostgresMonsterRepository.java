@@ -4,26 +4,17 @@ import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.GameObject;
-import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
-import edu.cwru.eecs395_s16.core.objects.creatures.CreatureBuilder;
-import edu.cwru.eecs395_s16.core.objects.creatures.Weapon;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroBuilder;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.LevelReward;
-import edu.cwru.eecs395_s16.core.objects.creatures.monsters.Monster;
-import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterBuilder;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.containers.DBRepository;
 import edu.cwru.eecs395_s16.services.players.PostgresPlayerRepository;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Created by james on 2/18/16.
@@ -33,7 +24,7 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
     public static final String MONSTER_PLAYER_TABLE = "monster_player";
     public static final String MONSTERS_TABLE = "monsters";
     private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into " + MONSTER_PLAYER_TABLE + " (monster_id, player_id, quantity) select id as monster_id, ? as player_id, 0 as quantity from monsters";
-    private static final String UPDATE_MONSTER_QUANTITY_QUERY = "update "+MONSTER_PLAYER_TABLE +" set quantity = quantity + ? where player_id = ? and monster_id = ?";
+    private static final String UPDATE_MONSTER_QUANTITY_QUERY = "update " + MONSTER_PLAYER_TABLE + " set quantity = quantity + ? where player_id = ? and monster_id = ?";
     private static final String REMOVE_ALL_PLAYER_MONSTERS = "delete from " + MONSTER_PLAYER_TABLE + " where player_id = ?";
     private static final String GET_MONSTERS_QUERY = "select * from " + MONSTER_PLAYER_TABLE + " inner join " + MONSTERS_TABLE + " on monster_player.monster_id = monsters.id where player_id = ?";
     private static final String GET_MONSTER_DEFINITION_QUERY = "select * from " + MONSTERS_TABLE + " where id = ?";
@@ -69,9 +60,9 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
     public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int quantity) {
         try {
             PreparedStatement stmt = conn.prepareStatement(UPDATE_MONSTER_QUANTITY_QUERY);
-            stmt.setInt(1,quantity);
-            stmt.setInt(2,p.getDatabaseID());
-            stmt.setInt(3,monsterDefinition.id);
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, p.getDatabaseID());
+            stmt.setInt(3, monsterDefinition.id);
             int results = stmt.executeUpdate();
             if (results > 0) {
                 return new InternalResponseObject<>(true, "added");
@@ -90,22 +81,22 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
     public InternalResponseObject<Boolean> createDefaultMonstersForPlayer(Player p) {
         try {
             PreparedStatement stmt = conn.prepareStatement(REMOVE_ALL_PLAYER_MONSTERS);
-            stmt.setInt(1,p.getDatabaseID());
+            stmt.setInt(1, p.getDatabaseID());
             stmt.executeUpdate();
             stmt = conn.prepareStatement(INSERT_DEFAULT_PLAYER_HEROES);
-            stmt.setInt(1,p.getDatabaseID());
+            stmt.setInt(1, p.getDatabaseID());
             int results = stmt.executeUpdate();
             if (results > 0) {
                 InternalResponseObject<MonsterDefinition> goblinDef = getMonsterDefinitionForId(1);
-                if(goblinDef.isNormal()) {
+                if (goblinDef.isNormal()) {
                     InternalResponseObject<Boolean> goblinCreateResp = addMonsterForPlayer(p, goblinDef.get(), 10);
-                    if(goblinCreateResp.isNormal()) {
+                    if (goblinCreateResp.isNormal()) {
                         return new InternalResponseObject<>(true, "created");
                     } else {
-                        return InternalResponseObject.cloneError(goblinCreateResp,"Unable to give new player goblins.");
+                        return InternalResponseObject.cloneError(goblinCreateResp, "Unable to give new player goblins.");
                     }
                 } else {
-                    return InternalResponseObject.cloneError(goblinDef,"Unable to find the goblin definition.");
+                    return InternalResponseObject.cloneError(goblinDef, "Unable to find the goblin definition.");
                 }
             } else {
                 return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL);

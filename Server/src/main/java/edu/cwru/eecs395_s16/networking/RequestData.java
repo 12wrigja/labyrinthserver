@@ -11,10 +11,6 @@ import java.util.UUID;
  */
 public interface RequestData {
 
-    void fillFromJSON(JSONObject obj) throws InvalidDataException;
-
-    JSONObject convertToJSON();
-
     static String getString(JSONObject obj, String key) throws InvalidDataException {
         try {
             return obj.getString(key);
@@ -32,19 +28,23 @@ public interface RequestData {
     }
 
     static UUID getUUID(JSONObject obj, String key) throws InvalidDataException {
-        String uuidStr = getString(obj,key);
-        try{
+        String uuidStr = getString(obj, key);
+        try {
             return UUID.fromString(uuidStr);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new InvalidDataException(key);
         }
     }
 
     static boolean getBoolean(JSONObject obj, String key) throws InvalidDataException {
-        try{
+        try {
             return obj.getBoolean(key);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             throw new InvalidDataException(key);
         }
     }
+
+    void fillFromJSON(JSONObject obj) throws InvalidDataException;
+
+    JSONObject convertToJSON();
 }

@@ -20,14 +20,14 @@ public class Response implements Jsonable {
 
     //TODO deprecate / remove this.
     public Response(JsonableException e) {
-        this(e.getErrorCode(),e.getMessage());
+        this(e.getErrorCode(), e.getMessage());
     }
 
     public Response(WebStatusCode code) {
-        this(code,code.message);
+        this(code, code.message);
     }
 
-    public Response(WebStatusCode code, String message){
+    public Response(WebStatusCode code, String message) {
         this.status = code;
         this.message = message;
     }
@@ -35,9 +35,9 @@ public class Response implements Jsonable {
     @Override
     public JSONObject getJSONRepresentation() {
         JSONObject repr = new JSONObject();
-        try{
-            repr.put("status",this.status.code);
-            if(this.message != null) {
+        try {
+            repr.put("status", this.status.code);
+            if (this.message != null) {
                 repr.put("message", this.message);
             }
         } catch (JSONException e) {

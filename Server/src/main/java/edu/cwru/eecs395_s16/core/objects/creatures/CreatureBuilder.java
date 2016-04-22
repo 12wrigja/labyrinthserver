@@ -6,7 +6,6 @@ import edu.cwru.eecs395_s16.core.objects.GameObject;
 import edu.cwru.eecs395_s16.core.objects.GameObjectFactory;
 import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
-import edu.cwru.eecs395_s16.core.objects.creatures.heroes.HeroType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +35,7 @@ public class CreatureBuilder extends GameObjectFactory {
         this.ownerID = ownerID;
         this.controllerID = controllerID;
         this.objectType = GameObject.TYPE.MONSTER;
-        this.location = new Location(0,0);
+        this.location = new Location(0, 0);
     }
 
     public CreatureBuilder setAttack(int attack) {

@@ -13,7 +13,7 @@ public enum HeroType {
 
     public final int databaseIdentifier;
 
-    HeroType(int id){
+    HeroType(int id) {
         this.databaseIdentifier = id;
     }
 }

@@ -3,7 +3,8 @@ package edu.cwru.eecs395_s16.core.objects.creatures.heroes;
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
-import edu.cwru.eecs395_s16.core.objects.*;
+import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.creatures.Ability;
 import edu.cwru.eecs395_s16.core.objects.creatures.Creature;
 import edu.cwru.eecs395_s16.core.objects.creatures.CreatureStatus;
@@ -39,29 +40,29 @@ public class Hero extends Creature implements DatabaseObject {
         return this.level;
     }
 
-    public void setLevel(int level){
+    public void setLevel(int level) {
         this.level = level;
     }
 
     public InternalResponseObject<Boolean> grantXP(long xp) {
         long previousExp = exp;
-        long newExp = exp+xp;
-        List<LevelReward> levels = GameEngine.instance().services.heroRepository.getLevelRewards(type,previousExp,newExp);
-        levels.sort((lr1,lr2)->Long.compare(lr1.expThreshold,lr2.expThreshold));
+        long newExp = exp + xp;
+        List<LevelReward> levels = GameEngine.instance().services.heroRepository.getLevelRewards(type, previousExp, newExp);
+        levels.sort((lr1, lr2) -> Long.compare(lr1.expThreshold, lr2.expThreshold));
         this.exp = newExp;
-        for(LevelReward reward : levels){
+        for (LevelReward reward : levels) {
             reward.apply(this);
         }
         //Save hero stuff here hopefully.
         InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer(getOwnerID().get());
-        if(!playerResp.isNormal()){
+        if (!playerResp.isNormal()) {
             return InternalResponseObject.cloneError(playerResp);
         }
-        InternalResponseObject<Boolean> saveResp = GameEngine.instance().services.heroRepository.saveHeroForPlayer(playerResp.get(),this);
-        if(!saveResp.isNormal()){
+        InternalResponseObject<Boolean> saveResp = GameEngine.instance().services.heroRepository.saveHeroForPlayer(playerResp.get(), this);
+        if (!saveResp.isNormal()) {
             return saveResp;
         }
-        return new InternalResponseObject<>(true,"updated");
+        return new InternalResponseObject<>(true, "updated");
     }
 
     public long getExp() {

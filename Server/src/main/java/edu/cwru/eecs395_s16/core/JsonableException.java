@@ -23,7 +23,7 @@ public class JsonableException extends Exception implements Jsonable {
         try {
             mp.put("status", this.errorCode.code);
             mp.put("message", this.message);
-        }catch(JSONException e){
+        } catch (JSONException e) {
             //Not going to happen - both keys are not null;
         }
         return mp;

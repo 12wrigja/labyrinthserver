@@ -1,7 +1,7 @@
 package edu.cwru.eecs395_s16.core.objects.objectives;
 
-import edu.cwru.eecs395_s16.core.objects.Location;
 import edu.cwru.eecs395_s16.core.objects.GameObject;
+import edu.cwru.eecs395_s16.core.objects.Location;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,15 +21,15 @@ public class ObjectiveGameObject extends GameObject {
         super(objectID, Optional.empty(), Optional.empty(), TYPE.OBJECTIVE, location);
     }
 
-    public static ObjectiveGameObject fromJSON(JSONObject obj){
+    public static ObjectiveGameObject fromJSON(JSONObject obj) {
         try {
             String id = obj.getString(GameObject.GAMEOBJECT_ID_KEY);
             UUID uuid = UUID.fromString(id);
             int x = obj.getInt(Location.X_KEY);
             int y = obj.getInt(Location.Y_KEY);
-            String ownerID = obj.optString(GameObject.OWNER_ID_KEY,null);
-            String controllerID = obj.optString(GameObject.CONTROLLER_ID_KEY,null);
-            return new ObjectiveGameObject(uuid, Optional.ofNullable(ownerID),Optional.ofNullable(controllerID), new Location(x,y));
+            String ownerID = obj.optString(GameObject.OWNER_ID_KEY, null);
+            String controllerID = obj.optString(GameObject.CONTROLLER_ID_KEY, null);
+            return new ObjectiveGameObject(uuid, Optional.ofNullable(ownerID), Optional.ofNullable(controllerID), new Location(x, y));
         } catch (JSONException e) {
             e.printStackTrace();
             return null;

@@ -15,8 +15,8 @@ import java.util.Optional;
  */
 public class InternalResponseObject<T> extends Response {
 
-    private final Optional<T> object;
     private static final String DEFAULT_OBJECT_KEY = "object";
+    private final Optional<T> object;
     private final String objectKey;
     private final Optional<InternalErrorCode> internalErrorCode;
 
@@ -157,14 +157,14 @@ public class InternalResponseObject<T> extends Response {
                 T jObj = object.get();
                 if (jObj instanceof List<?>) {
                     JSONArray arr = new JSONArray();
-                    for(Object obj : (List<?>)jObj){
-                        if(obj instanceof Jsonable){
+                    for (Object obj : (List<?>) jObj) {
+                        if (obj instanceof Jsonable) {
                             arr.put(((Jsonable) obj).getJSONRepresentation());
                         } else {
                             arr.put(obj.toString());
                         }
                     }
-                    repr.put(objectKey,arr);
+                    repr.put(objectKey, arr);
                 } else {
                     repr.put(objectKey, object.get());
                 }

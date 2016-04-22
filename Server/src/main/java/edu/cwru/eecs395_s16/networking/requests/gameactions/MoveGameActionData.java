@@ -33,39 +33,39 @@ public class MoveGameActionData {
             String characterIDs = obj.getString("character_id");
             try {
                 characterID = UUID.fromString(characterIDs);
-            } catch (IllegalArgumentException e){
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The character_id is invalid.");
+            } catch (IllegalArgumentException e) {
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
             }
         } catch (JSONException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The character_id is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
         }
 
         List<Location> path = new ArrayList<>();
         try {
             JSONArray pathArr = obj.getJSONArray("path");
-            for(int i=0; i<pathArr.length(); i++){
+            for (int i = 0; i < pathArr.length(); i++) {
                 JSONObject location = pathArr.getJSONObject(i);
                 int x = location.getInt("x");
                 int y = location.getInt("y");
-                Location l = new Location(x,y);
+                Location l = new Location(x, y);
                 path.add(l);
             }
         } catch (JSONException e) {
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,"The path is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The path is invalid.");
         }
 
-        return new InternalResponseObject<>(new MoveGameActionData(characterID,path));
+        return new InternalResponseObject<>(new MoveGameActionData(characterID, path));
     }
 
     public JSONObject convertToJSON() {
         JSONObject repr = new JSONObject();
         try {
             repr.put("character_id", characterID);
-            repr.put("path",path);
-            repr.put("type","move");
+            repr.put("path", path);
+            repr.put("type", "move");
         } catch (JSONException e) {
             //Should not happen b/c keys are not null.
         }

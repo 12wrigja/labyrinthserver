@@ -1,7 +1,6 @@
 package edu.cwru.eecs395_s16.core.objects.maps;
 
 import edu.cwru.eecs395_s16.core.objects.Location;
-import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,8 @@ public class FromDatabaseMap implements GameMap {
     private final int height;
     private final int hero_capacity;
     private final List<Location> heroSpawnLocations;
+    private final List<Location> architectSpawnLocations;
+    private final List<Location> objectiveSpawnLocations;
 
     private final MapTile[][] tiles;
 
@@ -31,13 +32,21 @@ public class FromDatabaseMap implements GameMap {
         this.hero_capacity = hero_capacity;
         this.tiles = new MapTile[width][height];
         this.heroSpawnLocations = new ArrayList<>();
+        this.architectSpawnLocations = new ArrayList<>();
+        this.objectiveSpawnLocations = new ArrayList<>();
     }
 
-    public void setTile(int x, int y, MapTile tile){
-        if(!(x < 0 || x >= width || y < 0 || y >= height)) {
+    public void setTile(int x, int y, MapTile tile) {
+        if (!(x < 0 || x >= width || y < 0 || y >= height)) {
             this.tiles[x][y] = tile;
-            if(tile.isHeroSpawn()){
+            if (tile.isHeroSpawn()) {
                 heroSpawnLocations.add(tile);
+            }
+            if(tile.isArchitectSpawn()){
+                architectSpawnLocations.add(tile);
+            }
+            if(tile.isObjectiveSpawn()){
+                objectiveSpawnLocations.add(tile);
             }
         }
     }
@@ -49,7 +58,7 @@ public class FromDatabaseMap implements GameMap {
 
     @Override
     public Optional<MapTile> getTile(int x, int y) {
-        if(x < 0 || x >= width || y < 0 || y >= height){
+        if (x < 0 || x >= width || y < 0 || y >= height) {
             return Optional.empty();
         } else {
             return Optional.of(tiles[x][y]);
@@ -88,11 +97,11 @@ public class FromDatabaseMap implements GameMap {
 
     @Override
     public List<Location> getArchitectCreatureSpawnLocations() {
-        return null;
+        return this.architectSpawnLocations;
     }
 
     @Override
     public List<Location> getObjectiveSpawnLocations() {
-        return null;
+        return this.objectiveSpawnLocations;
     }
 }

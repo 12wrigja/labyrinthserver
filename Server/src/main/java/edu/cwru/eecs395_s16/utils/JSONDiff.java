@@ -45,25 +45,25 @@ public class JSONDiff {
         }
     }
 
-    public boolean hasChanges(){
+    public boolean hasChanges() {
         //In order for no changes to have occurred, then added, removed, and changed need to be empty
         return removed.length() != 0 || added.length() != 0 || changed.length() != 0;
     }
 
-    public JSONObject asJSONObject(){
+    public JSONObject asJSONObject() {
         JSONObject temp = new JSONObject();
         try {
             temp.put("added", added);
             temp.put("removed", removed);
             temp.put("changed", changed);
 
-        }catch(JSONException e){
+        } catch (JSONException e) {
             //This should never be triggered as the keys are all non-null
         }
         return temp;
     }
 
-    public String toString(){
+    public String toString() {
         return asJSONObject().toString();
     }
 }

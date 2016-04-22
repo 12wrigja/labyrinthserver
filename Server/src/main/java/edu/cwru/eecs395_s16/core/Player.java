@@ -2,7 +2,6 @@ package edu.cwru.eecs395_s16.core;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.objects.DatabaseObject;
-import edu.cwru.eecs395_s16.networking.requests.NoInputRequest;
 import edu.cwru.eecs395_s16.services.cache.CacheService;
 import edu.cwru.eecs395_s16.services.connections.GameClient;
 
@@ -14,16 +13,12 @@ import java.util.UUID;
  */
 public class Player implements DatabaseObject {
 
-    private String username;
-
-    private String password;
-
-    private Optional<GameClient> client;
-
-    private final boolean isDev;
-
     //Match local storage and caching
     private static final String PLAYER_CURRENT_MATCH_KEY = ":CurrentMatch";
+    private final boolean isDev;
+    private String username;
+    private String password;
+    private Optional<GameClient> client;
     private Optional<UUID> currentMatchID;
 
     private int databaseIdentifier;
@@ -53,6 +48,11 @@ public class Player implements DatabaseObject {
     }
 
     @Override
+    public int hashCode() {
+        return getUsername().hashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Player)) return false;
@@ -61,11 +61,6 @@ public class Player implements DatabaseObject {
 
         return getUsername().equals(player.getUsername());
 
-    }
-
-    @Override
-    public int hashCode() {
-        return getUsername().hashCode();
     }
 
     public Optional<UUID> getCurrentMatchID() {
