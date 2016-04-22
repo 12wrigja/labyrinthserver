@@ -485,7 +485,7 @@ public class Match implements Jsonable {
         if (pickedHeroes != null) {
             heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID())).collect(Collectors.toList());
             if (heroHeroes.size() != pickedHeroes.size()) {
-                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero identifer was invalid.");
+                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero identifier was invalid.");
             }
         } else {
             heroHeroes = heroHeroResponse.get();

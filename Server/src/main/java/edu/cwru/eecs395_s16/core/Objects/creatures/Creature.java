@@ -29,6 +29,7 @@ public class Creature extends GameObject implements DatabaseObject {
     public static final String ACTION_POINTS_KEY = "action_points";
     public static final String MAX_ACTION_POINTS_KEY = "max_action_points";
     public static final String WEAPON_KEY = "weapon";
+
     private int attack = 10;
     private int defense = 10;
     private int health = 50;

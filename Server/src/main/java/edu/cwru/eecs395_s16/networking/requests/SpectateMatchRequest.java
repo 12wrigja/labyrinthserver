@@ -11,6 +11,7 @@ import org.json.JSONObject;
 public class SpectateMatchRequest implements RequestData {
 
     String matchID;
+    String playerID;
 
     public SpectateMatchRequest() {
         this.matchID = null;
@@ -24,9 +25,14 @@ public class SpectateMatchRequest implements RequestData {
         return matchID;
     }
 
+    public String getPlayerID() {
+        return playerID;
+    }
+
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        this.matchID = RequestData.getString(obj, "match_id");
+        this.matchID = obj.optString("match_id",null);
+        this.playerID = obj.optString("player",null);
     }
 
     @Override
@@ -34,6 +40,7 @@ public class SpectateMatchRequest implements RequestData {
         JSONObject repr = new JSONObject();
         try {
             repr.put("match_id", matchID);
+            repr.put("player",playerID);
         } catch (JSONException e) {
             //Should not happen b/c keys are not null.
         }

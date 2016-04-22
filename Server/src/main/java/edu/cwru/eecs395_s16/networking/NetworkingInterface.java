@@ -175,7 +175,35 @@ public class NetworkingInterface {
         if (p.getCurrentMatchID().isPresent()) {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match before spectating a match.");
         }
-        InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(obj.getMatchID());
+        UUID matchID = null;
+        if(obj.getMatchID() == null && obj.getPlayerID() == null){
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"You didn't specify a player or match ID to spectate.");
+        }
+        if (obj.getPlayerID() != null){
+                InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer(obj.getPlayerID());
+                if(!playerResp.isNormal()){
+                    return InternalResponseObject.cloneError(playerResp);
+                }
+                Player player = playerResp.get();
+                Optional<UUID> pMatchID = player.getCurrentMatchID();
+                if(pMatchID.isPresent()){
+                    matchID = pMatchID.get();
+                } else {
+                    return new InternalResponseObject<>(InternalErrorCode.NOT_IN_MATCH,"The specified player is not in a match.");
+                }
+        } else if (obj.getMatchID() != null){
+            try {
+                matchID = UUID.fromString(obj.getMatchID());
+            } catch (IllegalArgumentException e){
+                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"Invalid match id.");
+            }
+        }
+
+        if(matchID == null){
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"Invalid match id.");
+        }
+
+        InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID);
         if (m.isNormal()) {
             Match match = m.get();
             match.addSpectator(p);
