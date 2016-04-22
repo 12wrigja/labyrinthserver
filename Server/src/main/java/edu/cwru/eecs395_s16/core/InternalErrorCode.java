@@ -15,6 +15,7 @@ public enum InternalErrorCode {
     MISMATCHED_PASSWORD("The given passwords do not match."),
     RESTRICTED_USERNAME("The given username is restricted."),
     INVALID_USERNAME("The given username is not valid."),
+    ALREADY_SIGNED_IN("You are already signed in somewher else. Please sign out from there first and try again."),
 
     //Session Auth
     UNKNOWN_SESSION_IDENTIFIER("The given session identifier could not be resolved."),
