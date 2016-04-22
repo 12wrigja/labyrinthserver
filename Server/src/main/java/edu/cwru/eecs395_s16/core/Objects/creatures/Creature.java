@@ -165,6 +165,9 @@ public class Creature extends GameObject implements DatabaseObject {
 
     public void takeDamage(int damage) {
         this.health = Math.max(0, this.health - damage);
+        if(this.health == 0){
+            setLocation(new Location(-1,-1));
+        }
     }
 
     @Override
