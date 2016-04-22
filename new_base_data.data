@@ -21,15 +21,17 @@ default, 'Basic Sword','sword','A basic sword. Does no damage scaling', 'base','
 default, 'Basic Bow','bow','A basic bow. Does no damage scaling','base','weapon',1,0,0,0,0,1,3,1
 default, 'Basic Staff','staff','A basic staff. Does no damage scaling','base','weapon',1,0,0,0,0,1,2,1
 default, 'Dual Shot Bow','bow','Shoots two arrows at once.','base','weapon',1,0,0,0,0,2,3,1
+default, 'Spear', 'spear', 'A basic spear. Sharp and pointy','base','weapon',1,0,0,0,0,1,1,1
+default, 'Harp','harp','A combat harp. Music hurts, people.', 'base', 'weapon',1,0,0,0,1,2,1
 end hero_items
 
 start heroes
-default,'warrior',10,10,70,5,3,3
+default,'warrior',10,10,70,5,3,7
 default,'rogue',10,0,50,7,4,4
 default,'mage',15,0,50,7,3,5
-default,'warriorrogue',10,10,50,5,4,3
-default,'warriormage',15,0,50,5,4,4
-default,'roguemage',10,5,50,7,3,3
+default,'warriorrogue',10,10,50,5,4,7
+default,'warriormage',15,0,50,5,4,3
+default,'roguemage',10,5,50,7,3,8
 end heroes
 
 start tiles
