@@ -59,20 +59,20 @@ public class InMemoryHeroItemRepository implements HeroItemRepository {
         int id = 0;
         for (List<String> lst : hero_items) {
             id += 1;
-            if (lst.get(5).equals("weapon")) {
+            if (lst.get(4).equals("weapon")) {
                 String name = lst.get(1);
                 String image = lst.get(2);
                 String description = lst.get(3);
-                int attackModifier = Integer.parseInt(lst.get(6));
-                int range = Integer.parseInt(lst.get(12));
-                int patternID = Integer.parseInt(lst.get(11));
+                int attackModifier = Integer.parseInt(lst.get(5));
+                int range = Integer.parseInt(lst.get(11));
+                int patternID = Integer.parseInt(lst.get(10));
                 UsePattern p = patternMap.get(patternID);
                 if (p == null) {
                     throw new IllegalArgumentException("Use Pattern incorrectly configured for weapon with id: " + id);
                 }
                 Weapon w = new Weapon(id, image, name, description, range, attackModifier, p);
                 weaponMap.put(id, w);
-            } else if (lst.get(5).equals("equipment")) {
+            } else if (lst.get(4).equals("equipment")) {
                 //This is where equipment would go.
             }
         }

@@ -15,14 +15,14 @@ default,'mythic'
 end rarities
 
 start hero_items
-default, 'None','blank','No item equipped.','base','equipment',0,0,0,0,0,1,1,1
-default, 'Fists','blank','Use your fists!.','base','weapon',0,0,0,0,0,1,1,1
-default, 'Basic Sword','sword','A basic sword. Does no damage scaling', 'base','weapon',1,0,0,0,0,1,1,1
-default, 'Basic Bow','bow','A basic bow. Does no damage scaling','base','weapon',1,0,0,0,0,1,3,1
-default, 'Basic Staff','staff','A basic staff. Does no damage scaling','base','weapon',1,0,0,0,0,1,2,1
-default, 'Dual Shot Bow','bow','Shoots two arrows at once.','base','weapon',1,0,0,0,0,2,3,1
-default, 'Spear', 'spear', 'A basic spear. Sharp and pointy','base','weapon',1,0,0,0,0,1,1,1
-default, 'Harp','harp','A combat harp. Music hurts, people.', 'base', 'weapon',1,0,0,0,1,2,1
+default, 'None','blank','No item equipped.','equipment',0,0,0,0,0,1,1,1
+default, 'Fists','blank','Use your fists!.','weapon',0,0,0,0,0,1,1,1
+default, 'Basic Sword','sword','A basic sword. Does no damage scaling', 'weapon',1,0,0,0,0,1,1,1
+default, 'Basic Bow','bow','A basic bow. Does no damage scaling','weapon',1,0,0,0,0,1,3,1
+default, 'Basic Staff','staff','A basic staff. Does no damage scaling','weapon',1,0,0,0,0,1,2,1
+default, 'Dual Shot Bow','bow','Shoots two arrows at once.','weapon',1,0,0,0,0,2,3,1
+default, 'Spear', 'spear', 'A basic spear. Sharp and pointy','weapon',1,0,0,0,0,1,1,1
+default, 'Harp','harp','A combat harp. Music hurts people.', 'weapon',1,0,0,0,0,1,2,1
 end hero_items
 
 start heroes
