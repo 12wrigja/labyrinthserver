@@ -14,6 +14,7 @@ public class MapTile extends Location implements Jsonable {
     public static final String TERRAIN_KEY = "terrain";
     public static final String ROTATION_KEY = "rotation";
     public static final String OBSTACLE_KEY = "is_obstacle";
+    public static final String VISION_OBSTACLE_KEY = "is_vision_obstacle";
     public static final String HERO_SPAWN_KEY = "is_hero_spawn_tile";
     public static final String ARCHITECT_SPAWN_KEY = "is_architect_spawn_tile";
     public static final String OBJECTIVE_SPAWN_KEY = "is_objective_spawn_tile";
@@ -40,10 +41,11 @@ public class MapTile extends Location implements Jsonable {
             json.put(Y_KEY, getY());
             json.put(TERRAIN_KEY, tileType.type);
             json.put(ROTATION_KEY, rotation);
-            json.put(OBSTACLE_KEY, tileType.isObstruction);
+            json.put(OBSTACLE_KEY, isObstructionTileType());
             json.put(HERO_SPAWN_KEY, isHeroSpawn);
             json.put(ARCHITECT_SPAWN_KEY, isArchitectSpawn);
             json.put(OBJECTIVE_SPAWN_KEY, isObjectiveSpawn);
+            json.put(VISION_OBSTACLE_KEY, isVisionObstructionTileType());
         } catch (JSONException e) {
             //Never will happen - all keys are not null
         }
@@ -52,6 +54,10 @@ public class MapTile extends Location implements Jsonable {
 
     public boolean isObstructionTileType() {
         return this.tileType.isObstruction;
+    }
+
+    public boolean isVisionObstructionTileType() {
+        return this.tileType.isVisionObstruction;
     }
 
     public boolean isHeroSpawn() {

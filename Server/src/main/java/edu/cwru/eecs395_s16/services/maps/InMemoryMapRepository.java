@@ -63,11 +63,11 @@ public class InMemoryMapRepository implements MapRepository {
         List<List<String>> tile_map = CoreDataUtils.splitEntries(baseData.get("tile_map"));
         List<List<String>> players = CoreDataUtils.splitEntries(baseData.get("players"));
         tiles.forEach(lst -> {
-            TileType t = new TileType(tileTypeMap.size() + 1, lst.get(1), Boolean.parseBoolean(lst.get(2)));
+            TileType t = new TileType(tileTypeMap.size() + 1, lst.get(1), Boolean.parseBoolean(lst.get(2)), Boolean.parseBoolean(lst.get(3)));
             tileTypeMap.put(t.type, t);
         });
         maps.forEach(lst -> {
-            FromDatabaseMap mp = new FromDatabaseMap(mapStorage.size() + 1, lst.get(1), "", Integer.parseInt(lst.get(3)), Integer.parseInt(lst.get(4)), Integer.parseInt(lst.get(5)));
+            FromDatabaseMap mp = new FromDatabaseMap(mapStorage.size() + 1, lst.get(1), lst.get(2), Integer.parseInt(lst.get(3)), Integer.parseInt(lst.get(4)), Integer.parseInt(lst.get(5)));
             tile_map.stream().filter(lst1 -> Integer.parseInt(lst1.get(0)) == mp.getDatabaseID()).forEach(lst1 -> {
                 MapTile t = new MapTile(Integer.parseInt(lst1.get(2)),
                         Integer.parseInt(lst1.get(3)),

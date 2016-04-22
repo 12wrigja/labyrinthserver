@@ -151,7 +151,8 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
                     int id = rst.getInt("id");
                     String type = rst.getString("tile_type");
                     boolean isObstruction = rst.getBoolean("is_obstruction");
-                    TileType t = new TileType(id, type, isObstruction);
+                    boolean isVisionObstruction = rst.getBoolean("is_vision_obstruction");
+                    TileType t = new TileType(id, type, isObstruction, isVisionObstruction);
                     tileTypeMap.put(id, t);
                     tileTypeStringMap.put(type, t);
                 }

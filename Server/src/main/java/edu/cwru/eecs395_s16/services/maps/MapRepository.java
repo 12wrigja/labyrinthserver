@@ -29,11 +29,13 @@ public interface MapRepository extends Repository {
         public final int id;
         public final String type;
         public final boolean isObstruction;
+        public final boolean isVisionObstruction;
 
-        public TileType(int id, String type, boolean isObstruction) {
+        public TileType(int id, String type, boolean isObstruction, boolean isVisionObstruction) {
             this.id = id;
             this.type = type;
             this.isObstruction = isObstruction;
+            this.isVisionObstruction = isVisionObstruction;
         }
 
         @Override

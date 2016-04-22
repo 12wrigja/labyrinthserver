@@ -47,7 +47,7 @@ public interface GameAction extends Jsonable {
         while (n > 0) {
             Optional<MapTile> t = map.getTile(x, y);
             if (t.isPresent()) {
-                if (t.get().isObstructionTileType()) {
+                if (t.get().isVisionObstructionTileType()) {
                     return false;
                 }
             } else {
