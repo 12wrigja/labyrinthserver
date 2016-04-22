@@ -2,10 +2,7 @@ package edu.cwru.eecs395_s16.networking;
 
 import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.annotations.NetworkEvent;
-import edu.cwru.eecs395_s16.core.InternalErrorCode;
-import edu.cwru.eecs395_s16.core.InternalResponseObject;
-import edu.cwru.eecs395_s16.core.Match;
-import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.core.*;
 import edu.cwru.eecs395_s16.core.actions.*;
 import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
@@ -320,6 +317,13 @@ public class NetworkingInterface {
                 }
                 match.get().broadcastToAllParties("player_left", playerData);
                 p.setCurrentMatch(Optional.empty());
+                if(match.get().getGameState() != GameState.GAME_END) {
+                    if (match.get().getHeroPlayer().getUsername().equals(p.getUsername())) {
+                        match.get().end("player_forfeit", GameObjective.GAME_WINNER.ARCHITECT_WINNER);
+                    } else if (match.get().getArchitectPlayer().getUsername().equals(p.getUsername())) {
+                        match.get().end("player_forfeit", GameObjective.GAME_WINNER.HERO_WINNER);
+                    }
+                }
                 return new InternalResponseObject<>(true, "left_match");
             } else {
                 return InternalResponseObject.cloneError(match);
