@@ -42,11 +42,9 @@ public class BasicMatchmakingService implements MatchmakingService {
 
     public String getQueueInformation(){
         StringBuilder sb = new StringBuilder();
-        mutex.readLock().lock();
         for(MatchPool pool : matchmakingPools.values()){
             sb.append(pool.hashCode).append(". Heroes Count: ").append(pool.heroesQueue.size()).append(", Architect Count: ").append(pool.architectQueue.size()).append("\n");
         }
-        mutex.readLock().unlock();
         return sb.toString();
     }
 
