@@ -23,6 +23,7 @@ default, 'Basic Staff','staff','A basic staff. Does no damage scaling','weapon',
 default, 'Dual Shot Bow','bow','Shoots two arrows at once.','weapon',1,0,0,0,0,2,3,1
 default, 'Spear', 'spear', 'A basic spear. Sharp and pointy','weapon',1,0,0,0,0,1,1,1
 default, 'Harp','harp','A combat harp. Music hurts people.', 'weapon',1,0,0,0,0,1,2,1
+default, 'Trumpet','trumpet','Fear the doot doot.','weapon',1,0,0,0,0,1,2,1
 end hero_items
 
 start heroes
@@ -830,5 +831,5 @@ default, 'Bear Trap', 'none', 10, 0, 1, 1
 end traps
 
 start monsters
-default, 'Skeleton Warrior', 'blank', 5, 0, 30, 3, 2, 2, 1
+default, 'Skeleton Warrior', 'blank', 10, 0, 40, 3, 2, 2, 9
 end monsters
