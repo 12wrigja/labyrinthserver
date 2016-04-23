@@ -89,6 +89,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
             InternalResponseObject<Player> p = GameEngine.instance().services.sessionRepository.findPlayer(client.getSessionId());
             if (p.isNormal()) {
                 Player player = p.get();
+                GameEngine.instance().services.matchService.removeFromQueue(player);
                 if (player.getCurrentMatchID().isPresent()) {
                     InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(player.getCurrentMatchID().get());
                     if (match.isNormal()) {
@@ -98,6 +99,7 @@ public class SocketIOConnectionService implements ClientConnectionService {
                 }
             }
             GameEngine.instance().services.sessionRepository.expirePlayerSession(client.getSessionId());
+
         });
 
         gameSocket.start();

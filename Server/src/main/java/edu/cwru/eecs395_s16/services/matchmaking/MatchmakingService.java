@@ -20,4 +20,6 @@ public interface MatchmakingService {
     void start();
 
     void stop();
+
+    String getQueueInformation();
 }

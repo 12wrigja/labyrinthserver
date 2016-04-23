@@ -29,15 +29,25 @@ public class BasicMatchmakingService implements MatchmakingService {
 
     private boolean started = false;
 
-    private ConcurrentHashMap<Integer, MatchPool> matchmakingPools;
+    private ConcurrentHashMap<String, MatchPool> matchmakingPools;
 
     public BasicMatchmakingService() {
         matchmakingPools = new ConcurrentHashMap<>();
         queuedPlayers = new HashSet<>();
     }
 
-    private static int generateHash(GameMap map, GameObjective objective) {
-        return (map.getDatabaseID() + "," + objective.getJSONRepresentation().optString(GameObjective.OBJECTIVE_TYPE_KEY, "deathmatch")).hashCode();
+    private static String generateHash(GameMap map, GameObjective objective) {
+        return (map.getDatabaseID() + "," + objective.getJSONRepresentation().optString(GameObjective.OBJECTIVE_TYPE_KEY, "deathmatch"));
+    }
+
+    public String getQueueInformation(){
+        StringBuilder sb = new StringBuilder();
+        mutex.readLock().lock();
+        for(MatchPool pool : matchmakingPools.values()){
+            sb.append(pool.hashCode).append(". Heroes Count: ").append(pool.heroesQueue.size()).append(", Architect Count: ").append(pool.architectQueue.size()).append("\n");
+        }
+        mutex.readLock().unlock();
+        return sb.toString();
     }
 
     @Override
@@ -131,7 +141,7 @@ public class BasicMatchmakingService implements MatchmakingService {
 
         private final Runnable matchingThread;
         private final Thread otherThread;
-        private final int hashCode;
+        protected final String hashCode;
         private Queue<QueueObject> heroesQueue;
         private Queue<QueueObject> architectQueue;
         private ReentrantReadWriteLock _mutex = new ReentrantReadWriteLock(true);
@@ -226,19 +236,19 @@ public class BasicMatchmakingService implements MatchmakingService {
 
             MatchPool matchPool = (MatchPool) o;
 
-            return hashCode == matchPool.hashCode;
+            return hashCode.hashCode() == matchPool.hashCode.hashCode();
 
         }
 
         @Override
         public int hashCode() {
-            return hashCode;
+            return hashCode.hashCode();
         }
 
     }
 
     private InternalResponseObject<Boolean> queueUp(Player p, QueueRequest request, GameMap map, GameObjective objective, boolean queueHeroes) {
-        int poolHashCode = generateHash(map, objective);
+        String poolHashCode = generateHash(map, objective);
         MatchPool pool;
         if (matchmakingPools.containsKey(poolHashCode)) {
             pool = matchmakingPools.get(poolHashCode);

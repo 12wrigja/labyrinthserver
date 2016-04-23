@@ -124,6 +124,19 @@ public class mainUI {
             }
         };
 
+        ConsoleCommand queuesCommand = new ConsoleCommand("queueStats", "Retrieves stats on the queueing system.") {
+            @Override
+            public void run() {
+                if (activeEngine != null) {
+                    System.out.println("Queue stats:");
+                    System.out.println(activeEngine.services.matchService.getQueueInformation());
+                    System.out.println("End Queue Stats.");
+                } else {
+                    System.err.println("Engine is not running.");
+                }
+            }
+        };
+
         ConsoleCommand helpCommand = new ConsoleCommand("help", "Gives information about a command. Run this with no arguments to get a full list of commands.", "cmd") {
             @Override
             public void run() {
@@ -238,13 +251,14 @@ public class mainUI {
         cmds.add(describeSpecificFunction);
         cmds.add(listAllFunctionsCommand);
         cmds.add(seedDBCommand);
+        cmds.add(queuesCommand);
 
         for (ConsoleCommand cmd : cmds) {
             cmdMap.put(cmd.phrase, cmd);
         }
         char escCode = 0x1B;
 
-        Runtime.getRuntime().addShutdownHook(new Thread(exitCommand::run));
+        Runtime.getRuntime().addShutdownHook(new Thread(exitCommand));
 
         while (true) {
             System.out.print(">");
