@@ -138,7 +138,7 @@ public class NetworkingInterface {
             objective = new DeathmatchGameObjective();
         }
         if (obj.shouldQueueWithPassBot()) {
-            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, map, objective, null, null);
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, map, objective, null, obj.getMonsterLocationMap());
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {

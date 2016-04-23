@@ -89,7 +89,6 @@ public class AuthenticationMiddleware {
                     response = (Response) next.invoke(instance, obj);
                 }
             }
-            System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());
         } catch (Exception e) {
             Exception actualCause;
             if (e instanceof InvocationTargetException) {
@@ -105,6 +104,13 @@ public class AuthenticationMiddleware {
                 }
                 //Generic error response here.
                 response = new Response(WebStatusCode.SERVER_ERROR);
+            }
+        }
+        try {
+            System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());
+        } catch (Exception e){
+            if(GameEngine.instance().IS_DEBUG_MODE){
+                e.printStackTrace();
             }
         }
         return response;
