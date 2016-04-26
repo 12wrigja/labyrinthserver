@@ -66,12 +66,12 @@ public class NetworkingInterface {
                 .getUsername(), data.getPassword());
         if (p.isPresent()) {
             Optional<GameClient> playerClient = p.get().getClient();
-            if (playerClient.isPresent()) {
-                if (!playerClient.get().getSessionId().equals(client.getSessionId())) {
-                    return new InternalResponseObject<>(WebStatusCode.UNAUTHORIZED, InternalErrorCode
-                            .ALREADY_SIGNED_IN);
-                }
-            }
+//            if (playerClient.isPresent()) {
+//                if (!playerClient.get().getSessionId().equals(client.getSessionId())) {
+//                    return new InternalResponseObject<>(WebStatusCode.UNAUTHORIZED, InternalErrorCode
+//                            .ALREADY_SIGNED_IN);
+//                }
+//            }
             GameEngine.instance().services.sessionRepository.storePlayer(client.getSessionId(), p.get());
         }
         return p;
