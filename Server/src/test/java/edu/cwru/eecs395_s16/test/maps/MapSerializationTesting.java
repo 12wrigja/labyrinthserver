@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
 import edu.cwru.eecs395_s16.networking.requests.GetMapRequest;
-import edu.cwru.eecs395_s16.networking.requests.NewMapRequest;
 import edu.cwru.eecs395_s16.services.bots.botimpls.TestBot;
 import edu.cwru.eecs395_s16.test.SerializationTest;
 import org.json.JSONArray;
@@ -32,15 +31,15 @@ public class MapSerializationTesting extends SerializationTest {
         assertTrue(obj.isPresent());
         int generatedMapX = obj.get().getSizeX();
         int generatedMapY = obj.get().getSizeY();
-        assertEquals(MAP_X,generatedMapX);
-        assertEquals(MAP_Y,generatedMapY);
+        assertEquals(MAP_X, generatedMapX);
+        assertEquals(MAP_Y, generatedMapY);
 
         //Validate the serialization values
         JSONObject serializedResponse = new JSONObject(objMapper.writeValueAsString(obj));
         assertTrue(serializedResponse.has("map"));
         JSONObject map = serializedResponse.getJSONObject("map");
-        assertEquals(MAP_X,map.getJSONObject("size").getInt("x"));
-        assertEquals(MAP_Y,map.getJSONObject("size").getInt("y"));
+        assertEquals(MAP_X, map.getJSONObject("size").getInt("x"));
+        assertEquals(MAP_Y, map.getJSONObject("size").getInt("y"));
     }
 
     @Test
@@ -52,8 +51,8 @@ public class MapSerializationTesting extends SerializationTest {
         JSONObject map = serialized.getJSONObject("map");
         //Validate the tile spec
         JSONArray tiles = map.getJSONArray("tiles");
-        assertEquals(MAP_X*MAP_Y,tiles.length());
-        for(int i=0; i<MAP_X*MAP_Y; i++){
+        assertEquals(MAP_X * MAP_Y, tiles.length());
+        for (int i = 0; i < MAP_X * MAP_Y; i++) {
             JSONObject tile = tiles.getJSONObject(i);
 
             //Validate the position

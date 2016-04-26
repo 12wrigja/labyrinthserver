@@ -30,7 +30,7 @@ public class StressTester {
     }
 
     public void runTest() throws Exception {
-        System.out.println("Start,"+ (new Date().getTime()));
+        System.out.println("Start," + (new Date().getTime()));
         Socket socket = IO.socket("http://localhost:4600");
         socket.connect();
 
@@ -51,7 +51,7 @@ public class StressTester {
             }
         }
 
-        System.out.println("Connect,"+ (new Date().getTime()));
+        System.out.println("Connect," + (new Date().getTime()));
 
         //Packet used to store results
         JSONObject res;
@@ -69,7 +69,7 @@ public class StressTester {
         }
         packet = new JSONObject();
 
-        System.out.println("Register,"+ (new Date().getTime()));
+        System.out.println("Register," + (new Date().getTime()));
 
         //Login User
         packet.put("username", TEST_USERNAME);
@@ -80,7 +80,7 @@ public class StressTester {
         }
         packet = new JSONObject();
 
-        System.out.println("Login,"+ (new Date().getTime()));
+        System.out.println("Login," + (new Date().getTime()));
 
         //Setup a match against a passbot
         packet.put("queue_with_passbot", true);
@@ -89,17 +89,18 @@ public class StressTester {
             fail("Unable to setup match");
         }
 
-        System.out.println("Queue,"+ (new Date().getTime()));
+        System.out.println("Queue," + (new Date().getTime()));
 
-        JSONObject matchState = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "match_state", new JSONObject(), 10);
+        JSONObject matchState = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "match_state", new JSONObject
+                (), 10);
         if (matchState.getInt("status") != 200) {
             fail("Unable to get match state.");
         }
 
-        System.out.println("CheckStartMatch,"+ (new Date().getTime()));
+        System.out.println("CheckStartMatch," + (new Date().getTime()));
 
         for (int i = 0; i < 300; i++) {
-            System.out.println("Turn"+i+"Start,"+ (new Date().getTime()));
+            System.out.println("Turn" + i + "Start," + (new Date().getTime()));
             boolean isMyTurn;
             do {
                 isMyTurn = matchState.getJSONObject("match").getString("game_state").equals("hero_turn");
@@ -116,7 +117,8 @@ public class StressTester {
                 } catch (JSONException e) {
                     return null;
                 }
-            }).filter(obj -> obj != null && obj.optString("controller_id", "---").equals(TEST_USERNAME)).collect(Collectors.toList());
+            }).filter(obj -> obj != null && obj.optString("controller_id", "---").equals(TEST_USERNAME)).collect
+                    (Collectors.toList());
 
             myObjects.forEach(obj -> {
                 JSONObject pkt = new JSONObject();
@@ -131,24 +133,24 @@ public class StressTester {
                     //Do nothing should never be hit
                 }
             });
-            System.out.println("Turn"+i+"End,"+ (new Date().getTime()));
+            System.out.println("Turn" + i + "End," + (new Date().getTime()));
             Thread.sleep(1000);
         }
 
         packet = new JSONObject();
 
-        System.out.println("Cleanup,"+ (new Date().getTime()));
+        System.out.println("Cleanup," + (new Date().getTime()));
 
         res = SingleUserNetworkTest.emitEventAndWaitForResult(socket, "leave_match", packet, 10);
-        if(res.getInt("status") != 200){
+        if (res.getInt("status") != 200) {
             fail("Unable to leave match.");
         }
 
-        System.out.println("LeaveMatch,"+ (new Date().getTime()));
+        System.out.println("LeaveMatch," + (new Date().getTime()));
 
         socket.disconnect();
 
-        System.out.println("Disconnect,"+ (new Date().getTime()));
+        System.out.println("Disconnect," + (new Date().getTime()));
 
     }
 

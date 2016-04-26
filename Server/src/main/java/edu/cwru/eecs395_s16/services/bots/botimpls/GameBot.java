@@ -102,8 +102,10 @@ public abstract class GameBot extends Player implements GameClient {
     }
 
     protected void populate() {
-        heroes.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType.WARRIOR).createHero());
+        heroes.add(new HeroBuilder(UUID.randomUUID(), getUsername(), Optional.of(getUsername()), -1, HeroType
+                .WARRIOR).createHero());
         MonsterDefinition def = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
-        architectObjects.add(new MonsterBuilder(UUID.randomUUID(), def, getUsername(), Optional.of(getUsername())).createMonster());
+        architectObjects.add(new MonsterBuilder(UUID.randomUUID(), def, getUsername(), Optional.of(getUsername()))
+                .createMonster());
     }
 }

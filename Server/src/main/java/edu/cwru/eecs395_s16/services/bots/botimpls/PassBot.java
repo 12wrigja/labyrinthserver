@@ -35,10 +35,13 @@ public class PassBot extends GameBot {
                 JSONObject jData = (JSONObject) data;
                 try {
                     String startState = jData.getString(Match.GAME_STATE_KEY);
-                    boolean isHeroPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.HERO_PLAYER_KEY).equals(getUsername());
-                    boolean isArchitectPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.ARCHITECT_PLAYER_KEY).equals(getUsername());
+                    boolean isHeroPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match.HERO_PLAYER_KEY)
+                            .equals(getUsername());
+                    boolean isArchitectPlayer = jData.getJSONObject(Match.PLAYER_OBJ_KEY).getString(Match
+                            .ARCHITECT_PLAYER_KEY).equals(getUsername());
                     if ((startState.equals(GameState.HERO_TURN.toString().toLowerCase()) && isHeroPlayer) ||
-                            (startState.equals(GameState.ARCHITECT_TURN.toString().toLowerCase()) && isArchitectPlayer)) {
+                            (startState.equals(GameState.ARCHITECT_TURN.toString().toLowerCase()) &&
+                                    isArchitectPlayer)) {
                         passAllCharacters();
                     }
                 } catch (JSONException e) {
@@ -61,8 +64,8 @@ public class PassBot extends GameBot {
     public void passAllCharacters() {
         Response matchResp = sendEvent("match_state", new JSONObject());
         if (matchResp.getStatus() == WebStatusCode.OK) {
-            @SuppressWarnings("unchecked")
-            InternalResponseObject<Match> actualResp = (InternalResponseObject<Match>) matchResp;
+            @SuppressWarnings("unchecked") InternalResponseObject<Match> actualResp = (InternalResponseObject<Match>)
+                    matchResp;
             Match match = actualResp.get();
             if (match.isPlayerTurn(this)) {
                 List<GameObject> myCreatures = match.getBoardObjects().getForPlayerOwner(this);

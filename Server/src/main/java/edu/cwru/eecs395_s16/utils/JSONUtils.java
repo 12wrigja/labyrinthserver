@@ -16,10 +16,6 @@ public class JSONUtils {
 
     public static final String REMOVED = "REMOVED";
 
-    public interface ObjectReducer<T> {
-        JSONObject reduce(T object);
-    }
-
     public interface MapReducer<K, V> {
         JSONObject reduce(Map.Entry<K, V> entry);
     }
@@ -65,9 +61,11 @@ public class JSONUtils {
                                     }
                                 }
                             } else if (oldVal instanceof JSONArray && newVal instanceof JSONArray) {
-                                //TODO implement array comparison and diffing here
+                                //This is where array diffing would be used,
+                                // but we actually don't need it.
                             } else {
-                                //It's a primitive here, so lets just replace the old value with the new one
+                                //It's a primitive here, so lets just replace
+                                // the old value with the new one
                                 changed.put(key, newVal);
                             }
                         }
@@ -85,7 +83,8 @@ public class JSONUtils {
                 try {
                     removed.put(key, REMOVED);
                 } catch (JSONException e) {
-                    //Do nothing - will never occur as the key will never be null
+                    //Do nothing - will never occur as the key will never be
+                    // null
                 }
             }
         }
@@ -120,11 +119,13 @@ public class JSONUtils {
                     try {
                         current.put(key, removed);
                     } catch (JSONException e) {
-                        //Do nothing - should never be called as the key is known to be non-null
+                        //Do nothing - should never be called as the key is
+                        // known to be non-null
                     }
                 }
             } else {
-                throw new JSONException("Invalid removal key value. All removal keys should have the value of REMOVED.");
+                throw new JSONException("Invalid removal key value. All " + "removal keys should have the value of " +
+                        "REMOVED.");
             }
         }
         return current;
@@ -140,7 +141,7 @@ public class JSONUtils {
                 if (innerObj == null) {
                     innerObj = new JSONObject();
                 } else if (!(innerObj instanceof JSONObject)) {
-                    throw new JSONException("Trying to add an sub-key to a key that is not an object!");
+                    throw new JSONException("Trying to add an sub-key to a " + "key that is not an object!");
                 }
                 JSONObject added = doAdditions((JSONObject) innerObj, (JSONObject) value);
                 current.put(key, added);
@@ -149,7 +150,8 @@ public class JSONUtils {
                 if (innerObj == null) {
                     current.put(key, value);
                 } else {
-                    throw new JSONException("The provided key is already assigned and cannot be changed in an addition!");
+                    throw new JSONException("The provided key is already " + "assigned and cannot be changed in an " +
+                            "addition!");
                 }
             }
         }
@@ -165,7 +167,7 @@ public class JSONUtils {
             if (currentVal != null) {
                 if (value instanceof JSONObject) {
                     if (!(currentVal instanceof JSONObject)) {
-                        throw new JSONException("Trying to change a sub-key on a key that is not an object!");
+                        throw new JSONException("Trying to change a sub-key " + "on a key that is not an object!");
                     } else {
                         JSONObject innerObj = (JSONObject) currentVal;
                         JSONObject innerChanges = (JSONObject) value;
@@ -175,7 +177,7 @@ public class JSONUtils {
                     current.put(key, value);
                 }
             } else {
-                throw new JSONException("Trying to change a key that doesn't exist!");
+                throw new JSONException("Trying to change a key that doesn't " + "exist!");
             }
         }
         return current;

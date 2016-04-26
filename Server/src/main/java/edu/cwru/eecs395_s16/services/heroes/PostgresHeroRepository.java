@@ -28,14 +28,21 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
     public static final String HEROES_TABLE = "heroes";
     public static final String LEVELS_TABLE = "levels";
     private static final int NUM_NEW_HEROES = 6;
-    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into " + HERO_PLAYER_TABLE + " (hero_id, player_id, hero_uuid, experience, weapon_id, equipment_id) VALUES ";
-    private static final String GET_HERO_INSTANCE_BASE = "select id as hero_id, default_weapon as weapon_id from " + HEROES_TABLE;
+    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into " + HERO_PLAYER_TABLE + " (hero_id, " +
+            "player_id, hero_uuid, experience, weapon_id, equipment_id) VALUES ";
+    private static final String GET_HERO_INSTANCE_BASE = "select id as hero_id, default_weapon as weapon_id from " +
+            HEROES_TABLE;
     private static final String DROP_ALL_PLAYER_HEROES = "delete from " + HERO_PLAYER_TABLE + " where player_id = ?";
-    private static final String GET_HEROES_QUERY = "select * from " + HERO_PLAYER_TABLE + " inner join " + HEROES_TABLE + " on hero_player.hero_id = heroes.id where player_id = ?";
+    private static final String GET_HEROES_QUERY = "select * from " + HERO_PLAYER_TABLE + " inner join " +
+            HEROES_TABLE + " on hero_player.hero_id = heroes.id where player_id = ?";
     private static final String GET_HERO_DEFINITION_QUERY = "select * from " + HEROES_TABLE + " where id = ?";
-    private static final String GET_HERO_DEFINITION_BY_TYPE_QUERY = "select * from " + HEROES_TABLE + " where class = ?";
-    private static final String GET_LEVEL_REWARD_QUERY = "select * from " + LEVELS_TABLE + " inner join " + HEROES_TABLE + " on " + LEVELS_TABLE + ".hero_id = " + HEROES_TABLE + ".id where class = ? and experience <= ? and experience > ?";
-    private static final String UPDATE_PLAYER_HERO_QUERY = "update " + HERO_PLAYER_TABLE + " set experience=?, weapon_id = ? where player_id = ? and hero_id = ?";
+    private static final String GET_HERO_DEFINITION_BY_TYPE_QUERY = "select * from " + HEROES_TABLE + " where class =" +
+            " ?";
+    private static final String GET_LEVEL_REWARD_QUERY = "select * from " + LEVELS_TABLE + " inner join " +
+            HEROES_TABLE + " on " + LEVELS_TABLE + ".hero_id = " + HEROES_TABLE + ".id where class = ? and experience" +
+            " <= ? and experience > ?";
+    private static final String UPDATE_PLAYER_HERO_QUERY = "update " + HERO_PLAYER_TABLE + " set experience=?, " +
+            "weapon_id = ? where player_id = ? and hero_id = ?";
 
     public PostgresHeroRepository(Connection conn) {
         super(conn);
@@ -57,7 +64,8 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
             if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_USERNAME, "Unable to retrieve " + HEROES_TABLE + " from Postgres for the given username.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.INVALID_USERNAME,
+                    "Unable to retrieve " + HEROES_TABLE + " from Postgres for the given username.");
         }
     }
 
@@ -86,10 +94,8 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
         if (p.getDatabaseID() < 0) {
             return new InternalResponseObject<>(InternalErrorCode.INVALID_DB_IDENTIFIER);
         }
-
         //Set up hero data links here
         try {
-            //TODO determine what error checking should be here for update counts.
             PreparedStatement stmt = conn.prepareStatement(DROP_ALL_PLAYER_HEROES);
             stmt.setInt(1, p.getDatabaseID());
             stmt.executeUpdate();
@@ -100,7 +106,9 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
             StringBuilder insertQuery = new StringBuilder(INSERT_DEFAULT_PLAYER_HEROES);
 
             while (rslt.next()) {
-                insertQuery.append("(").append(rslt.getInt("hero_id")).append(",").append(p.getDatabaseID()).append(",").append("'").append(UUID.randomUUID().toString()).append("'").append(",0,").append(rslt.getInt("weapon_id")).append(",4)");
+                insertQuery.append("(").append(rslt.getInt("hero_id")).append(",").append(p.getDatabaseID()).append
+                        (",").append("'").append(UUID.randomUUID().toString()).append("'").append(",0,").append(rslt
+                        .getInt("weapon_id")).append(",4)");
                 if (rslt.isLast()) {
                     insertQuery.append(";");
                 } else {
@@ -117,7 +125,8 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
             if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
-            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL, "Unable to create default " + HEROES_TABLE + " for player.");
+            return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_SQL, "Unable to" +
+                    " create default " + HEROES_TABLE + " for player.");
         }
         return new InternalResponseObject<>(true, "created");
     }
@@ -160,7 +169,8 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
             String className = set.getString("class").toUpperCase();
             int weaponID = set.getInt("default_weapon");
             HeroType type = HeroType.valueOf(className);
-            return new InternalResponseObject<>(new HeroDefinition(id, type, attack, defense, health, movement, vision, weaponID), Hero.HERO_TYPE_KEY);
+            return new InternalResponseObject<>(new HeroDefinition(id, type, attack, defense, health, movement,
+                    vision, weaponID), Hero.HERO_TYPE_KEY);
         } catch (SQLException e) {
             if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
@@ -190,7 +200,8 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
             String className = set.getString("class").toUpperCase();
             int weaponID = set.getInt("default_weapon");
             HeroType actType = HeroType.valueOf(className);
-            return new InternalResponseObject<>(new HeroDefinition(id, actType, attack, defense, health, movement, vision, weaponID), Hero.HERO_TYPE_KEY);
+            return new InternalResponseObject<>(new HeroDefinition(id, actType, attack, defense, health, movement,
+                    vision, weaponID), Hero.HERO_TYPE_KEY);
         } catch (SQLException e) {
             if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
@@ -229,13 +240,9 @@ public class PostgresHeroRepository extends DBRepository implements HeroReposito
         HeroType type = HeroType.valueOf(heroType.toUpperCase());
         HeroBuilder hb = new HeroBuilder(id, p.getUsername(), Optional.of(p.getUsername()), heroID, type);
         Optional<Weapon> wep = GameEngine.instance().services.heroItemRepository.getWeaponForId(r.getInt("weapon_id"));
-        //TODO either remove or patch up equipment
-        //Optional<Equipment> equip = GameEngine.instance().services.heroItemRepository.getEquipmentForId(r.getInt("equipment_id"));
-        hb.setAttack(attack)
-                .setDefense(defense)
-                .setHealth(health)
-                .setMovement(movement)
-                .setVision(vision);
+        //Optional<Equipment> equip = GameEngine.instance().services.heroItemRepository.getEquipmentForId(r.getInt
+        // ("equipment_id"));
+        hb.setAttack(attack).setDefense(defense).setHealth(health).setMovement(movement).setVision(vision);
         hb.setExp(exp, true);
         if (wep.isPresent()) {
             hb.setWeapon(wep.get());

@@ -50,7 +50,8 @@ public class UsePattern implements Jsonable {
     public Map<Location, Float> getEffectDistributionMap(Location centeredAround) {
         Map<Location, Float> newMap = new HashMap<>();
         for (Map.Entry<Location, Float> entry : damageDistributionMap.entrySet()) {
-            newMap.put(new Location(centeredAround.getX() + entry.getKey().getX(), centeredAround.getY() + entry.getKey().getY()), entry.getValue());
+            newMap.put(new Location(centeredAround.getX() + entry.getKey().getX(), centeredAround.getY() + entry
+                    .getKey().getY()), entry.getValue());
         }
         return newMap;
     }
@@ -70,13 +71,17 @@ public class UsePattern implements Jsonable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         UsePattern that = (UsePattern) o;
 
-        if (getInputCount() != that.getInputCount()) return false;
-        if (isRotatable() != that.isRotatable()) return false;
+        if (getInputCount() != that.getInputCount())
+            return false;
+        if (isRotatable() != that.isRotatable())
+            return false;
         for (Map.Entry<Location, Float> entry : damageDistributionMap.entrySet()) {
             if (!that.damageDistributionMap.containsKey(entry.getKey())) {
                 return false;

@@ -1,6 +1,5 @@
 package edu.cwru.eecs395_s16.test.matches;
 
-import edu.cwru.eecs395_s16.GameEngine;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Match;
 import edu.cwru.eecs395_s16.core.Player;
@@ -23,7 +22,10 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -46,46 +48,51 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
         String architectUsername = "ARCHITESTTEST";
         String password = "tst123";
 
-        engine.services.playerRepository.deletePlayer(new Player(-1,heroUsername,password,false));
-        engine.services.playerRepository.deletePlayer(new Player(-1,architectUsername,password,false));
+        engine.services.playerRepository.deletePlayer(new Player(-1, heroUsername, password, false));
+        engine.services.playerRepository.deletePlayer(new Player(-1, architectUsername, password, false));
 
         Optional<Socket> heroSock = connectSocketIOClient();
-        if(!heroSock.isPresent()){
+        if (!heroSock.isPresent()) {
             fail("Unable to create the hero socket.");
             return;
         }
         heroClient = heroSock.get();
         Optional<Socket> archSock = connectSocketIOClient();
-        if(!archSock.isPresent()){
+        if (!archSock.isPresent()) {
             fail("Unable to create the architect socket.");
             return;
         }
         architectClient = archSock.get();
         assertFalse(heroClient.id().equals(architectClient.id()));
         try {
-            JSONObject heroRegisterResults = SingleUserNetworkTest.emitEventAndWaitForResult(heroClient, "register", new RegisterUserRequest(heroUsername, password, password).convertToJSON(), 5);
-            JSONObject architectRegisterResults = SingleUserNetworkTest.emitEventAndWaitForResult(architectClient, "register", new RegisterUserRequest(architectUsername, password, password).convertToJSON(), 5);
+            JSONObject heroRegisterResults = SingleUserNetworkTest.emitEventAndWaitForResult(heroClient, "register",
+                    new RegisterUserRequest(heroUsername, password, password).convertToJSON(), 5);
+            JSONObject architectRegisterResults = SingleUserNetworkTest.emitEventAndWaitForResult(architectClient,
+                    "register", new RegisterUserRequest(architectUsername, password, password).convertToJSON(), 5);
             assertEquals(200, heroRegisterResults.getInt("status"));
             isHeroRegistered = true;
             assertEquals(200, architectRegisterResults.getInt("status"));
             isArchitectRegistered = true;
-            JSONObject heroLoginResults = SingleUserNetworkTest.emitEventAndWaitForResult(heroClient, "login", new LoginUserRequest(heroUsername, password).convertToJSON(), 5);
-            JSONObject architectLoginResults = SingleUserNetworkTest.emitEventAndWaitForResult(architectClient, "login", new LoginUserRequest(architectUsername, password).convertToJSON(), 5);
+            JSONObject heroLoginResults = SingleUserNetworkTest.emitEventAndWaitForResult(heroClient, "login", new
+                    LoginUserRequest(heroUsername, password).convertToJSON(), 5);
+            JSONObject architectLoginResults = SingleUserNetworkTest.emitEventAndWaitForResult(architectClient,
+                    "login", new LoginUserRequest(architectUsername, password).convertToJSON(), 5);
             assertEquals(200, heroLoginResults.getInt("status"));
             assertEquals(200, architectLoginResults.get("status"));
-        } catch (JSONException e){
-            if(isHeroRegistered){
-                engine.services.playerRepository.deletePlayer(new Player(-1,heroUsername,password,false));
+        } catch (JSONException e) {
+            if (isHeroRegistered) {
+                engine.services.playerRepository.deletePlayer(new Player(-1, heroUsername, password, false));
             }
-            if(isArchitectRegistered){
-                engine.services.playerRepository.deletePlayer(new Player(-1,architectUsername,password,false));
+            if (isArchitectRegistered) {
+                engine.services.playerRepository.deletePlayer(new Player(-1, architectUsername, password, false));
             }
         }
     }
 
     @Test
     public void testQueueingAndSpectating() throws JSONException {
-        JSONObject heroHeroes = SingleUserNetworkTest.emitEventAndWaitForResult(heroClient, "get_heroes", new NoInputRequest().convertToJSON(), 10);
+        JSONObject heroHeroes = SingleUserNetworkTest.emitEventAndWaitForResult(heroClient, "get_heroes", new
+                NoInputRequest().convertToJSON(), 10);
         Set<UUID> heroIDs = new HashSet<>();
         JSONArray heroArr = heroHeroes.getJSONArray("heroes");
         for (int i = 0; i < Math.min(2, heroArr.length()); i++) {
@@ -94,16 +101,22 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
             heroIDs.add(UUID.fromString(hero.getString(GameObject.GAMEOBJECT_ID_KEY)));
         }
         QueueHeroesRequest heroReq = new QueueHeroesRequest(false, 10, 10, heroIDs);
-        JSONObject heroQueueEvent = NetworkTestCore.emitEventAndWaitForResult(heroClient, "queue_up_heroes", heroReq.convertToJSON(), 10);
-        assertEquals(200,heroQueueEvent.getInt("status"));
-        LinkedBlockingQueue<JSONObject> heroQueueErrorQueue = NetworkTestCore.storeDataForEvents(heroClient,"queue_error");
-        LinkedBlockingQueue<JSONObject> archQueueErrorQueue = NetworkTestCore.storeDataForEvents(architectClient,"queue_error");
-        LinkedBlockingQueue<JSONObject> heroMatchFoundQueue = NetworkTestCore.storeDataForEvents(heroClient,"match_found");
+        JSONObject heroQueueEvent = NetworkTestCore.emitEventAndWaitForResult(heroClient, "queue_up_heroes", heroReq
+                .convertToJSON(), 10);
+        assertEquals(200, heroQueueEvent.getInt("status"));
+        LinkedBlockingQueue<JSONObject> heroQueueErrorQueue = NetworkTestCore.storeDataForEvents(heroClient,
+                "queue_error");
+        LinkedBlockingQueue<JSONObject> archQueueErrorQueue = NetworkTestCore.storeDataForEvents(architectClient,
+                "queue_error");
+        LinkedBlockingQueue<JSONObject> heroMatchFoundQueue = NetworkTestCore.storeDataForEvents(heroClient,
+                "match_found");
 
-        QueueArchitectRequest archRequest = new QueueArchitectRequest(false,10,10,null);
-        JSONObject architectQueueEvent = NetworkTestCore.emitEventAndWaitForResult(architectClient,"queue_up_architect",archRequest.convertToJSON(),10);
-        assertEquals(200,architectQueueEvent.getInt("status"));
-        LinkedBlockingQueue<JSONObject> archMatchFoundQueue = NetworkTestCore.storeDataForEvents(architectClient,"match_found");
+        QueueArchitectRequest archRequest = new QueueArchitectRequest(false, 10, 10, null);
+        JSONObject architectQueueEvent = NetworkTestCore.emitEventAndWaitForResult(architectClient,
+                "queue_up_architect", archRequest.convertToJSON(), 10);
+        assertEquals(200, architectQueueEvent.getInt("status"));
+        LinkedBlockingQueue<JSONObject> archMatchFoundQueue = NetworkTestCore.storeDataForEvents(architectClient,
+                "match_found");
 
         JSONObject heroMatchObj = null;
         try {
@@ -122,12 +135,12 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
             return;
         }
 
-        if(heroMatchObj == null || architectMatchObj == null){
-            if(heroQueueErrorQueue.peek() != null && archQueueErrorQueue.peek() != null){
+        if (heroMatchObj == null || architectMatchObj == null) {
+            if (heroQueueErrorQueue.peek() != null && archQueueErrorQueue.peek() != null) {
                 fail("Hero or Architect have received a queue error.");
-            } else if (heroQueueErrorQueue.peek() != null){
+            } else if (heroQueueErrorQueue.peek() != null) {
                 fail("Hero has received a queue error.");
-            } else if (archQueueErrorQueue.peek() != null){
+            } else if (archQueueErrorQueue.peek() != null) {
                 fail("Architect has received a queue error.");
             } else {
                 fail("Either heroes or architect have not received their match found events.");
@@ -140,10 +153,12 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
         SpectateBot bot = new SpectateBot(UUID.randomUUID());
         assertTrue(bot.specateMatch(matchID));
 
-        JSONObject heroLeaveResp = NetworkTestCore.emitEventAndWaitForResult(architectClient,"leave_match",new NoInputRequest().convertToJSON(),10);
-        assertEquals(200,heroLeaveResp.getInt("status"));
-        JSONObject architectLeaveResp = NetworkTestCore.emitEventAndWaitForResult(heroClient, "leave_match",new NoInputRequest().convertToJSON(),10);
-        assertEquals(200,architectLeaveResp.getInt("status"));
+        JSONObject heroLeaveResp = NetworkTestCore.emitEventAndWaitForResult(architectClient, "leave_match", new
+                NoInputRequest().convertToJSON(), 10);
+        assertEquals(200, heroLeaveResp.getInt("status"));
+        JSONObject architectLeaveResp = NetworkTestCore.emitEventAndWaitForResult(heroClient, "leave_match", new
+                NoInputRequest().convertToJSON(), 10);
+        assertEquals(200, architectLeaveResp.getInt("status"));
 
         assertTrue(bot.getSpectatedEventCount() > 0);
         bot.disconnect();
@@ -152,20 +167,19 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
     private class SpectateBot extends GameBot {
 
         private static final String BOT_TYPE = "Spectator";
+        private int spectatedEventsReceived = 0;
 
         public SpectateBot(UUID botID) {
             super(BOT_TYPE, botID);
         }
 
-        private int spectatedEventsReceived = 0;
-
-        public synchronized int getSpectatedEventCount(){
+        public synchronized int getSpectatedEventCount() {
             return spectatedEventsReceived;
         }
 
         public boolean specateMatch(UUID matchID) {
             Response resp = sendEvent("spectate", new SpectateMatchRequest(matchID.toString()).convertToJSON());
-            if(resp.getStatus() == WebStatusCode.OK){
+            if (resp.getStatus() == WebStatusCode.OK) {
                 return true;
             } else {
                 return false;
@@ -181,7 +195,8 @@ public class QueueingAndSpectatingTesting extends NetworkTestCore {
                         InternalResponseObject<Match> actualResp = (InternalResponseObject<Match>) r;
                         if (actualResp.isNormal()) {
                             Match match = actualResp.get();
-                            if (!match.getHeroPlayer().getUsername().equals(getUsername()) && !match.getArchitectPlayer().getUsername().equals(getUsername())) {
+                            if (!match.getHeroPlayer().getUsername().equals(getUsername()) && !match
+                                    .getArchitectPlayer().getUsername().equals(getUsername())) {
                                 spectatedEventsReceived++;
                             }
                         }

@@ -28,7 +28,8 @@ public class GameObjectFactory {
         UUID goID = UUID.fromString(objectID);
         String ownerID = obj.optString(GameObject.CONTROLLER_ID_KEY, null);
         String controllerID = obj.optString(GameObject.CONTROLLER_ID_KEY, null);
-        GameObject.TYPE impl = GameObject.TYPE.valueOf(obj.optString(GameObject.GAMEOBJECT_TYPE_KEY, GameObject.TYPE.UNKNOWN.toString()).toUpperCase());
+        GameObject.TYPE impl = GameObject.TYPE.valueOf(obj.optString(GameObject.GAMEOBJECT_TYPE_KEY, GameObject.TYPE
+                .UNKNOWN.toString()).toUpperCase());
         switch (impl) {
             case HERO: {
                 try {

@@ -27,7 +27,8 @@ public class InMemorySessionRepository implements SessionRepository {
         if (sessionMap.containsKey(token)) {
             return new InternalResponseObject<>(sessionMap.get(token), "player");
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER, "Unable to find the player for the given session token.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                    .UNKNOWN_SESSION_IDENTIFIER, "Unable to find the player for the given session token.");
         }
     }
 

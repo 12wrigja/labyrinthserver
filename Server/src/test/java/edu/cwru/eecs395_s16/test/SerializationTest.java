@@ -12,7 +12,7 @@ public abstract class SerializationTest extends EngineOnlyTest {
     protected static ObjectMapper objMapper;
 
     @BeforeClass
-    public static void setupObjectSerializer(){
+    public static void setupObjectSerializer() {
         objMapper = new SocketIOConnectionService().getManualMapper();
     }
 

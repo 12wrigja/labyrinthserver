@@ -23,10 +23,14 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
 
     public static final String MONSTER_PLAYER_TABLE = "monster_player";
     public static final String MONSTERS_TABLE = "monsters";
-    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into " + MONSTER_PLAYER_TABLE + " (monster_id, player_id, quantity) select id as monster_id, ? as player_id, 0 as quantity from monsters";
-    private static final String UPDATE_MONSTER_QUANTITY_QUERY = "update " + MONSTER_PLAYER_TABLE + " set quantity = quantity + ? where player_id = ? and monster_id = ?";
-    private static final String REMOVE_ALL_PLAYER_MONSTERS = "delete from " + MONSTER_PLAYER_TABLE + " where player_id = ?";
-    private static final String GET_MONSTERS_QUERY = "select * from " + MONSTER_PLAYER_TABLE + " inner join " + MONSTERS_TABLE + " on monster_player.monster_id = monsters.id where player_id = ?";
+    private static final String INSERT_DEFAULT_PLAYER_HEROES = "insert into " + MONSTER_PLAYER_TABLE + " (monster_id," +
+            " player_id, quantity) select id as monster_id, ? as player_id, 0 as quantity from monsters";
+    private static final String UPDATE_MONSTER_QUANTITY_QUERY = "update " + MONSTER_PLAYER_TABLE + " set quantity = " +
+            "quantity + ? where player_id = ? and monster_id = ?";
+    private static final String REMOVE_ALL_PLAYER_MONSTERS = "delete from " + MONSTER_PLAYER_TABLE + " where " +
+            "player_id = ?";
+    private static final String GET_MONSTERS_QUERY = "select * from " + MONSTER_PLAYER_TABLE + " inner join " +
+            MONSTERS_TABLE + " on monster_player.monster_id = monsters.id where player_id = ?";
     private static final String GET_MONSTER_DEFINITION_QUERY = "select * from " + MONSTERS_TABLE + " where id = ?";
 
     public PostgresMonsterRepository(Connection conn) {
@@ -57,7 +61,8 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
     }
 
     @Override
-    public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int quantity) {
+    public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int
+            quantity) {
         try {
             PreparedStatement stmt = conn.prepareStatement(UPDATE_MONSTER_QUANTITY_QUERY);
             stmt.setInt(1, quantity);
@@ -93,7 +98,8 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
                     if (goblinCreateResp.isNormal()) {
                         return new InternalResponseObject<>(true, "created");
                     } else {
-                        return InternalResponseObject.cloneError(goblinCreateResp, "Unable to give new player goblins.");
+                        return InternalResponseObject.cloneError(goblinCreateResp, "Unable to give new player goblins" +
+                                ".");
                     }
                 } else {
                     return InternalResponseObject.cloneError(goblinDef, "Unable to find the goblin definition.");
@@ -120,7 +126,8 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
                 def = monsterDefinitionFromResultSet(rslts);
                 return new InternalResponseObject<>(def, "monster_definition");
             } else {
-                return new InternalResponseObject<>(InternalErrorCode.INVALID_DB_IDENTIFIER, "There is no monster definition for this id.");
+                return new InternalResponseObject<>(InternalErrorCode.INVALID_DB_IDENTIFIER, "There is no monster " +
+                        "definition for this id.");
             }
         } catch (SQLException e) {
             if (GameEngine.instance().IS_DEBUG_MODE) {
@@ -152,7 +159,8 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
         int vision = r.getInt("vision");
         int quantity = r.getInt("quantity");
         int weapon_id = r.getInt("weapon_id");
-        return new MonsterDefinition(monsterDefId, name, attack, defense, health, movement, vision, weapon_id, quantity);
+        return new MonsterDefinition(monsterDefId, name, attack, defense, health, movement, vision, weapon_id,
+                quantity);
     }
 
     private MonsterDefinition monsterDefinitionFromResultSet(ResultSet r) throws SQLException {
@@ -165,6 +173,7 @@ public class PostgresMonsterRepository extends DBRepository implements MonsterRe
         int vision = r.getInt("vision");
         int quantity = 0;
         int weapon_id = r.getInt("weapon_id");
-        return new MonsterDefinition(monsterDefId, name, attack, defense, health, movement, vision, weapon_id, quantity);
+        return new MonsterDefinition(monsterDefId, name, attack, defense, health, movement, vision, weapon_id,
+                quantity);
     }
 }

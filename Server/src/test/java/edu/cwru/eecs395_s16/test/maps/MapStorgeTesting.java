@@ -1,6 +1,5 @@
 package edu.cwru.eecs395_s16.test.maps;
 
-import com.squareup.okhttp.internal.Internal;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.core.objects.maps.GameMap;
@@ -27,12 +26,14 @@ public class MapStorgeTesting extends SingleUserNetworkTest {
     @Before
     public void setup() {
         setupSingleClient();
-        InternalResponseObject<Player> registerResp = engine.networkingInterface.register(new RegisterUserRequest(USERNAME, PASSWORD, PASSWORD));
+        InternalResponseObject<Player> registerResp = engine.networkingInterface.register(new RegisterUserRequest
+                (USERNAME, PASSWORD, PASSWORD));
         if (!registerResp.isNormal()) {
             fail("Unable to register user for tests.");
             return;
         }
-        JSONObject loginResp = emitEventAndWaitForResult(socket, "login", new LoginUserRequest(USERNAME, PASSWORD).convertToJSON(), 10);
+        JSONObject loginResp = emitEventAndWaitForResult(socket, "login", new LoginUserRequest(USERNAME, PASSWORD)
+                .convertToJSON(), 10);
         try {
             if (loginResp.getInt("status") != 200) {
                 fail("Unable to log in.");
@@ -87,7 +88,206 @@ public class MapStorgeTesting extends SingleUserNetworkTest {
 
     @Test
     public void tryStoreMapInvalidTileCount() throws JSONException {
-        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": \"Almost Blank Map\"}");
+        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": " +
+                "true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"is_objective_spawn_tile\": " +
+                "false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": " +
+                "\"Almost Blank Map\"}");
         JSONObject newMapIDResp = emitEventAndWaitForResult(socket, "store_map", obj, 10);
         if (newMapIDResp.getInt("status") == 200) {
             fail("Was able to store new map.");
@@ -96,7 +296,208 @@ public class MapStorgeTesting extends SingleUserNetworkTest {
 
     @Test
     public void tryStoreMapDoubleSpecifiedTile() throws JSONException {
-        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" },{ \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"water\" } ], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": \"Almost Blank Map\", }");
+        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": " +
+                "true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"is_objective_spawn_tile\": " +
+                "false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" },{ \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"water\" } ], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": " +
+                "\"Almost Blank Map\", }");
         JSONObject newMapIDResp = emitEventAndWaitForResult(socket, "store_map", obj, 10);
         if (newMapIDResp.getInt("status") == 200) {
             fail("Was able to store map with a tile specified more than once.");
@@ -105,7 +506,206 @@ public class MapStorgeTesting extends SingleUserNetworkTest {
 
     @Test
     public void tryStoreMapInvalidTileType() throws JSONException {
-        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"is_objective_spawn_tile\": false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, \"terrain\": \"whitespace\" }], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": \"Almost Blank Map\" }");
+        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": " +
+                "true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"is_objective_spawn_tile\": " +
+                "false, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": true, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": false, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"is_hero_spawn_tile\": false, " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"is_objective_spawn_tile\": false, " +
+                "\"terrain\": \"whitespace\" }], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": " +
+                "\"Almost Blank Map\" }");
         JSONObject newMapIDResp = emitEventAndWaitForResult(socket, "store_map", obj, 10);
         if (newMapIDResp.getInt("status") == 200) {
             fail("Was able to store new map with invalid tile types.");
@@ -114,7 +714,110 @@ public class MapStorgeTesting extends SingleUserNetworkTest {
 
     @Test
     public void correctlyStoreMapUsingShorthand() throws JSONException {
-        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 0, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 1, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 9, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 4, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 5, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 6, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 7, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 8, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 5, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 6, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 7, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 2, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 3, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 4, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 5, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 6, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 7, \"terrain\": \"wall\" }, { \"rotation\": 0, \"is_obstacle\": true, \"x\": 8, \"y\": 8, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, \"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 9, \"terrain\": \"dirt\" }], \"size\": { \"x\": 10, \"y\": 10 }, \"hero_capacity\": 4, \"name\": \"Almost Blank Shorthand Map\", }");
+        JSONObject obj = new JSONObject("{ \"tiles\": [{ \"is_hero_spawn_tile\": true, \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 0, \"y\": 0, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true," +
+                " \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 1, \"terrain\": \"dirt\" }, { " +
+                "\"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 2, " +
+                "\"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 3, \"terrain\":" +
+                " \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 4, \"terrain\": \"dirt\" }," +
+                " { \"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 5, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 6, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 7, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 8, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 0, \"y\": 9, \"terrain\": \"dirt\" }, { " +
+                "\"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 1, \"y\": 0, " +
+                "\"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, " +
+                "\"x\": 1, \"y\": 1, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 1, \"y\": 9, \"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true," +
+                " \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 0, \"terrain\": \"dirt\" }, { " +
+                "\"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 1, " +
+                "\"terrain\": \"dirt\" }, { \"is_hero_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, " +
+                "\"x\": 2, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, " +
+                "\"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 4, " +
+                "\"terrain\": \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 5, \"terrain\":" +
+                " \"dirt\" }, { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 6, \"terrain\": \"dirt\" }," +
+                " { \"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 7, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 8, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 2, \"y\": 9, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 0, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 1, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 2, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 3, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 4, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 5, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 6, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 7, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 8, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 3, \"y\": 9, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 0, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 4, \"y\": 1, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": true, \"x\": 4, \"y\": 2, \"terrain\": \"wall\" }, { \"rotation\":" +
+                " 0, \"is_obstacle\": true, \"x\": 4, \"y\": 3, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 4, \"y\": 4, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 4, \"y\": 5, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 4, \"y\": 6, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 4, \"y\": 7, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 4, \"y\": 8, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 4, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 5, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 6, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 2, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 3, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 4, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 5, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 6, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 7, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 8, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 7, \"y\": 9, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 8, \"y\": 0, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": false, \"x\": 8, \"y\": 1, \"terrain\": \"dirt\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 2, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 3, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 4, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 5, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 6, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 7, \"terrain\": \"wall\" }, { \"rotation\": 0, " +
+                "\"is_obstacle\": true, \"x\": 8, \"y\": 8, \"terrain\": \"wall\" }, { \"is_architect_spawn_tile\": " +
+                "true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 8, \"y\": 9, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 0, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 1, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 2, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 3, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 4, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 5, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 6, \"terrain\": \"dirt\" }, { " +
+                "\"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 7, \"terrain\": \"dirt\" }, { " +
+                "\"is_architect_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": false, \"x\": 9, \"y\": 8, " +
+                "\"terrain\": \"dirt\" }, { \"is_architect_spawn_tile\": true, \"rotation\": 0, \"is_obstacle\": " +
+                "false, \"x\": 9, \"y\": 9, \"terrain\": \"dirt\" }], \"size\": { \"x\": 10, \"y\": 10 }, " +
+                "\"hero_capacity\": 4, \"name\": \"Almost Blank Shorthand Map\", }");
         System.out.println(obj.toString());
         JSONObject newMapIDResp = emitEventAndWaitForResult(socket, "store_map", obj, 10);
         if (newMapIDResp.getInt("status") != 200) {

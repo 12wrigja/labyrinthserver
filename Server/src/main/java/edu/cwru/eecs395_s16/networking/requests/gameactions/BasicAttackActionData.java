@@ -45,7 +45,8 @@ public class BasicAttackActionData {
                     targets.add(new Location(x, y));
                 }
             } catch (IllegalArgumentException e) {
-                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "One of the target identifiers is invalid.");
+                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "One of the target " +
+                        "identifiers is invalid.");
             }
         } catch (JSONException e) {
             return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "One of the targets is invalid.");

@@ -20,7 +20,8 @@ public class QueueArchitectRequest extends QueueRequest {
         monsterLocationMap = null;
     }
 
-    public QueueArchitectRequest(boolean queueWithPassBot, int mapX, int mapY, Map<Location, Integer> monsterLocationMap) {
+    public QueueArchitectRequest(boolean queueWithPassBot, int mapX, int mapY, Map<Location, Integer>
+            monsterLocationMap) {
         super(queueWithPassBot, mapX, mapY, -1, "dm");
         this.monsterLocationMap = monsterLocationMap;
     }

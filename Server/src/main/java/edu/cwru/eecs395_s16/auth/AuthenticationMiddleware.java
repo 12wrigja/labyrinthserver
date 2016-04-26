@@ -29,15 +29,16 @@ public class AuthenticationMiddleware {
     private final Class<? extends RequestData> objClass;
     private boolean needsAuthentication = false;
 
-    public AuthenticationMiddleware(NetworkingInterface instance, SessionRepository sessions, Method next, boolean needsAuthentication) {
+    public AuthenticationMiddleware(NetworkingInterface instance, SessionRepository sessions, Method next, boolean
+            needsAuthentication) {
         this.next = next;
         Class firstParam = next.getParameterTypes()[0];
         if (JSONObject.class.isAssignableFrom(firstParam)) {
             objClass = null;
         } else {
             try {
-                @SuppressWarnings("unchecked")
-                Class<? extends RequestData> castedParam = (Class<? extends RequestData>) firstParam;
+                @SuppressWarnings("unchecked") Class<? extends RequestData> castedParam = (Class<? extends
+                        RequestData>) firstParam;
                 objClass = castedParam;
             } catch (ClassCastException e) {
                 throw new Error("Can't cast the input class.");
@@ -49,7 +50,8 @@ public class AuthenticationMiddleware {
     }
 
     public Response onEvent(GameClient client, JSONObject data) {
-        System.out.println("Processing method " + next.getName() + " for client with SessionID  " + client.getSessionId());
+        System.out.println("Processing method " + next.getName() + " for client with SessionID  " + client
+                .getSessionId());
         Response response = new Response();
         try {
             Object obj;
@@ -107,9 +109,10 @@ public class AuthenticationMiddleware {
             }
         }
         try {
-            System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId() + ".\n" + response.getJSONRepresentation().toString());
-        } catch (Exception e){
-            if(GameEngine.instance().IS_DEBUG_MODE){
+            System.out.println("Sending response for method " + next.getName() + " for client " + client.getSessionId
+                    () + ".\n" + response.getJSONRepresentation().toString());
+        } catch (Exception e) {
+            if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
         }

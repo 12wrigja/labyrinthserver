@@ -136,7 +136,9 @@ public class CreatureBuilder extends GameObjectFactory {
         return this;
     }
 
-//    public Creature createCreature() {
-//        return new Creature(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, objectType, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
-//    }
+    //    public Creature createCreature() {
+    //        return new Creature(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, objectType,
+    // attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses,
+    // location, weapon);
+    //    }
 }

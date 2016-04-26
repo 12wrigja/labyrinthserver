@@ -13,7 +13,8 @@ public class FunctionDescription {
     public final boolean mustAuthenticate;
     public final AuthenticationMiddleware invocationPoint;
 
-    public FunctionDescription(String name, String humanName, String description, String[] parameters, boolean mustAuthenticate, AuthenticationMiddleware invokationPoint) {
+    public FunctionDescription(String name, String humanName, String description, String[] parameters, boolean
+            mustAuthenticate, AuthenticationMiddleware invokationPoint) {
         this.name = name;
         this.humanName = humanName;
         this.description = description;

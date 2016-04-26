@@ -33,9 +33,11 @@ public class MoveGameAction implements GameAction {
     }
 
     @Override
-    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
+    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection
+            boardObjects, Player player) {
         //Check and see if the character has enough movement to move that far.
-        InternalResponseObject<Boolean> validActiveActionObject = GameAction.canDoActiveAction(data.getCharacterID(), boardObjects, player, "character_id");
+        InternalResponseObject<Boolean> validActiveActionObject = GameAction.canDoActiveAction(data.getCharacterID(),
+                boardObjects, player, "character_id");
         if (!validActiveActionObject.isNormal()) {
             return validActiveActionObject;
         }
@@ -49,7 +51,8 @@ public class MoveGameAction implements GameAction {
         //Check to see if the start tile exists
         Optional<MapTile> previousTileOpt = map.getTile(creature.getLocation());
         if (!previousTileOpt.isPresent()) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, "Initial tile in path is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED,
+                    "Initial tile in path is invalid.");
         }
         MapTile previousTile = previousTileOpt.get();
         this.actualPath = new ArrayList<>();
@@ -60,14 +63,14 @@ public class MoveGameAction implements GameAction {
             //Check to make sure the next tile exists on the path
             Optional<MapTile> tileOpt = map.getTile(aPath);
             if (!tileOpt.isPresent()) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, "Tile at index " + count + " in the path is invalid.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                        .PATH_OBSTRUCTED, "Tile at index " + count + " in the path is invalid.");
             }
             MapTile nextTile = tileOpt.get();
             List<GameObject> objsAtTile = boardObjects.getForLocation(nextTile);
             if (objsAtTile.size() > 0) {
                 if (objsAtTile.size() == 1 && objsAtTile.get(0).getGameObjectType() == GameObject.TYPE.TRAP) {
                     //This is where the path ends.
-                    //TODO actually trigger the trap and apply effects. This might go in doAction instead
                     this.actualPath.add(previousTile);
                     return new InternalResponseObject<>(true, "valid");
                 } else {
@@ -75,14 +78,17 @@ public class MoveGameAction implements GameAction {
                     for (GameObject obstruction : objsAtTile) {
                         response += obstruction.getGameObjectID().toString() + " ";
                     }
-                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, response);
+                    return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                            .PATH_OBSTRUCTED, response);
                 }
             }
             if (nextTile.isObstructionTileType()) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_OBSTRUCTED, "The character specified cannot move across this tile type.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                        .PATH_OBSTRUCTED, "The character specified cannot move across this tile type.");
             }
             if (!previousTile.isNeighbourOf(nextTile, false)) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_SKIP, "Path jump detected! Tile at index " + count + " is not a neighbour of a previous tile.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.PATH_SKIP,
+                        "Path jump detected! Tile at index " + count + " is not a neighbour of a previous tile.");
             }
             this.actualPath.add(nextTile);
             previousTile = nextTile;
@@ -95,7 +101,6 @@ public class MoveGameAction implements GameAction {
     public void doGameAction(GameMap map, GameObjectCollection boardObjects) {
         Location last = this.actualPath.get(this.actualPath.size() - 1);
         Creature c = (Creature) boardObjects.getByID(data.getCharacterID()).get();
-        //TODO check for damage, traps, etc.
         c.setLocation(last);
         c.useActionPoint();
     }

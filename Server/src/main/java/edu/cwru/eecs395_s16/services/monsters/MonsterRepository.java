@@ -29,7 +29,8 @@ public interface MonsterRepository extends Repository {
         if (!def.isNormal()) {
             return InternalResponseObject.cloneError(def);
         }
-        MonsterBuilder mb = new MonsterBuilder(gameID, def.get(), player.getUsername(), Optional.ofNullable(player.getUsername()));
+        MonsterBuilder mb = new MonsterBuilder(gameID, def.get(), player.getUsername(), Optional.ofNullable(player
+                .getUsername()));
         return new InternalResponseObject<>(mb.createMonster(), "monster");
     }
 

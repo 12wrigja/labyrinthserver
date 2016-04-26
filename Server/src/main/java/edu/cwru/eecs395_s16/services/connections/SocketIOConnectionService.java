@@ -73,7 +73,8 @@ public class SocketIOConnectionService implements ClientConnectionService {
         config.setPort(this.serverPort);
         config.getSocketConfig().setReuseAddress(true);
 
-        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport((Module[]) usedSerializationModules.toArray(new Module[usedSerializationModules.size()]));
+        JacksonJsonSupport jacksonJsonSupport = new JacksonJsonSupport((Module[]) usedSerializationModules.toArray
+                (new Module[usedSerializationModules.size()]));
         config.setJsonSupport(jacksonJsonSupport);
         gameSocket = new SocketIOServer(config);
 
@@ -86,12 +87,14 @@ public class SocketIOConnectionService implements ClientConnectionService {
         gameSocket.addDisconnectListener(client -> {
             System.out.println("Client disconnected: " + client.getSessionId());
             //TODO modify this when the UI catches up
-            InternalResponseObject<Player> p = GameEngine.instance().services.sessionRepository.findPlayer(client.getSessionId());
+            InternalResponseObject<Player> p = GameEngine.instance().services.sessionRepository.findPlayer(client
+                    .getSessionId());
             if (p.isNormal()) {
                 Player player = p.get();
                 GameEngine.instance().services.matchService.removeFromQueue(player);
                 if (player.getCurrentMatchID().isPresent()) {
-                    InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(player.getCurrentMatchID().get());
+                    InternalResponseObject<Match> match = Match.fromCacheWithMatchIdentifier(player.getCurrentMatchID
+                            ().get());
                     if (match.isNormal()) {
                         Match m = match.get();
                         m.end("Player " + player.getUsername() + " disconnected.", GameObjective.GAME_WINNER.NO_WINNER);
@@ -103,7 +106,8 @@ public class SocketIOConnectionService implements ClientConnectionService {
         });
 
         gameSocket.start();
-        System.out.println("SocketIOConnectionService is now running, bound to interface " + this.serverInterface + " on port " + this.serverPort);
+        System.out.println("SocketIOConnectionService is now running, bound to interface " + this.serverInterface + "" +
+                " on port " + this.serverPort);
         this.isStarted = true;
     }
 
@@ -130,7 +134,8 @@ public class SocketIOConnectionService implements ClientConnectionService {
         if (client != null) {
             return new InternalResponseObject<>(new SocketIOClientWrapper(client));
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                    .UNKNOWN_SESSION_IDENTIFIER);
         }
     }
 

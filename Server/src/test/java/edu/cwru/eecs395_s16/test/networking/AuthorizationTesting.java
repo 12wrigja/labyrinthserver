@@ -1,8 +1,8 @@
 package edu.cwru.eecs395_s16.test.networking;
 
+import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.test.SingleUserNetworkTest;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +23,7 @@ public class AuthorizationTesting extends SingleUserNetworkTest {
     private final String TEST_BAD_USERNAME = "USERNAME_TEST";
 
     @Before
-    public void setup(){
+    public void setup() {
         setupSingleClient();
     }
 

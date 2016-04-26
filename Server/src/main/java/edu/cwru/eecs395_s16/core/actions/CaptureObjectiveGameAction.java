@@ -28,12 +28,15 @@ public class CaptureObjectiveGameAction implements GameAction {
     }
 
     @Override
-    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
+    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection
+            boardObjects, Player player) {
         if (!match.getHeroPlayer().getUsername().equals(player.getUsername())) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_GAME_ACTION, "Only the heroes can capture objectives. Your supposed to defend them, not capture them!");
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_GAME_ACTION, "Only the heroes can capture " +
+                    "objectives. Your supposed to defend them, not capture them!");
         }
 
-        InternalResponseObject<Boolean> canDoActiveActionResp = GameAction.canDoActiveAction(data.getCharacterID(), boardObjects, player, "character_id");
+        InternalResponseObject<Boolean> canDoActiveActionResp = GameAction.canDoActiveAction(data.getCharacterID(),
+                boardObjects, player, "character_id");
         if (!canDoActiveActionResp.isNormal()) {
             return canDoActiveActionResp;
         }
@@ -41,21 +44,25 @@ public class CaptureObjectiveGameAction implements GameAction {
 
         Optional<GameObject> objectiveOpt = boardObjects.getByID(data.getObjectiveID());
         if (!objectiveOpt.isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_OBJECT, "The objective_id is not a valid object.");
+            return new InternalResponseObject<>(InternalErrorCode.UNKNOWN_OBJECT, "The objective_id is not a valid " +
+                    "object.");
         }
         GameObject objectiveGO = objectiveOpt.get();
         if (!(objectiveGO instanceof ObjectiveGameObject)) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The objective_id is not a game object.");
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The objective_id is not a game " +
+                    "object.");
         }
 
         ObjectiveGameObject objective = (ObjectiveGameObject) objectiveGO;
 
         if (objective.getControllerID().isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER, "This game objective is already captured.");
+            return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER, "This game objective is already " +
+                    "captured.");
         }
 
         if (!objective.getLocation().isNeighbourOf(capturingCreature.getLocation(), true)) {
-            return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE, "The capturing creature is not in range of the objective.");
+            return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE, "The capturing creature is not in " +
+                    "range of the objective.");
         } else {
             return new InternalResponseObject<>(true, "valid");
         }

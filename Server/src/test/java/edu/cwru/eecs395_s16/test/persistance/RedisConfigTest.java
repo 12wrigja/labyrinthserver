@@ -16,14 +16,14 @@ import static org.junit.Assert.fail;
 public class RedisConfigTest {
 
     @Test
-    public void testRedisCacheStoreString(){
+    public void testRedisCacheStoreString() {
         String key = "this key thing!";
         String value = "the value!";
         CacheService cache = new RedisCacheService(new JedisPool("localhost"));
-        cache.storeString(key,value);
+        cache.storeString(key, value);
         Optional<String> returnedVal = cache.getString(key);
-        if(returnedVal.isPresent()){
-            assertEquals(value,returnedVal.get());
+        if (returnedVal.isPresent()) {
+            assertEquals(value, returnedVal.get());
         } else {
             fail("Value could not be returned from redis cache.");
         }

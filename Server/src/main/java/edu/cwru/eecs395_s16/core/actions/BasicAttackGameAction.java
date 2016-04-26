@@ -39,9 +39,11 @@ public class BasicAttackGameAction implements GameAction {
     }
 
     @Override
-    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
+    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection
+            boardObjects, Player player) {
         //Check and see if the object is a valid object for doing active actions
-        InternalResponseObject<Boolean> validCreatureResp = GameAction.canDoActiveAction(data.getAttacker(), boardObjects, player, "attacker_id");
+        InternalResponseObject<Boolean> validCreatureResp = GameAction.canDoActiveAction(data.getAttacker(),
+                boardObjects, player, "attacker_id");
         if (!validCreatureResp.isNormal()) {
             return validCreatureResp;
         }
@@ -68,7 +70,8 @@ public class BasicAttackGameAction implements GameAction {
                     return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
                 }
             } else {
-                //Check to see that the target point is within the weapon's range and that we have line of sight to that point
+                //Check to see that the target point is within the weapon's range and that we have line of sight to
+                // that point
                 if (!GameAction.floodFill(map, attacker.getLocation(), weapon.getRange(), true).contains(target)) {
                     return new InternalResponseObject<>(InternalErrorCode.NOT_IN_RANGE);
                 } else if (!GameAction.isLineOfSight(attacker.getLocation(), target, map, boardObjects)) {
@@ -79,7 +82,8 @@ public class BasicAttackGameAction implements GameAction {
             List<Creature> creaturesHit = new ArrayList<>();
             //Loop through pattern points
             for (Location targetPoint : weapon.getUsePattern().getEffectDistributionMap(target).keySet()) {
-                List<GameObject> targetObjs = boardObjects.getForLocation(targetPoint).stream().filter(obj -> obj instanceof Creature).collect(Collectors.toList());
+                List<GameObject> targetObjs = boardObjects.getForLocation(targetPoint).stream().filter(obj -> obj
+                        instanceof Creature).collect(Collectors.toList());
                 Creature c;
                 if (targetObjs.size() == 0) {
                     continue;
@@ -89,7 +93,8 @@ public class BasicAttackGameAction implements GameAction {
 
                 if (GameAction.isControlledByPlayer(c, player)) {
                     //Check and see if the player is trying to target a friendly unit with their attacker
-                    return new InternalResponseObject<>(InternalErrorCode.FRIENDLY_FIRE, "A target game object is controlled by you.");
+                    return new InternalResponseObject<>(InternalErrorCode.FRIENDLY_FIRE, "A target game object is " +
+                            "controlled by you.");
                 } else if (GameAction.isControlledByOpponent(c, player)) {
                     creaturesHit.add(c);
                 }
@@ -104,7 +109,8 @@ public class BasicAttackGameAction implements GameAction {
         //For each of the target points
         for (Location target : targets.keySet()) {
             for (Creature creatureHit : targets.get(target)) {
-                float percentageDamage = attacker.getWeapon().getUsePattern().effectPercentForLocation(creatureHit.getLocation().locationRelativeTo(target));
+                float percentageDamage = attacker.getWeapon().getUsePattern().effectPercentForLocation(creatureHit
+                        .getLocation().locationRelativeTo(target));
                 //Compute base damage here according to formula
                 int baseDamage = computeBaseDamage(attacker, creatureHit);
                 baseDamage *= percentageDamage;

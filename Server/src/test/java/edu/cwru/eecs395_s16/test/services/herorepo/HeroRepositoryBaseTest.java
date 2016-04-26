@@ -7,7 +7,6 @@ import edu.cwru.eecs395_s16.core.objects.creatures.heroes.Hero;
 import edu.cwru.eecs395_s16.networking.requests.RegisterUserRequest;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -28,33 +27,35 @@ public abstract class HeroRepositoryBaseTest extends EngineOnlyTest {
     @Override
     public void setup() throws Exception {
         super.setup();
-        Player p = new Player(-1,TEST_USERNAME,TEST_PASSWORD,false);
+        Player p = new Player(-1, TEST_USERNAME, TEST_PASSWORD, false);
         GameEngine.instance().services.playerRepository.deletePlayer(p);
     }
 
     @Test
-    public void testDoesCreateInitialHeroesOnRegistration(){
-        InternalResponseObject<Player> registrationResponse = engine.networkingInterface.register(new RegisterUserRequest(TEST_USERNAME,TEST_PASSWORD,TEST_PASSWORD));
-        if(!registrationResponse.isNormal()){
-            fail("Error registering player. ERROR: "+registrationResponse.getMessage());
+    public void testDoesCreateInitialHeroesOnRegistration() {
+        InternalResponseObject<Player> registrationResponse = engine.networkingInterface.register(new
+                RegisterUserRequest(TEST_USERNAME, TEST_PASSWORD, TEST_PASSWORD));
+        if (!registrationResponse.isNormal()) {
+            fail("Error registering player. ERROR: " + registrationResponse.getMessage());
         }
         createdPlayer = registrationResponse.get();
-        InternalResponseObject<List<Hero>> allPlayerHeroes = engine.services.heroRepository.getPlayerHeroes(createdPlayer);
-        if(!allPlayerHeroes.isNormal()){
-            fail("Error creating heroes for registered player. ERROR: "+allPlayerHeroes.getMessage());
+        InternalResponseObject<List<Hero>> allPlayerHeroes = engine.services.heroRepository.getPlayerHeroes
+                (createdPlayer);
+        if (!allPlayerHeroes.isNormal()) {
+            fail("Error creating heroes for registered player. ERROR: " + allPlayerHeroes.getMessage());
         }
         assertTrue(allPlayerHeroes.isNormal());
         assertTrue(allPlayerHeroes.get().size() > 0);
     }
 
     @Test
-    public void testCanSaveHero(){
+    public void testCanSaveHero() {
 
     }
 
     @After
-    public void cleanup(){
-        if(createdPlayer != null) {
+    public void cleanup() {
+        if (createdPlayer != null) {
             boolean cleaned = GameEngine.instance().services.playerRepository.deletePlayer(createdPlayer);
             assertTrue(cleaned);
         }

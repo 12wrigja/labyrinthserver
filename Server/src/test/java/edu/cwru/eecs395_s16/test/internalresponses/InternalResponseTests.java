@@ -22,25 +22,25 @@ public class InternalResponseTests {
     static ObjectMapper mapper;
 
     @BeforeClass
-    public static void setupObjectMapper(){
+    public static void setupObjectMapper() {
         mapper = new SocketIOConnectionService().getManualMapper();
     }
 
     // Tests for valid return paths
 
     @Test
-    public void testBasicResponseNoObjectNoMessage(){
+    public void testBasicResponseNoObjectNoMessage() {
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(new JSONObject());
         assertTrue(obj.isNormal());
         assertTrue(obj.isPresent());
-        assertEquals(WebStatusCode.OK,obj.getStatus());
-        assertEquals(InternalErrorCode.UNKNOWN,obj.getInternalErrorCode());
+        assertEquals(WebStatusCode.OK, obj.getStatus());
+        assertEquals(InternalErrorCode.UNKNOWN, obj.getInternalErrorCode());
         assertNull(obj.getMessage());
         try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(1,JSONObject.getNames(json).length);
+            assertEquals(1, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.OK.code,json.getInt("status"));
+            assertEquals(WebStatusCode.OK.code, json.getInt("status"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -49,27 +49,27 @@ public class InternalResponseTests {
     }
 
     @Test
-    public void testBasicResponseSimpleObjectNotReturnedNoMessage(){
+    public void testBasicResponseSimpleObjectNotReturnedNoMessage() {
         //Build up object for testing
         //Note that this object will not be included in the response serialization.
         JSONObject jObj = new JSONObject();
-        try{
-            jObj.put("blah","blahblahblah");
-        } catch (JSONException e){
+        try {
+            jObj.put("blah", "blahblahblah");
+        } catch (JSONException e) {
             fail("Unable to build up the JSON object for testing.");
         }
 
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(jObj);
         assertTrue(obj.isNormal());
         assertTrue(obj.isPresent());
-        assertEquals(WebStatusCode.OK,obj.getStatus());
-        assertEquals(InternalErrorCode.UNKNOWN,obj.getInternalErrorCode());
+        assertEquals(WebStatusCode.OK, obj.getStatus());
+        assertEquals(InternalErrorCode.UNKNOWN, obj.getInternalErrorCode());
         assertNull(obj.getMessage());
         try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(1,JSONObject.getNames(json).length);
+            assertEquals(1, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.OK.code,json.getInt("status"));
+            assertEquals(WebStatusCode.OK.code, json.getInt("status"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -78,29 +78,29 @@ public class InternalResponseTests {
     }
 
     @Test
-    public void testBasicResponseSimpleObjectReturnedNoMessage(){
+    public void testBasicResponseSimpleObjectReturnedNoMessage() {
         //Build up object for testing
         //Note that this object will not be included in the response serialization.
         JSONObject jObj = new JSONObject();
-        try{
-            jObj.put("blah","blahblahblah");
-        } catch (JSONException e){
+        try {
+            jObj.put("blah", "blahblahblah");
+        } catch (JSONException e) {
             fail("Unable to build up the JSON object for testing.");
         }
         String key = "testkey";
-        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(jObj,key);
+        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(jObj, key);
         assertTrue(obj.isNormal());
         assertTrue(obj.isPresent());
         assertNull(obj.getMessage());
-        assertTrue(JSONUtils.isEquivalent(jObj,obj.get()));
+        assertTrue(JSONUtils.isEquivalent(jObj, obj.get()));
         try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(2,JSONObject.getNames(json).length);
+            assertEquals(2, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.OK.code,json.getInt("status"));
+            assertEquals(WebStatusCode.OK.code, json.getInt("status"));
             assertTrue(json.has(key));
             JSONObject retrievedObj = (JSONObject) json.get(key);
-            assertTrue(JSONUtils.isEquivalent(jObj,retrievedObj));
+            assertTrue(JSONUtils.isEquivalent(jObj, retrievedObj));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -111,19 +111,19 @@ public class InternalResponseTests {
     //Tests for invalid return paths
 
     @Test
-    public void testBasicErrorResponseNoObject(){
+    public void testBasicErrorResponseNoObject() {
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME);
         assertFalse(obj.isNormal());
         assertFalse(obj.isPresent());
         assertNotNull(obj.getMessage());
         assertEquals(InternalErrorCode.INVALID_USERNAME.message, obj.getMessage());
-        try{
+        try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(2,JSONObject.getNames(json).length);
+            assertEquals(2, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(422,json.getInt("status"));
+            assertEquals(422, json.getInt("status"));
             assertTrue(json.has("message"));
-            assertEquals(InternalErrorCode.INVALID_USERNAME.message,json.getString("message"));
+            assertEquals(InternalErrorCode.INVALID_USERNAME.message, json.getString("message"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -132,18 +132,19 @@ public class InternalResponseTests {
     }
 
     @Test
-    public void testComplexErrorResponseNoObject(){
-        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.INVALID_USERNAME);
+    public void testComplexErrorResponseNoObject() {
+        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,
+                InternalErrorCode.INVALID_USERNAME);
         assertFalse(obj.isNormal());
         assertFalse(obj.isPresent());
         assertNotNull(obj.getMessage());
-        try{
+        try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(2,JSONObject.getNames(json).length);
+            assertEquals(2, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code,json.getInt("status"));
+            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code, json.getInt("status"));
             assertTrue(json.has("message"));
-            assertEquals(InternalErrorCode.INVALID_USERNAME.message,json.getString("message"));
+            assertEquals(InternalErrorCode.INVALID_USERNAME.message, json.getString("message"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -152,19 +153,20 @@ public class InternalResponseTests {
     }
 
     @Test
-    public void testComplexErrorResponseNoObjectCustomMessage(){
+    public void testComplexErrorResponseNoObjectCustomMessage() {
         String message = "This is a custom messaage";
-        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,InternalErrorCode.INVALID_USERNAME,message);
+        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA,
+                InternalErrorCode.INVALID_USERNAME, message);
         assertFalse(obj.isNormal());
         assertFalse(obj.isPresent());
         assertNotNull(obj.getMessage());
-        try{
+        try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(2,JSONObject.getNames(json).length);
+            assertEquals(2, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code,json.getInt("status"));
+            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code, json.getInt("status"));
             assertTrue(json.has("message"));
-            assertEquals(message,json.getString("message"));
+            assertEquals(message, json.getString("message"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -173,18 +175,18 @@ public class InternalResponseTests {
     }
 
     @Test
-    public void testWebStatusOnlyResponse(){
+    public void testWebStatusOnlyResponse() {
         InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA);
         assertFalse(obj.isNormal());
         assertFalse(obj.isPresent());
         assertNotNull(obj.getMessage());
-        try{
+        try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(2,JSONObject.getNames(json).length);
+            assertEquals(2, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code,json.getInt("status"));
+            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code, json.getInt("status"));
             assertTrue(json.has("message"));
-            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.message,json.getString("message"));
+            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.message, json.getString("message"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {
@@ -193,19 +195,20 @@ public class InternalResponseTests {
     }
 
     @Test
-    public void testInternalErrorCodeAndCustomMessage(){
+    public void testInternalErrorCodeAndCustomMessage() {
         String message = "This is a really custom message.";
-        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME,message);
+        InternalResponseObject<JSONObject> obj = new InternalResponseObject<>(InternalErrorCode.INVALID_USERNAME,
+                message);
         assertFalse(obj.isNormal());
         assertFalse(obj.isPresent());
         assertNotNull(obj.getMessage());
-        try{
+        try {
             JSONObject json = new JSONObject(mapper.writeValueAsString(obj));
-            assertEquals(2,JSONObject.getNames(json).length);
+            assertEquals(2, JSONObject.getNames(json).length);
             assertTrue(json.has("status"));
-            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code,json.getInt("status"));
+            assertEquals(WebStatusCode.UNPROCESSABLE_DATA.code, json.getInt("status"));
             assertTrue(json.has("message"));
-            assertEquals(message,json.getString("message"));
+            assertEquals(message, json.getString("message"));
         } catch (JSONException e) {
             fail("Unable to parse incoming json.");
         } catch (JsonProcessingException e) {

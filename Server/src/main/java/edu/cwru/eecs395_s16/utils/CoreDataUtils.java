@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 public class CoreDataUtils {
 
     private static final String DEFAULT_CORE_DATA_FILE = "new_base_data.data";
-    private static final String TABLE_EXISTS_QUERY = "select exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = ?);";
-    private static final Pattern startCreateSchemaPattern = Pattern.compile("create\\s+table\\s+(?:if not exists)?\\s+(.*?)\\s+\\(", Pattern.CASE_INSENSITIVE);
-    private static final Pattern startDataSetPattern = Pattern.compile("start\\s+(.*)?\\r?\\n?", Pattern.CASE_INSENSITIVE);
+    private static final String TABLE_EXISTS_QUERY = "select exists (select 1 from information_schema.tables where " +
+            "table_schema = 'public' and table_name = ?);";
+    private static final Pattern startCreateSchemaPattern = Pattern.compile("create\\s+table\\s+(?:if not exists)" +
+            "?\\s+(.*?)\\s+\\(", Pattern.CASE_INSENSITIVE);
+    private static final Pattern startDataSetPattern = Pattern.compile("start\\s+(.*)?\\r?\\n?", Pattern
+            .CASE_INSENSITIVE);
     private static final Pattern endDataSetPattern = Pattern.compile("end\\s+(.*)\\r?\\n?", Pattern.CASE_INSENSITIVE);
     private static Map<String, CoreDataEntry> coreData;
     private static Map<String, String> createSchemaMap;
@@ -58,7 +61,8 @@ public class CoreDataUtils {
                         }
                     }
                     if (!seenEndOfDataset) {
-                        throw new IllegalArgumentException("Data set " + dataSetName + " does not have a matching end.");
+                        throw new IllegalArgumentException("Data set " + dataSetName + " does not have a matching end" +
+                                ".");
                     }
                 }
             }

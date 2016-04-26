@@ -18,8 +18,10 @@ public class DeathmatchGameObjective extends GameObjective {
 
     @Override
     public GAME_WINNER checkForGameEnd(Match match) {
-        numAliveHeroesObjects = match.getBoardObjects().getForPlayerOwner(match.getHeroPlayer()).stream().filter(obj -> (obj instanceof Creature) && ((Creature) obj).getHealth() > 0).count();
-        numAliveArchitectObjects = match.getBoardObjects().getForPlayerOwner(match.getArchitectPlayer()).stream().filter(obj -> (obj instanceof Creature) && ((Creature) obj).getHealth() > 0).count();
+        numAliveHeroesObjects = match.getBoardObjects().getForPlayerOwner(match.getHeroPlayer()).stream().filter(obj
+                -> (obj instanceof Creature) && ((Creature) obj).getHealth() > 0).count();
+        numAliveArchitectObjects = match.getBoardObjects().getForPlayerOwner(match.getArchitectPlayer()).stream()
+                .filter(obj -> (obj instanceof Creature) && ((Creature) obj).getHealth() > 0).count();
         if (numAliveArchitectObjects == 0 && numAliveHeroesObjects == 0) {
             return GAME_WINNER.TIE;
         } else if (numAliveArchitectObjects > 0 && numAliveHeroesObjects > 0) {

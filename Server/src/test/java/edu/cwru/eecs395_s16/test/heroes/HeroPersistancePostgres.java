@@ -18,15 +18,11 @@ public class HeroPersistancePostgres extends HeroPersistanceTestsBase {
 
     private static Connection conn;
     private static JedisPool jedisPool;
+
     @BeforeClass
     public static void setupPersistenceConnections() throws SQLException {
         conn = DriverManager.getConnection("jdbc:postgresql:vagrant", "vagrant", "vagrant");
         jedisPool = new JedisPool("localhost");
-    }
-
-    @Override
-    public ServiceContainer buildContainer() {
-        return ServiceContainer.buildPersistantContainer(CoreDataUtils.defaultCoreData(),conn,jedisPool,new BasicMatchmakingService());
     }
 
     @AfterClass
@@ -35,5 +31,11 @@ public class HeroPersistancePostgres extends HeroPersistanceTestsBase {
             conn.close();
         }
         jedisPool.destroy();
+    }
+
+    @Override
+    public ServiceContainer buildContainer() {
+        return ServiceContainer.buildPersistantContainer(CoreDataUtils.defaultCoreData(), conn, jedisPool, new
+                BasicMatchmakingService());
     }
 }

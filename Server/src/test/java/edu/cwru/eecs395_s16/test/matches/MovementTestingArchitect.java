@@ -15,13 +15,11 @@ import edu.cwru.eecs395_s16.core.objects.maps.MapTile;
 import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
 import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
 import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
-import edu.cwru.eecs395_s16.services.monsters.MonsterRepository;
 import edu.cwru.eecs395_s16.test.AutoStartInMatchTest;
 import org.json.JSONException;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -32,32 +30,6 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
     public MonsterDefinition goblinDef;
 
-    @Override
-    protected GameBot getHero() {
-        return new PassBot();
-    }
-
-    @Override
-    protected void changeArchitectList(Player architect, List<GameObject> architectObjects) {
-        goblinDef = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
-        architectObjects.add(new MonsterBuilder(UUID.randomUUID(), goblinDef,architect.getUsername(), Optional.of(architect.getUsername())).createMonster());
-    }
-
-    @Override
-    protected Map<Location, Integer> placeArchitectMonsters() {
-        Map<Location,Integer> ret = new HashMap<>();
-        List<Location> archSpawnTiles = initialGameMap.getArchitectCreatureSpawnLocations();
-        Collections.shuffle(archSpawnTiles);
-        int placedMonsters = 0;
-        for(GameObject obj :architectBot.getArchitectObjects()){
-            if(obj instanceof Monster){
-                ret.put(archSpawnTiles.get(placedMonsters),((Monster)obj).getDatabaseID());
-                placedMonsters++;
-            }
-        }
-        return ret;
-    }
-
     @Test
     public void testMoveOneTile() throws JSONException {
         //Get a character for the hero
@@ -67,10 +39,13 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         UUID monsterID = m.getGameObjectID();
 
         //Figure out where the hero is and try and move it one tile away.
-        Location l  = m.getLocation();
-        Optional<MapTile> t = currentMatchState.getGameMap().getTileNeighbours(l).stream().map(v->currentMatchState.getGameMap().getTile(v).get()).filter(tile->!tile.getTileType().isObstruction && tile.isNeighbourOf(l,false) && currentMatchState.getBoardObjects().getForLocation(tile).size() == 0).findFirst();
+        Location l = m.getLocation();
+        Optional<MapTile> t = currentMatchState.getGameMap().getTileNeighbours(l).stream().map(v -> currentMatchState
+                .getGameMap().getTile(v).get()).filter(tile -> !tile.getTileType().isObstruction && tile
+                .isNeighbourOf(l, false) && currentMatchState.getBoardObjects().getForLocation(tile).size() == 0)
+                .findFirst();
         Location moveLoc;
-        if(t.isPresent()){
+        if (t.isPresent()) {
             moveLoc = t.get();
         } else {
             fail("Unable to get a valid tile to move to. Check board config.");
@@ -80,7 +55,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         List<Location> pathToMove = new ArrayList<>();
         pathToMove.add(moveLoc);
         waitForMyTurn();
-        moveCharacter(architectBot,monsterID,pathToMove,true);
+        moveCharacter(architectBot, monsterID, pathToMove, true);
     }
 
     @Test
@@ -91,7 +66,7 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         Monster m = (Monster) architectChars.get(0);
         UUID monsterID = m.getGameObjectID();
         waitForMyTurn();
-        forceSetCharacterLocation(monsterID,new Location(0,1), architectBot);
+        forceSetCharacterLocation(monsterID, new Location(0, 1), architectBot);
     }
 
     @Test
@@ -103,13 +78,13 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         UUID monsterID = m.getGameObjectID();
 
         waitForMyTurn();
-        forceSetCharacterLocation(monsterID,new Location(0,1), architectBot);
+        forceSetCharacterLocation(monsterID, new Location(0, 1), architectBot);
 
         //Get hero location and try and move them their max distance (default units can move 3 units).
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(0,2));
-        pathToMove.add(new Location(0,3));
-        moveCharacter(architectBot,monsterID,pathToMove,true);
+        pathToMove.add(new Location(0, 2));
+        pathToMove.add(new Location(0, 3));
+        moveCharacter(architectBot, monsterID, pathToMove, true);
     }
 
     @Test
@@ -121,15 +96,15 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
         UUID monsterID = m.getGameObjectID();
 
         waitForMyTurn();
-        forceSetCharacterLocation(monsterID,new Location(3,3), architectBot);
+        forceSetCharacterLocation(monsterID, new Location(3, 3), architectBot);
 
         //Get hero location and try and move them really far away
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(4,3));
-        pathToMove.add(new Location(5,3));
+        pathToMove.add(new Location(4, 3));
+        pathToMove.add(new Location(5, 3));
         InternalResponseObject<Boolean> response = moveCharacter(architectBot, monsterID, pathToMove, false);
         assertFalse(response.isNormal());
-        assertEquals(WebStatusCode.UNPROCESSABLE_DATA,response.getStatus());
+        assertEquals(WebStatusCode.UNPROCESSABLE_DATA, response.getStatus());
         assertEquals(InternalErrorCode.PATH_OBSTRUCTED, response.getInternalErrorCode());
     }
 
@@ -143,17 +118,17 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         waitForMyTurn();
 
-        forceSetCharacterLocation(monsterID,new Location(2,3), architectBot);
+        forceSetCharacterLocation(monsterID, new Location(2, 3), architectBot);
 
         //Get hero location and try and move them really far away
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(3,3));
-        pathToMove.add(new Location(3,4));
-        pathToMove.add(new Location(3,5));
-        pathToMove.add(new Location(3,6));
+        pathToMove.add(new Location(3, 3));
+        pathToMove.add(new Location(3, 4));
+        pathToMove.add(new Location(3, 5));
+        pathToMove.add(new Location(3, 6));
         InternalResponseObject<Boolean> response = moveCharacter(architectBot, monsterID, pathToMove, false);
         assertFalse(response.isNormal());
-        assertEquals(WebStatusCode.UNPROCESSABLE_DATA,response.getStatus());
+        assertEquals(WebStatusCode.UNPROCESSABLE_DATA, response.getStatus());
         assertEquals(InternalErrorCode.PATH_TOO_LONG, response.getInternalErrorCode());
     }
 
@@ -167,24 +142,24 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         waitForMyTurn();
 
-        forceSetCharacterLocation(monsterID,new Location(2,3), architectBot);
+        forceSetCharacterLocation(monsterID, new Location(2, 3), architectBot);
 
         //Move the hero 3 times and make sure the last one fails
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(3,3));
+        pathToMove.add(new Location(3, 3));
         moveCharacter(architectBot, monsterID, pathToMove, true);
 
         //Move the hero 3 times and make sure the last one fails
         pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(3,4));
+        pathToMove.add(new Location(3, 4));
         moveCharacter(architectBot, monsterID, pathToMove, true);
 
         //Move the hero 3 times and make sure the last one fails
         pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(3,5));
+        pathToMove.add(new Location(3, 5));
         InternalResponseObject<Boolean> resp = moveCharacter(architectBot, monsterID, pathToMove, false);
         assertFalse(resp.isNormal());
-        assertEquals(WebStatusCode.UNPROCESSABLE_DATA,resp.getStatus());
+        assertEquals(WebStatusCode.UNPROCESSABLE_DATA, resp.getStatus());
         assertEquals(InternalErrorCode.NO_ACTION_POINTS, resp.getInternalErrorCode());
     }
 
@@ -198,11 +173,11 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         //Try and move to the location of an existing character.
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(0,0));
+        pathToMove.add(new Location(0, 0));
         waitForMyTurn();
         InternalResponseObject<Boolean> resp = moveCharacter(architectBot, monsterID, pathToMove, false);
         assertFalse(resp.isNormal());
-        assertEquals(InternalErrorCode.PATH_OBSTRUCTED,resp.getInternalErrorCode());
+        assertEquals(InternalErrorCode.PATH_OBSTRUCTED, resp.getInternalErrorCode());
     }
 
     @Test
@@ -215,17 +190,44 @@ public class MovementTestingArchitect extends AutoStartInMatchTest {
 
         //Try and move to the location of an existing character.
         List<Location> pathToMove = new ArrayList<>();
-        pathToMove.add(new Location(0,0));
+        pathToMove.add(new Location(0, 0));
         waitForMyTurn();
         InternalResponseObject<Boolean> resp = moveCharacter(architectBot, heroID, pathToMove, false);
         assertFalse(resp.isNormal());
-        assertEquals(InternalErrorCode.NOT_CONTROLLER,resp.getInternalErrorCode());
+        assertEquals(InternalErrorCode.NOT_CONTROLLER, resp.getInternalErrorCode());
+    }
+
+    @Override
+    protected GameBot getHero() {
+        return new PassBot();
+    }
+
+    @Override
+    protected Map<Location, Integer> placeArchitectMonsters() {
+        Map<Location, Integer> ret = new HashMap<>();
+        List<Location> archSpawnTiles = initialGameMap.getArchitectCreatureSpawnLocations();
+        Collections.shuffle(archSpawnTiles);
+        int placedMonsters = 0;
+        for (GameObject obj : architectBot.getArchitectObjects()) {
+            if (obj instanceof Monster) {
+                ret.put(archSpawnTiles.get(placedMonsters), ((Monster) obj).getDatabaseID());
+                placedMonsters++;
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    protected void changeArchitectList(Player architect, List<GameObject> architectObjects) {
+        goblinDef = GameEngine.instance().services.monsterRepository.getMonsterDefinitionForId(1).get();
+        architectObjects.add(new MonsterBuilder(UUID.randomUUID(), goblinDef, architect.getUsername(), Optional.of
+                (architect.getUsername())).createMonster());
     }
 
     //TODO write tests for triggering traps
     //Maybe those belong in a different test? (Probably)
 
-    private void waitForMyTurn(){
+    private void waitForMyTurn() {
         do {
             updateMatchState(heroBot);
             try {

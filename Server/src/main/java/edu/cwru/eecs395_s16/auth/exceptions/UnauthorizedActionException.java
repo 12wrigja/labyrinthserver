@@ -9,6 +9,7 @@ import edu.cwru.eecs395_s16.networking.responses.WebStatusCode;
  */
 public class UnauthorizedActionException extends JsonableException {
     public UnauthorizedActionException(Player player) {
-        super(WebStatusCode.UNAUTHORIZED, "The player " + player.getUsername() + " is not authorized to do this action.");
+        super(WebStatusCode.UNAUTHORIZED, "The player " + player.getUsername() + " is not authorized to do this " +
+                "action.");
     }
 }

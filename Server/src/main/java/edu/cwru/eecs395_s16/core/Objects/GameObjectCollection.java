@@ -59,7 +59,8 @@ public class GameObjectCollection implements Jsonable {
     }
 
     public List<GameObject> getForLocation(Location loc) {
-        return allObjects.values().stream().filter(gameObject -> gameObject.getLocation().equals(loc)).collect(Collectors.toList());
+        return allObjects.values().stream().filter(gameObject -> gameObject.getLocation().equals(loc)).collect
+                (Collectors.toList());
     }
 
     public void addAll(Collection<? extends GameObject> gameObjects) {

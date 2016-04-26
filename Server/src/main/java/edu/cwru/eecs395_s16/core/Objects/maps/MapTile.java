@@ -24,7 +24,8 @@ public class MapTile extends Location implements Jsonable {
     private final boolean isObjectiveSpawn;
     private MapRepository.TileType tileType;
 
-    public MapTile(int x, int y, MapRepository.TileType tileType, int rotation, boolean isHeroSpawn, boolean isArchitectSpawn, boolean isObjectiveSpawn) {
+    public MapTile(int x, int y, MapRepository.TileType tileType, int rotation, boolean isHeroSpawn, boolean
+            isArchitectSpawn, boolean isObjectiveSpawn) {
         super(x, y);
         this.tileType = tileType;
         this.rotation = rotation;

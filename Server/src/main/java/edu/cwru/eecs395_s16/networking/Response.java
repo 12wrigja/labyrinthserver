@@ -18,7 +18,6 @@ public class Response implements Jsonable {
         this.message = WebStatusCode.OK.message;
     }
 
-    //TODO deprecate / remove this.
     public Response(JsonableException e) {
         this(e.getErrorCode(), e.getMessage());
     }

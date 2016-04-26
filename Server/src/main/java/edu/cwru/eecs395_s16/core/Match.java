@@ -24,6 +24,47 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Right, here we are. Matches. This is where things get a bit complicated.
+ *
+ * Matches can be initialized either from within the matchmaking system (if you queue to find a real match using the
+ * queueUpHeroes or queueUpArchitect methods in NetworkingInterface) or directly from within the NetworkingInterface
+ * functions if your playing a practice match against PassBot. Matches are initialized with the following items: the
+ * Heroes player, the Architect player, the match Identifier, the map to play on, and the objective to play. As there
+ * are initial tasks that need to be done only once (such as storing the fact that the players are playing in match
+ * x) creating a match is done using a static method instead of having a public constructor. This method checks to
+ * make sure that both players are free before making the match, and then runs all the initialization tasks. These
+ * tasks include setting initial hero and monster locations (either randomly or in the specific positions you specify),
+ * setting up objectives, initial sequence and turn numbers, etc. Take a look at startInitialGameTasks for an idea of
+ * what that does.
+ *
+ * Once a match is created, it is converted to JSON and stored in the cache so that future requests can retrieve it.
+ * This should also allow for horizontal scalability, as persistent caching methods should be externally accesible by
+ * multiple processes and potentially multiple machines.
+ *
+ * Once a match is created, it an be retrieved from the cache using the static method fromCacheWithMatchIdentifier.
+ * This will attempt to retrieve the match data from the cache and rebuild the java objects that represent the match.
+ * These objects are recreated using Builder methods or static factory patterns depending on how complicated the
+ * objects are. Examples of these are CreatureBuilder, HeroBuilder, MonsterBuilder, GameObjective.objectiveFromJSON,
+ * etc.
+ *
+ * From there, requests can use the updateGameState method to apply a GameAction to the game state - this checks the
+ * validity of the action and if everything checks out the action is applied and the results sent to the clients.
+ * Results of actions are sent as JSON Diffs against the current state. Once these are sent, both the full snapshot
+ * and the diff are stored in the cache. The former is stored as it is what we will re-retrieve from the cache for the
+ * next request. The diffs are stored in case a client has fallen behind in state and wishes to catch up
+ * incrementally (they could also just jump straight to the current state, but would lose context on how they got
+ * there as the actions that occurred to get to a game state are NOT stored with the state). These diffs could also
+ * be stored in a database at the end of a match and used to replay matches or used to create a bot to play against.
+ * They were initially the only way to get the current match state (start with the base and replay all changed on
+ * top) but that turned out to be very memory and time intensive (and, honestly, stupid), so that was changed.
+ *
+ *  This ends the tour of the complex parts of the code - the rest of it is relatively straightforward. Try taking a
+ *  look at BasicAttackGameAction for a good idea of how a typical game action is structured. Complementing that
+ *  class is the GameActionBaseRequest class (the class where all game action json is partially validated on a
+ *  request) and BasicGameActionData, which further parses and validates that incoming data.
+ */
+
+/**
  * Created by james on 1/19/16.
  */
 public class Match implements Jsonable {
@@ -45,7 +86,6 @@ public class Match implements Jsonable {
     public static final String CURRENT_SNAPSHOT_CACHE_KEY = ":CURRENTSNAPSHOT";
     public static final String CURRENT_SEQUENCE_JSON_KEY = "current_sequence";
     public static final int INITIAL_SEQUENCE_NUMBER = 0;
-    //TODO Turn numbers
     //Turn numbers
     public static final String TURN_NUMBER_KEY = "turn_number";
     public static final String MATCH_OBJECTIVE_KEY = "objective";
@@ -67,7 +107,8 @@ public class Match implements Jsonable {
     private int gameSequenceID = INITIAL_SEQUENCE_NUMBER;
     private int turnNumber = 0;
 
-    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap, GameObjective objective) {
+    private Match(Player heroPlayer, Player architectPlayer, UUID matchIdentifier, GameMap gameMap, GameObjective
+            objective) {
         this.heroPlayer = heroPlayer;
         this.architectPlayer = architectPlayer;
         this.matchIdentifier = matchIdentifier;
@@ -79,7 +120,8 @@ public class Match implements Jsonable {
             @Override
             public void run() {
                 try {
-                    GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in room " + matchIdentifier.toString());
+                    GameEngine.instance().broadcastEventForRoom(matchIdentifier.toString(), "room_ping", "You are in " +
+                            "room " + matchIdentifier.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -89,7 +131,9 @@ public class Match implements Jsonable {
         spectators = new HashSet<>(5);
     }
 
-    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap, GameObjective objective, Set<UUID> useHeroes, Map<Location, Integer> initialArchitectLocations) {
+    public static InternalResponseObject<Match> InitNewMatch(Player heroPlayer, Player dmPlayer, GameMap gameMap,
+                                                             GameObjective objective, Set<UUID> useHeroes,
+                                                             Map<Location, Integer> initialArchitectLocations) {
         if (heroPlayer.getCurrentMatchID().isPresent() || dmPlayer.getCurrentMatchID().isPresent()) {
             return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY);
         } else {
@@ -131,7 +175,8 @@ public class Match implements Jsonable {
                             Optional<String> change = cache.getString(id.toString() + GAME_SEQUENCE_KEY + i);
                             JSONObject jSnapshot = new JSONObject(change.get());
                             JSONObject stateChanges = (JSONObject) jSnapshot.get("new_state");
-                            JSONDiff jDiff = new JSONDiff((JSONObject) stateChanges.get("removed"), (JSONObject) stateChanges.get("added"), (JSONObject) stateChanges.get("changed"));
+                            JSONDiff jDiff = new JSONDiff((JSONObject) stateChanges.get("removed"), (JSONObject)
+                                    stateChanges.get("added"), (JSONObject) stateChanges.get("changed"));
                             matchData = JSONUtils.patch(matchData, jDiff);
                         }
                     } catch (Exception e) {
@@ -148,13 +193,17 @@ public class Match implements Jsonable {
             try {
                 //Retrieve players
                 JSONObject players = (JSONObject) matchData.get(PLAYER_OBJ_KEY);
-                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services.playerRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
+                InternalResponseObject<Player> heroRetrievalResponse = GameEngine.instance().services
+                        .playerRepository.findPlayer(players.getString(HERO_PLAYER_KEY));
                 if (!heroRetrievalResponse.isNormal()) {
-                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, heroRetrievalResponse.getInternalErrorCode(), "Unable to find the hero player for the match.");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, heroRetrievalResponse
+                            .getInternalErrorCode(), "Unable to find the hero player for the match.");
                 }
-                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services.playerRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
+                InternalResponseObject<Player> architectRetrievalResponse = GameEngine.instance().services
+                        .playerRepository.findPlayer(players.getString(ARCHITECT_PLAYER_KEY));
                 if (!architectRetrievalResponse.isNormal()) {
-                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, architectRetrievalResponse.getInternalErrorCode(), "Unable to find the architect player for the match");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, architectRetrievalResponse
+                            .getInternalErrorCode(), "Unable to find the architect player for the match");
                 }
 
                 //Retrieve Map
@@ -168,7 +217,8 @@ public class Match implements Jsonable {
                 if (heroRetrievalResponse.isPresent() && architectRetrievalResponse.isPresent()) {
                     m = new Match(heroRetrievalResponse.get(), architectRetrievalResponse.get(), id, mp, objective);
                 } else {
-                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MISSING_PLAYER, "One of the two players in the match are missing.");
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.MISSING_PLAYER,
+                            "One of the two players in the match are missing.");
                 }
 
                 //Retrieve Game State
@@ -206,14 +256,15 @@ public class Match implements Jsonable {
             if (!resp.isNormal()) {
                 return resp;
             }
-            doAndSnapshot(action.getJSONRepresentation(), () ->
-                    action.doGameAction(this.gameMap, this.boardObjects), true);
+            doAndSnapshot(action.getJSONRepresentation(), () -> action.doGameAction(this.gameMap, this.boardObjects),
+                    true);
             GameObjective.GAME_WINNER winner = objective.checkForGameEnd(this);
             if (winner != GameObjective.GAME_WINNER.NO_WINNER) {
                 end("Objective Satisfied", winner);
             } else {
                 //Check the current player's creatures and see if they are all exhausted - if so the turn swaps
-                long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof Creature && ((Creature) obj).getActionPoints() > 0).count();
+                long numNotExhausted = boardObjects.getForPlayerOwner(p).stream().filter(obj -> obj instanceof
+                        Creature && ((Creature) obj).getActionPoints() > 0).count();
                 if (numNotExhausted == 0) {
                     JSONObject turnEndObj = new JSONObject();
                     try {
@@ -263,7 +314,7 @@ public class Match implements Jsonable {
                     JSONObject newRepresentation = JSONUtils.patch(objSnapshot, diff);
                     modifiedState.getJSONObject(BOARD_COLLECTION_KEY).put(key, newRepresentation);
                 } catch (JSONException e) {
-                    if(GameEngine.instance().IS_DEBUG_MODE){
+                    if (GameEngine.instance().IS_DEBUG_MODE) {
                         e.printStackTrace();
                     }
                 }
@@ -299,7 +350,8 @@ public class Match implements Jsonable {
      *
      * @param originalState The state to compare against. Typically this is the state before an action is done.
      * @param actionReason  The reason for the game update. Usually this describes the action that occurred.
-     * @return Returns a Game Update - a JSONObject that cotains an "action" (the reason for the update) and a "new_state"
+     * @return Returns a Game Update - a JSONObject that cotains an "action" (the reason for the update) and a
+     * "new_state"
      * which is the difference between the old and new states.
      */
     public JSONObject takeSnapshot(JSONObject originalState, Object actionReason) {
@@ -319,9 +371,8 @@ public class Match implements Jsonable {
     }
 
     public boolean isPlayerTurn(Player p) {
-        return ((p.equals(heroPlayer) && gameState == GameState.HERO_TURN)
-                ||
-                (p.equals(architectPlayer) && gameState == GameState.ARCHITECT_TURN));
+        return ((p.equals(heroPlayer) && gameState == GameState.HERO_TURN) || (p.equals(architectPlayer) && gameState
+                == GameState.ARCHITECT_TURN));
     }
 
     public void broadcastToAllParties(String event, JSONObject obj) {
@@ -444,8 +495,10 @@ public class Match implements Jsonable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Match match = (Match) o;
 
@@ -461,7 +514,8 @@ public class Match implements Jsonable {
         return objective;
     }
 
-    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<Location, Integer> initialArchitectLocations) {
+    private InternalResponseObject<Match> startInitialGameTasks(Set<UUID> pickedHeroes, Map<Location, Integer>
+            initialArchitectLocations) {
 
         //Set initial turn data
         this.gameState = GameState.HERO_TURN;
@@ -471,21 +525,25 @@ public class Match implements Jsonable {
         //Retrieve heroes for the hero player and place them randomly in the spawn positions
         int numHeroSpaces = this.gameMap.getHeroCapacity();
         if (pickedHeroes != null && pickedHeroes.size() > numHeroSpaces) {
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "Too many heroes were selected to create a match on this map.");
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "Too many heroes were" +
+                    " selected to create a match on this map.");
         }
         if (pickedHeroes != null && pickedHeroes.size() == 0) {
             return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "No Heroes specified.");
         }
 
-        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository.getPlayerHeroes(this.heroPlayer);
+        InternalResponseObject<List<Hero>> heroHeroResponse = GameEngine.instance().services.heroRepository
+                .getPlayerHeroes(this.heroPlayer);
         if (!heroHeroResponse.isNormal()) {
             return InternalResponseObject.cloneError(heroHeroResponse);
         }
         List<Hero> heroHeroes;
         if (pickedHeroes != null) {
-            heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID())).collect(Collectors.toList());
+            heroHeroes = heroHeroResponse.get().stream().filter(h -> pickedHeroes.contains(h.getGameObjectID()))
+                    .collect(Collectors.toList());
             if (heroHeroes.size() != pickedHeroes.size()) {
-                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero identifier was invalid.");
+                return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_HERO_SETUP, "A hero " +
+                        "identifier was invalid.");
             }
         } else {
             heroHeroes = heroHeroResponse.get();
@@ -503,29 +561,35 @@ public class Match implements Jsonable {
         }
 
         //Add all the architect's monsters and traps to the board
-        //TODO update to add all the architect's monsters and traps to the board instead of their heroes
-        InternalResponseObject<List<MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services.monsterRepository.getPlayerMonsterTypes(architectPlayer);
+        InternalResponseObject<List<MonsterDefinition>> architectMonsterResponse = GameEngine.instance().services
+                .monsterRepository.getPlayerMonsterTypes(architectPlayer);
         if (!architectMonsterResponse.isNormal()) {
             return InternalResponseObject.cloneError(architectMonsterResponse);
         }
         List<Location> architectSpawnLocations = gameMap.getArchitectCreatureSpawnLocations();
         int numArchitectObjectLocations = architectSpawnLocations.size();
         if (initialArchitectLocations != null && initialArchitectLocations.size() > numArchitectObjectLocations) {
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "There are not enough spawn locations for that configuration.");
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "There are not " +
+                    "enough spawn locations for that configuration.");
         }
         if (initialArchitectLocations != null && initialArchitectLocations.size() == 0) {
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "There are no monsters specified.");
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "There are no " +
+                    "monsters specified.");
         }
-        Map<Integer, MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get().stream().collect(Collectors.toMap(def -> def.id, def -> def));
-        int totalCollectedMonsters = architectMonsterDefns.values().stream().collect(Collectors.summingInt(d -> d.count));
+        Map<Integer, MonsterDefinition> architectMonsterDefns = architectMonsterResponse.get().stream().collect
+                (Collectors.toMap(def -> def.id, def -> def));
+        int totalCollectedMonsters = architectMonsterDefns.values().stream().collect(Collectors.summingInt(d -> d
+                .count));
         if (totalCollectedMonsters <= 0) {
-            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't have any monsters.");
+            return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't have " +
+                    "any monsters.");
         }
         if (initialArchitectLocations == null) {
             int numTotalArchitectCreatures = (int) Math.max(1.0f, totalCollectedMonsters * 0.25f);
             numIterations = Math.min(numTotalArchitectCreatures, numArchitectObjectLocations);
             if (numIterations == 0) {
-                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "The architect doesn't have any monsters.");
+                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "The architect doesn't have " +
+                        "any monsters.");
             }
             int monstersPlaced = 0;
             int defIndex = 0;
@@ -546,9 +610,11 @@ public class Match implements Jsonable {
                 }
                 for (int i = 0; i < numOfTypeToPlace; i++) {
                     Location spawnLoc = architectSpawnLocations.get(monstersPlaced);
-                    InternalResponseObject<Monster> monster = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(), def.id, architectPlayer);
+                    InternalResponseObject<Monster> monster = GameEngine.instance().services.monsterRepository
+                            .buildMonsterForPlayer(UUID.randomUUID(), def.id, architectPlayer);
                     if (!monster.isNormal()) {
-                        return InternalResponseObject.cloneError(monster, "Unable to build monster for given definition.");
+                        return InternalResponseObject.cloneError(monster, "Unable to build monster for given " +
+                                "definition.");
                     }
                     Creature obj = monster.get();
                     obj.setLocation(spawnLoc);
@@ -560,21 +626,25 @@ public class Match implements Jsonable {
             Map<Integer, Integer> placedMap = new HashMap<>();
             for (Map.Entry<Location, Integer> creaturePlaceMap : initialArchitectLocations.entrySet()) {
                 if (!gameMap.getArchitectCreatureSpawnLocations().contains(creaturePlaceMap.getKey())) {
-                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "A location specified is not a valid architect spawn point.");
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "A " +
+                            "location specified is not a valid architect spawn point.");
                 }
 
                 int monsterID = creaturePlaceMap.getValue();
                 MonsterDefinition def = architectMonsterDefns.get(monsterID);
                 if (def == null) {
-                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't own any monsters with id " + monsterID);
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You " +
+                            "don't own any monsters with id " + monsterID);
                 }
 
                 int placeLimit = def.count;
                 int placed = placedMap.containsKey(monsterID) ? placedMap.get(monsterID) : 0;
                 if (placed == placeLimit) {
-                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You don't own that many of monster with id " + monsterID);
+                    return new InternalResponseObject<>(InternalErrorCode.INCORRECT_INITIAL_ARCHITECT_SETUP, "You " +
+                            "don't own that many of monster with id " + monsterID);
                 }
-                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository.buildMonsterForPlayer(UUID.randomUUID(), monsterID, architectPlayer);
+                InternalResponseObject<Monster> m = GameEngine.instance().services.monsterRepository
+                        .buildMonsterForPlayer(UUID.randomUUID(), monsterID, architectPlayer);
                 if (!m.isNormal()) {
                     return InternalResponseObject.cloneError(m, "You don't own any monsters with id " + monsterID);
                 }
@@ -622,11 +692,14 @@ public class Match implements Jsonable {
     }
 
     private void setCurrentSequence(int sequence) {
-        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
-        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() + CURRENT_SNAPSHOT_CACHE_KEY, this.getJSONRepresentation().toString());
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() +
+                CURRENT_SEQUENCE_CACHE_KEY, "" + sequence);
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier.toString() +
+                CURRENT_SNAPSHOT_CACHE_KEY, this.getJSONRepresentation().toString());
     }
 
     private void storeSnapshotForSequence(int sequenceNumber, JSONObject snapshot) {
-        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier + GAME_SEQUENCE_KEY + sequenceNumber, snapshot.toString());
+        GameEngine.instance().services.cacheService.storeString(this.matchIdentifier + GAME_SEQUENCE_KEY +
+                sequenceNumber, snapshot.toString());
     }
 }

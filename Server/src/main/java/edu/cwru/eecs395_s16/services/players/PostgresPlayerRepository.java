@@ -18,9 +18,12 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
 
     public static final String PLAYERS_TABLE = "players";
     private static final String GET_PLAYER_QUERY = "select * from " + PLAYERS_TABLE + " where username = ?";
-    private static final String INSERT_PLAYER_QUERY = "insert into " + PLAYERS_TABLE + " (username, password, currency, is_dev) VALUES (?,?,?,false)";
-    private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from " + PLAYERS_TABLE + " where username = ?";
-    private static final String VALID_LOGIN_QUERY = "select * from " + PLAYERS_TABLE + " where username = ? AND password = ?";
+    private static final String INSERT_PLAYER_QUERY = "insert into " + PLAYERS_TABLE + " (username, password, " +
+            "currency, is_dev) VALUES (?,?,?,false)";
+    private static final String PLAYER_EXISTS_QUERY = "select count(*) as total from " + PLAYERS_TABLE + " where " +
+            "username = ?";
+    private static final String VALID_LOGIN_QUERY = "select * from " + PLAYERS_TABLE + " where username = ? AND " +
+            "password = ?";
     private static final String DELETE_PLAYER_QUERY = "delete from " + PLAYERS_TABLE + " where id = ?";
 
     public PostgresPlayerRepository(Connection dbConnection) {
@@ -117,7 +120,6 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
                 stmt = conn.prepareStatement(GET_PLAYER_QUERY);
                 stmt.setString(1, username);
                 ResultSet rst2 = stmt.executeQuery();
-                //TODO convert player row to player object
                 rst2.next();
                 int id = rst2.getInt("id");
                 String password = rst2.getString("password");
@@ -137,7 +139,8 @@ public class PostgresPlayerRepository extends DBRepository implements PlayerRepo
     @Override
     public boolean savePlayer(Player p) {
         //This updates the player info that might have changed over time in the app.
-        //This is probably going to be limited to currency for this application, although it might use other repositories to save off store info, etc.
+        //This is probably going to be limited to currency for this application, although it might use other
+        // repositories to save off store info, etc.
         return false;
     }
 

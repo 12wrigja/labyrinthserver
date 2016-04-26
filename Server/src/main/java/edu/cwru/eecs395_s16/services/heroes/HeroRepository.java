@@ -47,7 +47,8 @@ public interface HeroRepository extends Repository {
         public final int defaultWeaponId;
         protected final int id;
 
-        protected HeroDefinition(int id, HeroType type, int startAttack, int startDefense, int startHealth, int startMovement, int startVision, int defaultWeaponId) {
+        protected HeroDefinition(int id, HeroType type, int startAttack, int startDefense, int startHealth, int
+                startMovement, int startVision, int defaultWeaponId) {
             this.id = id;
             this.type = type;
             this.startAttack = startAttack;

@@ -31,9 +31,11 @@ public abstract class HeroPersistanceTestsBase extends EngineOnlyTest {
             Hero randomHero = heroes.get().get(0);
             HeroType heroType = randomHero.getHeroType();
             randomHero.grantXP(20000);
-            InternalResponseObject<List<Hero>> heroesReretrieved = GameEngine.instance().services.heroRepository.getPlayerHeroes(b);
+            InternalResponseObject<List<Hero>> heroesReretrieved = GameEngine.instance().services.heroRepository
+                    .getPlayerHeroes(b);
             if (heroesReretrieved.isNormal()) {
-                Optional<Hero> sameHeroResp = heroesReretrieved.get().stream().filter(hero -> hero.getHeroType() == heroType).findFirst();
+                Optional<Hero> sameHeroResp = heroesReretrieved.get().stream().filter(hero -> hero.getHeroType() ==
+                        heroType).findFirst();
                 if (!sameHeroResp.isPresent()) {
                     fail("Unable to retrieve hero with the same hero type.");
                 } else {
@@ -59,7 +61,7 @@ public abstract class HeroPersistanceTestsBase extends EngineOnlyTest {
         String testusername = "testusername";
         String testpassword = "testpassword";
         RegisterUserRequest req = new RegisterUserRequest(testusername, testpassword, testpassword);
-        engine.services.playerRepository.deletePlayer(new Player(-1,testusername,testpassword,false));
+        engine.services.playerRepository.deletePlayer(new Player(-1, testusername, testpassword, false));
         InternalResponseObject<Player> playerRegisterResp = engine.networkingInterface.register(req);
         if (!playerRegisterResp.isNormal()) {
             fail("Unable to register a real player. ERROR:" + playerRegisterResp.getMessage());
@@ -75,9 +77,11 @@ public abstract class HeroPersistanceTestsBase extends EngineOnlyTest {
                 GameEngine.instance().services.playerRepository.deletePlayer(b);
                 fail("Unable to update hero. ERROR:" + grantXPResp.getMessage());
             }
-            InternalResponseObject<List<Hero>> heroesReretrieved = GameEngine.instance().services.heroRepository.getPlayerHeroes(b);
+            InternalResponseObject<List<Hero>> heroesReretrieved = GameEngine.instance().services.heroRepository
+                    .getPlayerHeroes(b);
             if (heroesReretrieved.isNormal()) {
-                Optional<Hero> sameHeroResp = heroesReretrieved.get().stream().filter(hero -> hero.getHeroType() == heroType).findFirst();
+                Optional<Hero> sameHeroResp = heroesReretrieved.get().stream().filter(hero -> hero.getHeroType() ==
+                        heroType).findFirst();
                 if (!sameHeroResp.isPresent()) {
                     GameEngine.instance().services.playerRepository.deletePlayer(b);
                     fail("Unable to retrieve hero with the same hero type.");

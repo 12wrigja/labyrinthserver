@@ -1,11 +1,11 @@
 package edu.cwru.eecs395_s16.test.persistance;
 
 import edu.cwru.eecs395_s16.GameEngine;
-import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
-import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.core.InternalErrorCode;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
+import edu.cwru.eecs395_s16.services.bots.botimpls.GameBot;
+import edu.cwru.eecs395_s16.services.bots.botimpls.PassBot;
 import edu.cwru.eecs395_s16.test.EngineOnlyTest;
 import org.junit.Test;
 
@@ -23,7 +23,8 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     public void testRegisterAsBot() {
         GameBot b = new PassBot();
         String botUsername = b.getUsername();
-        InternalResponseObject<Player> duplicatePlayerResponse = GameEngine.instance().services.playerRepository.registerPlayer(botUsername, TEST_PASSWORD, TEST_PASSWORD);
+        InternalResponseObject<Player> duplicatePlayerResponse = GameEngine.instance().services.playerRepository
+                .registerPlayer(botUsername, TEST_PASSWORD, TEST_PASSWORD);
         if (duplicatePlayerResponse.isNormal()) {
             fail("Should have caught that we were trying to register a player using a bot username!");
         } else if (duplicatePlayerResponse.getInternalErrorCode() != InternalErrorCode.RESTRICTED_USERNAME) {
@@ -34,7 +35,8 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     @Test
     public void testRetrieveBotFromPersistance() {
         GameBot b = new PassBot();
-        InternalResponseObject<Player> retr = GameEngine.instance().services.playerRepository.findPlayer(b.getUsername());
+        InternalResponseObject<Player> retr = GameEngine.instance().services.playerRepository.findPlayer(b
+                .getUsername());
         if (retr.isNormal() && retr.isPresent()) {
             Player retrieved = retr.get();
             if (retrieved instanceof GameBot) {
@@ -52,7 +54,8 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     @Test
     public void testRetrieveBotFromSessionUsername() {
         GameBot b = new PassBot();
-        InternalResponseObject<Player> retr = GameEngine.instance().services.playerRepository.findPlayer(b.getUsername());
+        InternalResponseObject<Player> retr = GameEngine.instance().services.playerRepository.findPlayer(b
+                .getUsername());
         if (retr.isNormal() && retr.isPresent()) {
             Player retrieved = retr.get();
             if (retrieved instanceof GameBot) {
@@ -70,7 +73,8 @@ public class BotSessionAndPersistanceTesting extends EngineOnlyTest {
     @Test
     public void testRetrieveBotFromSessionClientID() {
         GameBot b = new PassBot();
-        InternalResponseObject<Player> retr = GameEngine.instance().services.sessionRepository.findPlayer(b.getSessionId());
+        InternalResponseObject<Player> retr = GameEngine.instance().services.sessionRepository.findPlayer(b
+                .getSessionId());
         if (retr.isPresent()) {
             Player retrieved = retr.get();
             if (retrieved instanceof GameBot) {

@@ -24,7 +24,8 @@ public abstract class GameObject implements Jsonable {
     private Optional<String> controllerID;
     private Location location = new Location(0, 0);
 
-    protected GameObject(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType, Location location) {
+    protected GameObject(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, TYPE objectType,
+                         Location location) {
         this.ownerID = ownerID;
         this.objectID = objectID;
         this.controllerID = controllerID;
@@ -89,8 +90,10 @@ public abstract class GameObject implements Jsonable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GameObject)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof GameObject))
+            return false;
 
         GameObject object = (GameObject) o;
 

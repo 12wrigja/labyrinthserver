@@ -46,7 +46,8 @@ public class MapStoreRequest implements RequestData {
         List<MapTile> actTileList = new ArrayList<>();
         int[][] posMap = new int[sizeX][sizeY];
         try {
-            Map<String, MapRepository.TileType> tileTypeMap = GameEngine.instance().services.mapRepository.getTileTypeMap();
+            Map<String, MapRepository.TileType> tileTypeMap = GameEngine.instance().services.mapRepository
+                    .getTileTypeMap();
             JSONArray tileArr = obj.getJSONArray(GameMap.MAP_TILES_KEY);
 
             for (int i = 0; i < tileArr.length(); i++) {
@@ -54,7 +55,8 @@ public class MapStoreRequest implements RequestData {
                 int tileX = RequestData.getInt(tile, MapTile.X_KEY);
                 int tileY = RequestData.getInt(tile, MapTile.Y_KEY);
                 if (posMap[tileX][tileY] != 0) {
-                    throw new InvalidDataException(GameMap.MAP_TILES_KEY, "Tile at position " + tileX + "," + tileY + "is already specified");
+                    throw new InvalidDataException(GameMap.MAP_TILES_KEY, "Tile at position " + tileX + "," + tileY +
+                            "is already specified");
                 } else {
                     posMap[tileX][tileY] = 1;
                 }
@@ -67,13 +69,16 @@ public class MapStoreRequest implements RequestData {
                 boolean heroSpawn = tile.optBoolean(MapTile.HERO_SPAWN_KEY, false);
                 boolean architectSpawn = tile.optBoolean(MapTile.ARCHITECT_SPAWN_KEY, false);
                 boolean objectiveSpawn = tile.optBoolean(MapTile.OBJECTIVE_SPAWN_KEY, false);
-                actTileList.add(new MapTile(tileX, tileY, actTerrainType, rotation, heroSpawn, architectSpawn, objectiveSpawn));
+                actTileList.add(new MapTile(tileX, tileY, actTerrainType, rotation, heroSpawn, architectSpawn,
+                        objectiveSpawn));
             }
         } catch (JSONException e) {
-            throw new InvalidDataException(GameMap.MAP_TILES_KEY, "Invalid JSON: " + GameMap.MAP_TILES_KEY + " needs to be an array");
+            throw new InvalidDataException(GameMap.MAP_TILES_KEY, "Invalid JSON: " + GameMap.MAP_TILES_KEY + " needs " +
+                    "to be an array");
         }
         if (sizeX * sizeY != actTileList.size()) {
-            throw new InvalidDataException(GameMap.MAP_TILES_KEY, "Incorrect number of tiles specified. Expected: " + sizeX * sizeY + ", Actual:" + actTileList.size());
+            throw new InvalidDataException(GameMap.MAP_TILES_KEY, "Incorrect number of tiles specified. Expected: " +
+                    sizeX * sizeY + ", Actual:" + actTileList.size());
         }
         int heroCapacity = (int) actTileList.stream().filter(MapTile::isHeroSpawn).count();
         FromDatabaseMap map = new FromDatabaseMap(-1, mapName, "", sizeX, sizeY, heroCapacity);

@@ -22,11 +22,11 @@ public abstract class AutoStartInMatchTest extends InMatchTest {
         super.setupMatch(true);
     }
 
-    protected void changeHeroesList(Player hero, List<Hero> heroes){
+    protected void changeHeroesList(Player hero, List<Hero> heroes) {
 
     }
 
-    protected void changeArchitectList(Player architect, List<GameObject> architectObjects){
+    protected void changeArchitectList(Player architect, List<GameObject> architectObjects) {
 
     }
 

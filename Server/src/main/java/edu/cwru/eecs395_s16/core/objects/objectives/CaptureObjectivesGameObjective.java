@@ -18,7 +18,7 @@ public class CaptureObjectivesGameObjective extends DeathmatchGameObjective {
     public static final String NUMBER_TOTAL_OBJECTIVES_KEY = "total_objectives";
     public static final String NUMBER_CAPTURED_OBJECTIVES_KEY = "captured_objectives";
 
-//    final List<UUID> objectiveGameObjectIDs = new ArrayList<>();
+    //    final List<UUID> objectiveGameObjectIDs = new ArrayList<>();
 
     private int numObjectivesCaptured = 0;
     private int numberOfObjectives;
@@ -29,7 +29,10 @@ public class CaptureObjectivesGameObjective extends DeathmatchGameObjective {
 
     @Override
     public GAME_WINNER checkForGameEnd(Match match) {
-        numObjectivesCaptured = (int) match.getBoardObjects().stream().filter(obj -> obj instanceof ObjectiveGameObject).map(obj -> (ObjectiveGameObject) obj).filter(objective -> objective.getControllerID().isPresent() && objective.getControllerID().get().equals(match.getHeroPlayer().getUsername())).count();
+        numObjectivesCaptured = (int) match.getBoardObjects().stream().filter(obj -> obj instanceof
+                ObjectiveGameObject).map(obj -> (ObjectiveGameObject) obj).filter(objective -> objective
+                .getControllerID().isPresent() && objective.getControllerID().get().equals(match.getHeroPlayer()
+                .getUsername())).count();
         if (numberOfObjectives == numObjectivesCaptured) {
             return GAME_WINNER.HERO_WINNER;
         } else {

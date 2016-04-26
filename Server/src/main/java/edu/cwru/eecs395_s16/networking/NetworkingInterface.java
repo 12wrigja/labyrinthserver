@@ -32,18 +32,44 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
+ * This is where we define the public API for the server - these methods are invokable by any connected client (so
+ * long as they meet the authorization requirement if that is required.
+ * <p>
+ * At the time of writing (04/25/2016), these methods are invoked one of 3 ways by clients.
+ * <p>
+ * Socket.IO uses the Jackson object mapper library to convert the incoming JSON strings from Socket.IO clients into
+ * JSONObjects, which are then converted into the objects in the method signatures. These objects are guaranteed by
+ * the Annotation Processfor for the NetworkEvent annotation to have their first parameter either implement the
+ * RequestData interface (which specifies a method for filling the object from a JSONObject), or a straight
+ * JSONObject. The method is then invoked with that object (and the other parameters, determined from the
+ * annotation's properties) via reflection (see SocketIOClientConnectionService, specifically the
+ * linkAllFunctionsToNetwork function for more info).
+ *
+ * Bots can invoke these methods directly via sendEvent method in GameBot - this takes the string representing the
+ * event name and the JSON for the event and passes it through the same auth layer as Socket.IO clients. They can
+ * also invoke these methods directly as the NetworkingInterface is a public final variable on the GameEngine. The
+ * latter is the recommended way of doing this if writing a GameBot.
+ *
+ * All methods are guaranteed (again, by the annotation processor) to return something that is or inherits from
+ * Response.java. All of these methods return InternalResponseObjects. On that note - that's the next place to jump to.
+ */
+
+/**
  * Created by james on 1/20/16.
  */
 public class NetworkingInterface {
 
-    @NetworkEvent(mustAuthenticate = false, description = "Used to log a player in. This must be called once to allow the user to the call all methods that are marked as needing authentication.")
+    @NetworkEvent(mustAuthenticate = false, description = "Used to log a player in. This must be called once to " +
+            "allow the user to the call all methods that are marked as needing authentication.")
     public InternalResponseObject<Player> login(LoginUserRequest data, GameClient client) {
-        InternalResponseObject<Player> p = GameEngine.instance().services.playerRepository.loginPlayer(data.getUsername(), data.getPassword());
+        InternalResponseObject<Player> p = GameEngine.instance().services.playerRepository.loginPlayer(data
+                .getUsername(), data.getPassword());
         if (p.isPresent()) {
             Optional<GameClient> playerClient = p.get().getClient();
             if (playerClient.isPresent()) {
                 if (!playerClient.get().getSessionId().equals(client.getSessionId())) {
-                    return new InternalResponseObject<>(WebStatusCode.UNAUTHORIZED, InternalErrorCode.ALREADY_SIGNED_IN);
+                    return new InternalResponseObject<>(WebStatusCode.UNAUTHORIZED, InternalErrorCode
+                            .ALREADY_SIGNED_IN);
                 }
             }
             GameEngine.instance().services.sessionRepository.storePlayer(client.getSessionId(), p.get());
@@ -51,16 +77,20 @@ public class NetworkingInterface {
         return p;
     }
 
-    @NetworkEvent(mustAuthenticate = false, description = "Registers a user if the username does not already exist and the given passwords match.")
+    @NetworkEvent(mustAuthenticate = false, description = "Registers a user if the username does not already exist "
+            + "and the given passwords match.")
     public InternalResponseObject<Player> register(RegisterUserRequest data) {
-        InternalResponseObject<Player> newPlayerResp = GameEngine.instance().services.playerRepository.registerPlayer(data.getUsername(), data.getPassword(), data.getPasswordConfirm());
+        InternalResponseObject<Player> newPlayerResp = GameEngine.instance().services.playerRepository.registerPlayer
+                (data.getUsername(), data.getPassword(), data.getPasswordConfirm());
         if (newPlayerResp.isNormal()) {
-            InternalResponseObject<Boolean> heroesCreatedResp = GameEngine.instance().services.heroRepository.createDefaultHeroesForPlayer(newPlayerResp.get());
+            InternalResponseObject<Boolean> heroesCreatedResp = GameEngine.instance().services.heroRepository
+                    .createDefaultHeroesForPlayer(newPlayerResp.get());
             if (!heroesCreatedResp.isNormal()) {
                 GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
                 return InternalResponseObject.cloneError(heroesCreatedResp);
             }
-            InternalResponseObject<Boolean> monstersCreatedResp = GameEngine.instance().services.monsterRepository.createDefaultMonstersForPlayer(newPlayerResp.get());
+            InternalResponseObject<Boolean> monstersCreatedResp = GameEngine.instance().services.monsterRepository
+                    .createDefaultMonstersForPlayer(newPlayerResp.get());
             if (!monstersCreatedResp.isNormal()) {
                 GameEngine.instance().services.playerRepository.deletePlayer(newPlayerResp.get());
                 return InternalResponseObject.cloneError(monstersCreatedResp);
@@ -90,9 +120,11 @@ public class NetworkingInterface {
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpHeroes(QueueHeroesRequest obj, Player p) {
         if (p.getCurrentMatchID().isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match before queueing.");
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match "
+                    + "before queueing.");
         }
-        InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj.getMapID());
+        InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj
+                .getMapID());
         GameMap map;
         if (mapResp.isNormal()) {
             map = mapResp.get();
@@ -106,8 +138,8 @@ public class NetworkingInterface {
             objective = new DeathmatchGameObjective();
         }
         if (obj.shouldQueueWithPassBot()) {
-            //TODO update this to pick a random map?
-            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), map, objective, obj.getSelectedHeroesIds(), null);
+            InternalResponseObject<Match> m = Match.InitNewMatch(p, new PassBot(), map, objective, obj
+                    .getSelectedHeroesIds(), null);
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
@@ -122,9 +154,11 @@ public class NetworkingInterface {
     @NetworkEvent(description = "Queues up the player to play as the heroes")
     public InternalResponseObject<Boolean> queueUpArchitect(QueueArchitectRequest obj, Player p) {
         if (p.getCurrentMatchID().isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match before queueing.");
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match "
+                    + "before queueing.");
         }
-        InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj.getMapID());
+        InternalResponseObject<GameMap> mapResp = GameEngine.instance().services.mapRepository.getMapByID(obj
+                .getMapID());
         GameMap map;
         if (mapResp.isNormal()) {
             map = mapResp.get();
@@ -138,11 +172,11 @@ public class NetworkingInterface {
             objective = new DeathmatchGameObjective();
         }
         if (obj.shouldQueueWithPassBot()) {
-            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, map, objective, null, obj.getMonsterLocationMap());
+            InternalResponseObject<Match> m = Match.InitNewMatch(new PassBot(), p, map, objective, null, obj
+                    .getMonsterLocationMap());
             if (m.isNormal()) {
                 return new InternalResponseObject<>(true, "match_created");
             } else {
-                //TODO update this so that the correct response is sent when you cannot make a match
                 return InternalResponseObject.cloneError(m);
             }
         } else {
@@ -155,13 +189,15 @@ public class NetworkingInterface {
         return GameEngine.instance().services.matchService.removeFromQueue(p);
     }
 
-    @NetworkEvent(description = "Returns a list of all the player's current heroes. This is for use in the hero management and match initialization screens, not in-game.")
+    @NetworkEvent(description = "Returns a list of all the player's current heroes. This is for use in the hero " +
+            "management and match initialization screens, not in-game.")
     public InternalResponseObject<List<Hero>> getHeroes(NoInputRequest obj, Player p) {
         HeroRepository heroRepo = GameEngine.instance().services.heroRepository;
         return heroRepo.getPlayerHeroes(p);
     }
 
-    @NetworkEvent(description = "Returns a list of all the player's monsters. This is for use in the monster management and match initialization screens, not in-game.")
+    @NetworkEvent(description = "Returns a list of all the player's monsters. This is for use in the monster " +
+            "management and match initialization screens, not in-game.")
     public InternalResponseObject<List<MonsterDefinition>> getMonsters(NoInputRequest obj, Player p) {
         MonsterRepository heroRepo = GameEngine.instance().services.monsterRepository;
         return heroRepo.getPlayerMonsterTypes(p);
@@ -170,34 +206,38 @@ public class NetworkingInterface {
     @NetworkEvent(description = "Allows a player to spectate a match between other players.")
     public InternalResponseObject<String> spectate(SpectateMatchRequest obj, Player p) {
         if (p.getCurrentMatchID().isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match before spectating a match.");
+            return new InternalResponseObject<>(InternalErrorCode.PLAYER_BUSY, "You are in a match. Leave the match "
+                    + "before spectating a match.");
         }
         UUID matchID = null;
-        if(obj.getMatchID() == null && obj.getPlayerID() == null){
-            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"You didn't specify a player or match ID to spectate.");
+        if (obj.getMatchID() == null && obj.getPlayerID() == null) {
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "You didn't specify a player or "
+                    + "match ID to spectate.");
         }
-        if (obj.getPlayerID() != null){
-                InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer(obj.getPlayerID());
-                if(!playerResp.isNormal()){
-                    return InternalResponseObject.cloneError(playerResp);
-                }
-                Player player = playerResp.get();
-                Optional<UUID> pMatchID = player.getCurrentMatchID();
-                if(pMatchID.isPresent()){
-                    matchID = pMatchID.get();
-                } else {
-                    return new InternalResponseObject<>(InternalErrorCode.NOT_IN_MATCH,"The specified player is not in a match.");
-                }
-        } else if (obj.getMatchID() != null){
+        if (obj.getPlayerID() != null) {
+            InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer
+                    (obj.getPlayerID());
+            if (!playerResp.isNormal()) {
+                return InternalResponseObject.cloneError(playerResp);
+            }
+            Player player = playerResp.get();
+            Optional<UUID> pMatchID = player.getCurrentMatchID();
+            if (pMatchID.isPresent()) {
+                matchID = pMatchID.get();
+            } else {
+                return new InternalResponseObject<>(InternalErrorCode.NOT_IN_MATCH, "The specified player is not in " +
+                        "a" + " match.");
+            }
+        } else if (obj.getMatchID() != null) {
             try {
                 matchID = UUID.fromString(obj.getMatchID());
-            } catch (IllegalArgumentException e){
-                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"Invalid match id.");
+            } catch (IllegalArgumentException e) {
+                return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "Invalid match id.");
             }
         }
 
-        if(matchID == null){
-            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR,"Invalid match id.");
+        if (matchID == null) {
+            return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "Invalid match id.");
         }
 
         InternalResponseObject<Match> m = Match.fromCacheWithMatchIdentifier(matchID);
@@ -238,7 +278,8 @@ public class NetworkingInterface {
             GameAction action;
             switch (obj.getType()) {
                 case MOVE_ACTION: {
-                    InternalResponseObject<MoveGameActionData> dataResp = MoveGameActionData.fillFromJSON(obj.getOriginalData());
+                    InternalResponseObject<MoveGameActionData> dataResp = MoveGameActionData.fillFromJSON(obj
+                            .getOriginalData());
                     if (!dataResp.isNormal()) {
                         return InternalResponseObject.cloneError(dataResp);
                     }
@@ -246,7 +287,8 @@ public class NetworkingInterface {
                     break;
                 }
                 case BASIC_ATTACK_ACTION: {
-                    InternalResponseObject<BasicAttackActionData> dataResp = BasicAttackActionData.fillFromJSON(obj.getOriginalData());
+                    InternalResponseObject<BasicAttackActionData> dataResp = BasicAttackActionData.fillFromJSON(obj
+                            .getOriginalData());
                     if (!dataResp.isNormal()) {
                         return InternalResponseObject.cloneError(dataResp);
                     }
@@ -254,7 +296,8 @@ public class NetworkingInterface {
                     break;
                 }
                 case PASS_ACTION: {
-                    InternalResponseObject<PassGameActionData> dataResp = PassGameActionData.fillFromJSON(obj.getOriginalData());
+                    InternalResponseObject<PassGameActionData> dataResp = PassGameActionData.fillFromJSON(obj
+                            .getOriginalData());
                     if (!dataResp.isNormal()) {
                         return InternalResponseObject.cloneError(dataResp);
                     }
@@ -262,16 +305,17 @@ public class NetworkingInterface {
                     break;
                 }
                 case CAPTURE_OBJECTIVE_ACTION: {
-                    InternalResponseObject<CaptureObjectiveActionData> dataResp = CaptureObjectiveActionData.fillFromJSON(obj.getOriginalData());
+                    InternalResponseObject<CaptureObjectiveActionData> dataResp = CaptureObjectiveActionData
+                            .fillFromJSON(obj.getOriginalData());
                     if (!dataResp.isNormal()) {
                         return InternalResponseObject.cloneError(dataResp);
                     }
                     action = new CaptureObjectiveGameAction(dataResp.get());
                     break;
                 }
-//                case ABILITY_ACTION: {
-//
-//                }
+                //                case ABILITY_ACTION: {
+                //
+                //                }
                 default: {
                     return new InternalResponseObject<>(false, validActionStr);
                 }
@@ -317,7 +361,7 @@ public class NetworkingInterface {
                 }
                 match.get().broadcastToAllParties("player_left", playerData);
                 p.setCurrentMatch(Optional.empty());
-                if(match.get().getGameState() != GameState.GAME_END) {
+                if (match.get().getGameState() != GameState.GAME_END) {
                     if (match.get().getHeroPlayer().getUsername().equals(p.getUsername())) {
                         match.get().end("player_forfeit", GameObjective.GAME_WINNER.ARCHITECT_WINNER);
                     } else if (match.get().getArchitectPlayer().getUsername().equals(p.getUsername())) {
@@ -333,7 +377,8 @@ public class NetworkingInterface {
         }
     }
 
-    @NetworkEvent(description = "Dev only. Allows you to modify parts of the state of your current match. Does no validation on the state, so if you fuck it up your on your own.")
+    @NetworkEvent(description = "Dev only. Allows you to modify parts of the state of your current match. Does no " +
+            "validation on the state, so if you fuck it up your on your own.")
     public InternalResponseObject<Boolean> adjustMatch(JSONObject stateChanges, Player p) {
         if (!p.isDev()) {
             return new InternalResponseObject<>(WebStatusCode.UNAUTHORIZED);

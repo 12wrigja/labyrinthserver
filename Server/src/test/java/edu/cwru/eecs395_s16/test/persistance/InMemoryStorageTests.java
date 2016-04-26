@@ -3,11 +3,11 @@ package edu.cwru.eecs395_s16.test.persistance;
 import edu.cwru.eecs395_s16.core.InternalResponseObject;
 import edu.cwru.eecs395_s16.core.Player;
 import edu.cwru.eecs395_s16.services.cache.CacheService;
-import edu.cwru.eecs395_s16.services.players.PlayerRepository;
-import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 import edu.cwru.eecs395_s16.services.cache.InMemoryCacheService;
 import edu.cwru.eecs395_s16.services.players.InMemoryPlayerRepository;
+import edu.cwru.eecs395_s16.services.players.PlayerRepository;
 import edu.cwru.eecs395_s16.services.sessions.InMemorySessionRepository;
+import edu.cwru.eecs395_s16.services.sessions.SessionRepository;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -25,39 +25,39 @@ public class InMemoryStorageTests {
     final String PASSWORD = "test";
 
     @Test
-    public void testInMemoryPlayerRepository(){
+    public void testInMemoryPlayerRepository() {
         PlayerRepository repo = new InMemoryPlayerRepository();
-        InternalResponseObject<Player> playerResponse = repo.registerPlayer(USERNAME,PASSWORD,PASSWORD);
+        InternalResponseObject<Player> playerResponse = repo.registerPlayer(USERNAME, PASSWORD, PASSWORD);
 
-        if(playerResponse.isNormal()) {
+        if (playerResponse.isNormal()) {
             Player pl = playerResponse.get();
-            assertEquals(USERNAME,pl.getUsername());
+            assertEquals(USERNAME, pl.getUsername());
         } else {
             fail(playerResponse.getMessage());
         }
     }
 
     @Test
-    public void testInMemorySessionRepository(){
+    public void testInMemorySessionRepository() {
         SessionRepository repo = new InMemorySessionRepository();
-        Player p = new Player(-1,USERNAME,PASSWORD, false);
+        Player p = new Player(-1, USERNAME, PASSWORD, false);
         final UUID sessionID = UUID.randomUUID();
-        repo.storePlayer(sessionID,p);
+        repo.storePlayer(sessionID, p);
 
         InternalResponseObject<Player> p1 = repo.findPlayer(sessionID);
-        if(p1.isPresent()){
-            assertEquals(p.getUsername(),p1.get().getUsername());
+        if (p1.isPresent()) {
+            assertEquals(p.getUsername(), p1.get().getUsername());
         } else {
             fail("Could not retrieve a player from the repository.");
         }
     }
 
     @Test
-    public void testInMemoryCache(){
+    public void testInMemoryCache() {
         CacheService cache = new InMemoryCacheService();
-        cache.storeString("username",USERNAME);
+        cache.storeString("username", USERNAME);
         Optional<String> fromCache = cache.getString("username");
-        if(fromCache.isPresent()) {
+        if (fromCache.isPresent()) {
             assertEquals(USERNAME, fromCache.get());
         } else {
             fail("Unable to retrieve string from cache.");

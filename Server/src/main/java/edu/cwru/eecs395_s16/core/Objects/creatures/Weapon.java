@@ -12,7 +12,8 @@ public class Weapon implements DatabaseObject, Jsonable {
 
     public static final String IMAGE_KEY = "image";
     public static final String RANGE_KEY = "range";
-    public static final Weapon DEFAULT_NO_WEAPON = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1, UsePattern.singleTargetPattern);
+    public static final Weapon DEFAULT_NO_WEAPON = new Weapon(-1, "fists", "Fists", "Use your fists!", 1, 1,
+            UsePattern.singleTargetPattern);
     public static final String NAME_KEY = "name";
     public static final String DESCRIPTION_KEY = "description";
     public static final String DAMAGE_MOD_KEY = "damage_mod";
@@ -25,7 +26,8 @@ public class Weapon implements DatabaseObject, Jsonable {
     private final int damageModifier;
     private final UsePattern usePattern;
 
-    public Weapon(int databaseID, String image, String name, String description, int range, int damageModifier, UsePattern usePattern) {
+    public Weapon(int databaseID, String image, String name, String description, int range, int damageModifier,
+                  UsePattern usePattern) {
         this.databaseID = databaseID;
         this.image = image;
         this.name = name;
@@ -78,17 +80,25 @@ public class Weapon implements DatabaseObject, Jsonable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Weapon weapon = (Weapon) o;
 
-        if (getRange() != weapon.getRange()) return false;
-        if (getDatabaseID() != weapon.getDatabaseID()) return false;
-        if (getDamageModifier() != weapon.getDamageModifier()) return false;
-        if (!getImage().equals(weapon.getImage())) return false;
-        if (!getName().equals(weapon.getName())) return false;
-        if (!getDescription().equals(weapon.getDescription())) return false;
+        if (getRange() != weapon.getRange())
+            return false;
+        if (getDatabaseID() != weapon.getDatabaseID())
+            return false;
+        if (getDamageModifier() != weapon.getDamageModifier())
+            return false;
+        if (!getImage().equals(weapon.getImage()))
+            return false;
+        if (!getName().equals(weapon.getName()))
+            return false;
+        if (!getDescription().equals(weapon.getDescription()))
+            return false;
         return getUsePattern().equals(weapon.getUsePattern());
 
     }

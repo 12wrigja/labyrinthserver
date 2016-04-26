@@ -26,7 +26,8 @@ public class PassGameActionData {
         try {
             characterUUID = RequestData.getUUID(obj, "character_id");
         } catch (InvalidDataException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,
+                    "The character_id is invalid.");
         }
         return new InternalResponseObject<>(new PassGameActionData(characterUUID));
     }

@@ -31,8 +31,8 @@ public class SpectateMatchRequest implements RequestData {
 
     @Override
     public void fillFromJSON(JSONObject obj) throws InvalidDataException {
-        this.matchID = obj.optString("match_id",null);
-        this.playerID = obj.optString("player",null);
+        this.matchID = obj.optString("match_id", null);
+        this.playerID = obj.optString("player", null);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SpectateMatchRequest implements RequestData {
         JSONObject repr = new JSONObject();
         try {
             repr.put("match_id", matchID);
-            repr.put("player",playerID);
+            repr.put("player", playerID);
         } catch (JSONException e) {
             //Should not happen b/c keys are not null.
         }

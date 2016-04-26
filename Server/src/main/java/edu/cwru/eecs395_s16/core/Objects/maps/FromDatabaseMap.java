@@ -42,10 +42,10 @@ public class FromDatabaseMap implements GameMap {
             if (tile.isHeroSpawn()) {
                 heroSpawnLocations.add(tile);
             }
-            if(tile.isArchitectSpawn()){
+            if (tile.isArchitectSpawn()) {
                 architectSpawnLocations.add(tile);
             }
-            if(tile.isObjectiveSpawn()){
+            if (tile.isObjectiveSpawn()) {
                 objectiveSpawnLocations.add(tile);
             }
         }

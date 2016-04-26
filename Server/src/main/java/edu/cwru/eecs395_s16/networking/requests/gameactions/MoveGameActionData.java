@@ -34,10 +34,12 @@ public class MoveGameActionData {
             try {
                 characterID = UUID.fromString(characterIDs);
             } catch (IllegalArgumentException e) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                        .DATA_PARSE_ERROR, "The character_id is invalid.");
             }
         } catch (JSONException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,
+                    "The character_id is invalid.");
         }
 
         List<Location> path = new ArrayList<>();
@@ -54,7 +56,8 @@ public class MoveGameActionData {
             if (GameEngine.instance().IS_DEBUG_MODE) {
                 e.printStackTrace();
             }
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The path is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,
+                    "The path is invalid.");
         }
 
         return new InternalResponseObject<>(new MoveGameActionData(characterID, path));

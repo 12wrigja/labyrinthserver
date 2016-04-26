@@ -69,7 +69,8 @@ public class BotClientService implements ClientConnectionService {
         if (connectedClients.containsKey(clientID)) {
             return new InternalResponseObject<>(connectedClients.get(clientID));
         } else {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_SESSION_IDENTIFIER);
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                    .UNKNOWN_SESSION_IDENTIFIER);
         }
     }
 
@@ -113,13 +114,15 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public Optional<GameBot> botForUsername(String username) {
-        List<GameBot> matches = connectedClients.values().stream().filter(gameBot -> gameBot.getUsername().equals(username)).collect(Collectors.toList());
+        List<GameBot> matches = connectedClients.values().stream().filter(gameBot -> gameBot.getUsername().equals
+                (username)).collect(Collectors.toList());
         if (matches.size() == 1) {
             return Optional.of(matches.get(0));
         } else {
             //There is not an active bot with that name
             if (username.contains("_")) {
-                //There was a bot with that name. If they terminated, then they automatically ended whatever match they were a part of. Return a shell here.
+                //There was a bot with that name. If they terminated, then they automatically ended whatever match
+                // they were a part of. Return a shell here.
                 return Optional.of(new GameBot(username.split("_")[0], UUID.fromString(username.split("_")[1])) {
                     @Override
                     public void receiveEvent(String event, Object data) {
@@ -133,7 +136,8 @@ public class BotClientService implements ClientConnectionService {
     }
 
     public Optional<GameBot> botForSessionID(UUID sessionID) {
-        List<GameBot> matches = connectedClients.values().stream().filter(gameBot -> gameBot.getSessionId().equals(sessionID)).collect(Collectors.toList());
+        List<GameBot> matches = connectedClients.values().stream().filter(gameBot -> gameBot.getSessionId().equals
+                (sessionID)).collect(Collectors.toList());
         if (matches.size() == 1) {
             return Optional.of(matches.get(0));
         } else {

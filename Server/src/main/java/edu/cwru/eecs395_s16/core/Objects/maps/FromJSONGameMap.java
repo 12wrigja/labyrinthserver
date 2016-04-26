@@ -27,14 +27,15 @@ public class FromJSONGameMap implements GameMap {
         this.x = size.getInt(GameMap.MAP_X_KEY);
         this.y = size.getInt(GameMap.MAP_Y_KEY);
         this.tiles = new MapTile[x][y];
-        this.creator = obj.optString(GameMap.MAP_CREATOR_ID_KEY,"");
-        this.mapName = obj.optString(GameMap.MAP_NAME_KEY,"");
-        this.heroCapacity = obj.optInt(GameMap.MAP_HERO_CAPACITY_KEY,0);
+        this.creator = obj.optString(GameMap.MAP_CREATOR_ID_KEY, "");
+        this.mapName = obj.optString(GameMap.MAP_NAME_KEY, "");
+        this.heroCapacity = obj.optInt(GameMap.MAP_HERO_CAPACITY_KEY, 0);
         JSONArray tiles = obj.getJSONArray(GameMap.MAP_TILES_KEY);
         for (int i = 0; i < tiles.length(); i++) {
             JSONObject tile = tiles.getJSONObject(i);
             String terrain = tile.getString(MapTile.TERRAIN_KEY);
-            MapRepository.TileType tileType = GameEngine.instance().services.mapRepository.getTileTypeMap().get(terrain);
+            MapRepository.TileType tileType = GameEngine.instance().services.mapRepository.getTileTypeMap().get
+                    (terrain);
             int tileX = tile.getInt(MapTile.X_KEY);
             int tileY = tile.getInt(MapTile.Y_KEY);
             int rotation = tile.getInt(MapTile.ROTATION_KEY);
@@ -77,9 +78,6 @@ public class FromJSONGameMap implements GameMap {
         return heroCapacity;
     }
 
-
-    //TODO see if these three lists matter at all
-    //They probably don't as these locations are only needed when making a match
     @Override
     public List<Location> getHeroSpawnLocations() {
         return null;

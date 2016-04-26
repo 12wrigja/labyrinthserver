@@ -29,10 +29,12 @@ public class CaptureObjectiveActionData {
             try {
                 characterID = UUID.fromString(characterIDs);
             } catch (IllegalArgumentException e) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                        .DATA_PARSE_ERROR, "The character_id is invalid.");
             }
         } catch (JSONException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The character_id is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,
+                    "The character_id is invalid.");
         }
 
         UUID objectiveID;
@@ -41,10 +43,12 @@ public class CaptureObjectiveActionData {
             try {
                 objectiveID = UUID.fromString(objectiveIDs);
             } catch (IllegalArgumentException e) {
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The objective_id is invalid.");
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                        .DATA_PARSE_ERROR, "The objective_id is invalid.");
             }
         } catch (JSONException e) {
-            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR, "The objective_id is invalid.");
+            return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.DATA_PARSE_ERROR,
+                    "The objective_id is invalid.");
         }
 
         return new InternalResponseObject<>(new CaptureObjectiveActionData(characterID, objectiveID));

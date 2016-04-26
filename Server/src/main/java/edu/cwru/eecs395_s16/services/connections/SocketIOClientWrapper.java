@@ -19,8 +19,10 @@ public final class SocketIOClientWrapper implements GameClient {
 
     @Override
     public final Response sendEvent(String event, JSONObject data) {
-        throw new UnsupportedOperationException("This is a SocketIO client wrapper. This cannot programmatically send requests.");
-        //Do nothing. This method allows you to submit events to the system, something this client wrapper should NOT be doing
+        throw new UnsupportedOperationException("This is a SocketIO client wrapper. This cannot programmatically send" +
+                " requests.");
+        //Do nothing. This method allows you to submit events to the system, something this client wrapper should NOT
+        // be doing
     }
 
     @Override

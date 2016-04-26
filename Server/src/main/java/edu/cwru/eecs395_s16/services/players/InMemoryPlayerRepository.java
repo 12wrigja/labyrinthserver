@@ -27,7 +27,6 @@ public class InMemoryPlayerRepository implements PlayerRepository {
         if (playerMap.containsKey(username)) {
             return new InternalResponseObject<>(InternalErrorCode.DUPLICATE_USERNAME);
         } else {
-            //TODO change this back. Probably. Need a different way to specify dev or not.
             Player p = new Player(-1, username, password, true);
             playerMap.put(username, p);
             return new InternalResponseObject<>(p);
@@ -54,7 +53,8 @@ public class InMemoryPlayerRepository implements PlayerRepository {
 
     @Override
     public boolean savePlayer(Player p) {
-        //Do nothing as a player is already saved in memory. This method is for persisting to some sort of permanent storage
+        //Do nothing as a player is already saved in memory. This method is for persisting to some sort of permanent
+        // storage
         return true;
     }
 

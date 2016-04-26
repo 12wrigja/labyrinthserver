@@ -28,7 +28,8 @@ public class InMemoryMonsterRepository implements MonsterRepository {
     }
 
     @Override
-    public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int quantity) {
+    public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int
+            quantity) {
         Map<Integer, MonsterDefinition> playerMonsters;
         if (!playerMonsterDefMap.containsKey(p.getUsername())) {
             playerMonsters = new HashMap<>();
@@ -66,7 +67,8 @@ public class InMemoryMonsterRepository implements MonsterRepository {
         List<List<String>> monsterTemplateData = CoreDataUtils.splitEntries(baseData.get("monsters"));
         for (List<String> monsterTemplate : monsterTemplateData) {
             try {
-                int id = monsterTemplate.get(0).equals("default") ? monsterDefinitionMap.size() + 1 : Integer.parseInt(monsterTemplate.get(0));
+                int id = monsterTemplate.get(0).equals("default") ? monsterDefinitionMap.size() + 1 : Integer
+                        .parseInt(monsterTemplate.get(0));
                 String name = monsterTemplate.get(1);
                 String classStr = monsterTemplate.get(2);
                 int startAttack = Integer.parseInt(monsterTemplate.get(3));
@@ -75,10 +77,12 @@ public class InMemoryMonsterRepository implements MonsterRepository {
                 int startVision = Integer.parseInt(monsterTemplate.get(6));
                 int startMovement = Integer.parseInt(monsterTemplate.get(7));
                 int defaultWeaponID = Integer.parseInt(monsterTemplate.get(8));
-                MonsterDefinition definition = new MonsterDefinition(id, name, startAttack, startDefense, startHealth, startMovement, startVision, defaultWeaponID, 0);
+                MonsterDefinition definition = new MonsterDefinition(id, name, startAttack, startDefense,
+                        startHealth, startMovement, startVision, defaultWeaponID, 0);
                 monsterDefinitionMap.put(id, definition);
             } catch (IllegalArgumentException e) {
-                System.out.println("Unable to create definition for line: " + Arrays.toString(monsterTemplate.toArray(new String[monsterTemplate.size()])));
+                System.out.println("Unable to create definition for line: " + Arrays.toString(monsterTemplate.toArray
+                        (new String[monsterTemplate.size()])));
             }
         }
     }

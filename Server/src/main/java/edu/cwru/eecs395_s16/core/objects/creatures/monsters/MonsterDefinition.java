@@ -25,7 +25,8 @@ public class MonsterDefinition implements Jsonable {
     public final int defaultWeaponId;
     public final int count;
 
-    public MonsterDefinition(int id, String name, int startAttack, int startDefense, int startHealth, int startMovement, int startVision, int defaultWeaponId, int count) {
+    public MonsterDefinition(int id, String name, int startAttack, int startDefense, int startHealth, int
+            startMovement, int startVision, int defaultWeaponId, int count) {
         this.id = id;
         this.name = name;
         this.startAttack = startAttack;
@@ -60,8 +61,10 @@ public class MonsterDefinition implements Jsonable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         MonsterDefinition that = (MonsterDefinition) o;
 

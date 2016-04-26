@@ -21,8 +21,12 @@ public class Monster extends Creature {
 
     protected String name;
 
-    public Monster(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, int databaseId, String name, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses, Location location, Weapon weapon) {
-        super(objectID, ownerID, controllerID, databaseId, TYPE.MONSTER, attack, defense, currentHealth, maxHealth, movement, vision, currentActionPoints, maxActionPoints, abilities, statuses, location, weapon);
+    public Monster(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, int databaseId, String
+            name, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int
+            currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses,
+                   Location location, Weapon weapon) {
+        super(objectID, ownerID, controllerID, databaseId, TYPE.MONSTER, attack, defense, currentHealth, maxHealth,
+                movement, vision, currentActionPoints, maxActionPoints, abilities, statuses, location, weapon);
         this.name = name;
     }
 

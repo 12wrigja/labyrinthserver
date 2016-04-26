@@ -83,8 +83,8 @@ public interface GameAction extends Jsonable {
             }
             if (node.dist < radius) {
                 List<Location> neighbours = map.getTileNeighbours(node.loc);
-                neighbours.stream()
-                        .filter(neighbour -> node.loc.isNeighbourOf(neighbour, includeDiagonals) && map.getTile(neighbour).isPresent() && !map.getTile(neighbour).get().isObstructionTileType())
+                neighbours.stream().filter(neighbour -> node.loc.isNeighbourOf(neighbour, includeDiagonals) && map
+                        .getTile(neighbour).isPresent() && !map.getTile(neighbour).get().isObstructionTileType())
                         .filter(neighbour -> !openList.contains(neighbour) || closedList.contains(neighbour))
                         .forEachOrdered(neighbour -> openList.add(new BFSNode(neighbour, node.dist + 1)));
             }
@@ -92,36 +92,43 @@ public interface GameAction extends Jsonable {
         return closedList;
     }
 
-    static InternalResponseObject<Boolean> canDoActiveAction(UUID objectID, GameObjectCollection boardObjects, Player p, String objectIDKey) {
+    static InternalResponseObject<Boolean> canDoActiveAction(UUID objectID, GameObjectCollection boardObjects, Player
+            p, String objectIDKey) {
         //Check and see if we can control the creature and it has action points
         //Check and see if the object is a valid object in this game
         Optional<GameObject> objectOptional = boardObjects.getByID(objectID);
         if (!objectOptional.isPresent()) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " is not a valid game object.");
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " is not a " +
+                    "valid game object.");
         }
         GameObject gameObject = objectOptional.get();
         //Check that the object is a creature.
         if (!(gameObject instanceof Creature)) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " object is not a creature.");
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " object is " +
+                    "not a creature.");
         }
         //Check and see if the player who made the request can control their attacker
         if (!GameAction.isControlledByPlayer(gameObject, p)) {
-            return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER, "You are not the controller of the " + objectIDKey + " object");
+            return new InternalResponseObject<>(InternalErrorCode.NOT_CONTROLLER, "You are not the controller of the " +
+                    "" + objectIDKey + " object");
         }
         Creature creature = (Creature) gameObject;
 
         if (creature.getActionPoints() == 0) {
-            return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS, "The " + objectIDKey + " creature has no action points remaining.");
+            return new InternalResponseObject<>(InternalErrorCode.NO_ACTION_POINTS, "The " + objectIDKey + " creature" +
+                    " has no action points remaining.");
         }
 
         if (creature.getHealth() == 0) {
-            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " creature is dead.");
+            return new InternalResponseObject<>(InternalErrorCode.INVALID_OBJECT, "The " + objectIDKey + " creature " +
+                    "is dead.");
         }
 
         return new InternalResponseObject<>(true, "valid_object");
     }
 
-    InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player);
+    InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects,
+                                                     Player player);
 
     void doGameAction(GameMap map, GameObjectCollection boardObjects);
 

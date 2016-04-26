@@ -29,7 +29,8 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
     public InternalResponseObject<List<MonsterDefinition>> getPlayerMonsterTypes(Player p) {
         if (p instanceof GameBot) {
             List<GameObject> architectObjects = ((GameBot) p).getArchitectObjects();
-            List<Monster> allMonsters = architectObjects.stream().filter(obj -> obj.getGameObjectType() == GameObject.TYPE.MONSTER).map(obj -> (Monster) obj).collect(Collectors.toList());
+            List<Monster> allMonsters = architectObjects.stream().filter(obj -> obj.getGameObjectType() == GameObject
+                    .TYPE.MONSTER).map(obj -> (Monster) obj).collect(Collectors.toList());
             Map<MonsterDefinition, Integer> applicableDefinitions = new HashMap<>();
             for (Monster m : allMonsters) {
                 MonsterDefinition def;
@@ -38,7 +39,8 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
                     if (defResp.isNormal()) {
                         def = defResp.get();
                     } else {
-                        return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "Unable to find monster definition for id: " + m.getDatabaseID());
+                        return new InternalResponseObject<>(InternalErrorCode.DATA_PARSE_ERROR, "Unable to find " +
+                                "monster definition for id: " + m.getDatabaseID());
                     }
                 } else {
                     def = new MonsterBuilder(UUID.randomUUID(), m).createMonsterDefinition(1);
@@ -50,7 +52,8 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
                     applicableDefinitions.put(def, 1);
                 }
             }
-            List<MonsterDefinition> actualDefinitions = applicableDefinitions.entrySet().stream().map(oldDef -> new MonsterDefinition(oldDef.getKey(), oldDef.getValue(), false)).collect(Collectors.toList());
+            List<MonsterDefinition> actualDefinitions = applicableDefinitions.entrySet().stream().map(oldDef -> new
+                    MonsterDefinition(oldDef.getKey(), oldDef.getValue(), false)).collect(Collectors.toList());
             return new InternalResponseObject<>(actualDefinitions, "monsters");
         } else {
             return actualRepo.getPlayerMonsterTypes(p);
@@ -58,7 +61,8 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
     }
 
     @Override
-    public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int quantity) {
+    public InternalResponseObject<Boolean> addMonsterForPlayer(Player p, MonsterDefinition monsterDefinition, int
+            quantity) {
         if (!(p instanceof GameBot)) {
             return actualRepo.addMonsterForPlayer(p, monsterDefinition, quantity);
         } else {
@@ -84,7 +88,8 @@ public class MonsterRepositoryBotWrapper implements MonsterRepository {
     @Override
     public InternalResponseObject<Monster> buildMonsterForPlayer(UUID gameID, int monsterDBId, Player p) {
         if (p instanceof GameBot) {
-            Optional<Monster> monster = ((GameBot) p).getArchitectObjects().stream().filter(obj -> obj instanceof Monster).map(obj -> (Monster) obj).filter(m -> m.getDatabaseID() == monsterDBId).findFirst();
+            Optional<Monster> monster = ((GameBot) p).getArchitectObjects().stream().filter(obj -> obj instanceof
+                    Monster).map(obj -> (Monster) obj).filter(m -> m.getDatabaseID() == monsterDBId).findFirst();
             if (monster.isPresent()) {
                 MonsterBuilder mb = new MonsterBuilder(gameID, monster.get());
                 return new InternalResponseObject<>(mb.createMonster(), "monster");

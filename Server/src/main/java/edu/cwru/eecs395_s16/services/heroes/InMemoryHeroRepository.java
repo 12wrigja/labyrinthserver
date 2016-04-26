@@ -65,7 +65,8 @@ public class InMemoryHeroRepository implements HeroRepository {
 
     @Override
     public List<LevelReward> getLevelRewards(HeroType type, long previousExperience, long newExperience) {
-        return levelRewards.stream().filter(lr -> lr.heroType == type && lr.expThreshold <= newExperience && lr.expThreshold > previousExperience).collect(Collectors.toList());
+        return levelRewards.stream().filter(lr -> lr.heroType == type && lr.expThreshold <= newExperience && lr
+                .expThreshold > previousExperience).collect(Collectors.toList());
     }
 
     @Override
@@ -92,7 +93,8 @@ public class InMemoryHeroRepository implements HeroRepository {
         heroTemplateData = CoreDataUtils.splitEntries(baseData.get("heroes"));
         for (List<String> heroTemplate : heroTemplateData) {
             try {
-                int id = heroTemplate.get(0).equals("default") ? heroTypeMap.size() + 1 : Integer.parseInt(heroTemplate.get(0));
+                int id = heroTemplate.get(0).equals("default") ? heroTypeMap.size() + 1 : Integer.parseInt
+                        (heroTemplate.get(0));
                 HeroType heroType = HeroType.valueOf(heroTemplate.get(1).toUpperCase());
                 int startAttack = Integer.parseInt(heroTemplate.get(2));
                 int startDefense = Integer.parseInt(heroTemplate.get(3));
@@ -100,10 +102,12 @@ public class InMemoryHeroRepository implements HeroRepository {
                 int startVision = Integer.parseInt(heroTemplate.get(5));
                 int startMovement = Integer.parseInt(heroTemplate.get(6));
                 int defaultWeaponID = Integer.parseInt(heroTemplate.get(7));
-                HeroDefinition definition = new HeroDefinition(id, heroType, startAttack, startDefense, startHealth, startMovement, startVision, defaultWeaponID);
+                HeroDefinition definition = new HeroDefinition(id, heroType, startAttack, startDefense, startHealth,
+                        startMovement, startVision, defaultWeaponID);
                 heroTypeMap.put(heroType.toString().toLowerCase(), definition);
             } catch (IllegalArgumentException e) {
-                System.out.println("Unable to create definition for line: " + Arrays.toString(heroTemplate.toArray(new String[heroTemplate.size()])));
+                System.out.println("Unable to create definition for line: " + Arrays.toString(heroTemplate.toArray
+                        (new String[heroTemplate.size()])));
             }
         }
         List<List<String>> levelUpData = CoreDataUtils.splitEntries(baseData.get("levels"));

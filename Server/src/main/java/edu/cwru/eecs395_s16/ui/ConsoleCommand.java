@@ -3,7 +3,21 @@ package edu.cwru.eecs395_s16.ui;
 import java.util.*;
 
 /**
- * Created by james on 2/16/16.
+ * A ConsoleCommand is used to create a command that does something in the
+ * Console UI. Commands have several parts: The phrase (such as help) which
+ * is the main command, the description (which is printed out to describe the
+ * function), and the parameters.
+ * <p>
+ * Parameters can be required or optional, and
+ * they all have names. To make a parameter required, its name is
+ * specified with an asterisk in front of it (such as *port). These names
+ * (such as persist or trace) are used as keys in the parameter map available
+ * within the class. Using the parameter names in general is not required.
+ * <p>
+ * When a command is run, parameter parsing occurs on the string and the
+ * results of that are placed into the parameter map. If names are used for
+ * parameters, those are respected first. Otherwise, the order in which the
+ * parameters are defined in the constructor is respected.
  */
 public abstract class ConsoleCommand implements Runnable {
 
@@ -53,7 +67,8 @@ public abstract class ConsoleCommand implements Runnable {
         for (String optVal : unspecifiedParamStrings) {
             while (true) {
                 if (insertIndex >= orderedParams.length) {
-                    System.err.println("Unable to insert parameter '" + optVal + "'");
+                    System.err.println("Unable to insert parameter '" +
+                            optVal + "'");
                     break;
                 }
                 String key = orderedParams[insertIndex];

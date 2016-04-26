@@ -7,7 +7,8 @@ import edu.cwru.eecs395_s16.core.objects.creatures.monsters.MonsterDefinition;
  */
 class WeaponModMonsterDefinition extends MonsterDefinition {
     public WeaponModMonsterDefinition(int specialID, MonsterDefinition other, int count, int weaponID) {
-        super(specialID,other.name, other.startAttack, other.startDefense, other.startHealth, other.startMovement, other.startVision, weaponID, count);
+        super(specialID, other.name, other.startAttack, other.startDefense, other.startHealth, other.startMovement,
+                other.startVision, weaponID, count);
 
     }
 }

@@ -15,7 +15,8 @@ public class InvalidDataException extends JsonableException {
     }
 
     public InvalidDataException(String... variableNames) {
-        super(WebStatusCode.UNPROCESSABLE_DATA, "The data attributes " + Arrays.toString(variableNames).replaceAll("[\\[\\]]", "") + " are invalid.");
+        super(WebStatusCode.UNPROCESSABLE_DATA, "The data attributes " + Arrays.toString(variableNames).replaceAll
+                ("[\\[\\]]", "") + " are invalid.");
     }
 
     public InvalidDataException(List<String> variableNames) {
@@ -23,6 +24,7 @@ public class InvalidDataException extends JsonableException {
     }
 
     public InvalidDataException(String variableName, String longReason) {
-        super(WebStatusCode.UNPROCESSABLE_DATA, "The data attribute " + variableName + " is not valid. Reason: " + longReason);
+        super(WebStatusCode.UNPROCESSABLE_DATA, "The data attribute " + variableName + " is not valid. Reason: " +
+                longReason);
     }
 }

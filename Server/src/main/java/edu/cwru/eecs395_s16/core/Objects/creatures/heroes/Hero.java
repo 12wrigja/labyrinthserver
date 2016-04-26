@@ -29,8 +29,12 @@ public class Hero extends Creature implements DatabaseObject {
     private int level = 1;
     private long exp = 0;
 
-    Hero(UUID objectID, int databaseIdentifier, String ownerID, Optional<String> controllerID, HeroType type, int level, long exp, Location location, int attack, int defense, int health, int maxHealth, int movement, int vision, int actionPoints, int maxActionPoints, Weapon weapon, List<Ability> abilities, List<CreatureStatus> statuses) {
-        super(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, TYPE.HERO, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
+    Hero(UUID objectID, int databaseIdentifier, String ownerID, Optional<String> controllerID, HeroType type, int
+            level, long exp, Location location, int attack, int defense, int health, int maxHealth, int movement, int
+            vision, int actionPoints, int maxActionPoints, Weapon weapon, List<Ability> abilities,
+         List<CreatureStatus> statuses) {
+        super(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, TYPE.HERO, attack, defense, health,
+                maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
         this.level = level;
         this.type = type;
         this.exp = exp;
@@ -47,18 +51,21 @@ public class Hero extends Creature implements DatabaseObject {
     public InternalResponseObject<Boolean> grantXP(long xp) {
         long previousExp = exp;
         long newExp = exp + xp;
-        List<LevelReward> levels = GameEngine.instance().services.heroRepository.getLevelRewards(type, previousExp, newExp);
+        List<LevelReward> levels = GameEngine.instance().services.heroRepository.getLevelRewards(type, previousExp,
+                newExp);
         levels.sort((lr1, lr2) -> Long.compare(lr1.expThreshold, lr2.expThreshold));
         this.exp = newExp;
         for (LevelReward reward : levels) {
             reward.apply(this);
         }
         //Save hero stuff here hopefully.
-        InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer(getOwnerID().get());
+        InternalResponseObject<Player> playerResp = GameEngine.instance().services.playerRepository.findPlayer
+                (getOwnerID().get());
         if (!playerResp.isNormal()) {
             return InternalResponseObject.cloneError(playerResp);
         }
-        InternalResponseObject<Boolean> saveResp = GameEngine.instance().services.heroRepository.saveHeroForPlayer(playerResp.get(), this);
+        InternalResponseObject<Boolean> saveResp = GameEngine.instance().services.heroRepository.saveHeroForPlayer
+                (playerResp.get(), this);
         if (!saveResp.isNormal()) {
             return saveResp;
         }

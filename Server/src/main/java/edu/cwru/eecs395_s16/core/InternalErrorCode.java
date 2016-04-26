@@ -61,7 +61,8 @@ public enum InternalErrorCode {
     TOO_MANY_TARGETS("There are too many targets for this action"),
     TOO_FEW_TARGETS("There are too few targets for this action"),
     NOT_IN_RANGE("The target is not in range."),
-    NOT_VISIBLE("Target is not visible to character. This could be because the character is blocked by either another character or an obstruction tile.");
+    NOT_VISIBLE("Target is not visible to character. This could be because the character is blocked by either another" +
+            " character or an obstruction tile.");
 
 
     public final String message;

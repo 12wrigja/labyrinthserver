@@ -28,7 +28,8 @@ public class PassGameAction implements GameAction {
 
 
     @Override
-    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection boardObjects, Player player) {
+    public InternalResponseObject<Boolean> checkCanDoAction(Match match, GameMap map, GameObjectCollection
+            boardObjects, Player player) {
         Optional<GameObject> boardObj = boardObjects.getByID(characterID);
         if (boardObj.isPresent()) {
             if (!(boardObj.get() instanceof Creature)) {

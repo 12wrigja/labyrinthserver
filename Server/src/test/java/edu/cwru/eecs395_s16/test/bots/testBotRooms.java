@@ -25,13 +25,13 @@ public class testBotRooms extends EngineOnlyTest {
         ReentrantLock l = new ReentrantLock();
         Condition c = l.newCondition();
         Thread testThread = Thread.currentThread();
-        GameBot b = new GameBot("TESTBOT", UUID.randomUUID()){
+        GameBot b = new GameBot("TESTBOT", UUID.randomUUID()) {
 
             @Override
             public void receiveEvent(String event, Object data) {
-                if(event.equals("test_event")) {
+                if (event.equals("test_event")) {
                     l.lock();
-                    assertNotEquals(Thread.currentThread(),testThread);
+                    assertNotEquals(Thread.currentThread(), testThread);
                     if (!complete[0]) {
                         c.signal();
                     }
@@ -57,9 +57,9 @@ public class testBotRooms extends EngineOnlyTest {
             }
         };
         b.joinRoom("test_room");
-        while(!complete[0]){
+        while (!complete[0]) {
             l.lock();
-            GameEngine.instance().broadcastEventForRoom("test_room","test_event", new JSONObject());
+            GameEngine.instance().broadcastEventForRoom("test_room", "test_event", new JSONObject());
             try {
                 c.await(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
@@ -77,13 +77,13 @@ public class testBotRooms extends EngineOnlyTest {
         ReentrantLock l = new ReentrantLock();
         Condition c = l.newCondition();
         Thread testThread = Thread.currentThread();
-        GameBot b = new GameBot("TESTBOT", UUID.randomUUID()){
+        GameBot b = new GameBot("TESTBOT", UUID.randomUUID()) {
 
             @Override
             public void receiveEvent(String event, Object data) {
-                if(event.equals("test_event")) {
+                if (event.equals("test_event")) {
                     l.lock();
-                    assertNotEquals(Thread.currentThread(),testThread);
+                    assertNotEquals(Thread.currentThread(), testThread);
                     if (!complete[0]) {
                         c.signal();
                     }
@@ -94,9 +94,9 @@ public class testBotRooms extends EngineOnlyTest {
             }
         };
         b.joinRoom("test_room");
-        while(!complete[0]){
+        while (!complete[0]) {
             l.lock();
-            GameEngine.instance().broadcastEventForRoom("test_room","test_event", new JSONObject());
+            GameEngine.instance().broadcastEventForRoom("test_room", "test_event", new JSONObject());
             try {
                 c.await(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
@@ -106,7 +106,7 @@ public class testBotRooms extends EngineOnlyTest {
             assertTrue(worked[0]);
             b.leaveRoom("test_room");
             l.lock();
-            GameEngine.instance().broadcastEventForRoom("test_room","test_event", new JSONObject());
+            GameEngine.instance().broadcastEventForRoom("test_room", "test_event", new JSONObject());
             try {
                 c.await(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {

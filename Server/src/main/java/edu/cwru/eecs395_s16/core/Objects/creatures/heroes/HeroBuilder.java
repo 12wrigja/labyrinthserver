@@ -22,14 +22,16 @@ public class HeroBuilder extends CreatureBuilder {
     private long exp = 0;
     private boolean applyExpRewards = false;
 
-    public HeroBuilder(UUID objectID, String ownerID, Optional<String> controllerID, int databaseID, HeroRepository.HeroDefinition heroDef) {
+    public HeroBuilder(UUID objectID, String ownerID, Optional<String> controllerID, int databaseID, HeroRepository
+            .HeroDefinition heroDef) {
         super(objectID, databaseID, ownerID, controllerID);
         setObjectType(GameObject.TYPE.HERO);
         setInitialValuesFromHeroDefinition(heroDef);
     }
 
     public HeroBuilder(UUID objectID, String ownerID, Optional<String> controllerID, int databaseID, HeroType type) {
-        this(objectID, ownerID, controllerID, databaseID, GameEngine.instance().services.heroRepository.getHeroDefinitionForType(type).get());
+        this(objectID, ownerID, controllerID, databaseID, GameEngine.instance().services.heroRepository
+                .getHeroDefinitionForType(type).get());
     }
 
     public HeroBuilder(String ownerID, HeroType type) {
@@ -39,7 +41,8 @@ public class HeroBuilder extends CreatureBuilder {
     public HeroBuilder setHeroType(HeroType type, boolean shouldResetToDefaultValuesForType) {
         this.type = type;
         if (shouldResetToDefaultValuesForType) {
-            setInitialValuesFromHeroDefinition(GameEngine.instance().services.heroRepository.getHeroDefinitionForType(type).get());
+            setInitialValuesFromHeroDefinition(GameEngine.instance().services.heroRepository.getHeroDefinitionForType
+                    (type).get());
         }
         return this;
     }
@@ -139,7 +142,9 @@ public class HeroBuilder extends CreatureBuilder {
     }
 
     public Hero createHero() {
-        Hero h = new Hero(objectID, databaseIdentifier, ownerID, controllerID, type, level, exp, location, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, weapon, abilities, statuses);
+        Hero h = new Hero(objectID, databaseIdentifier, ownerID, controllerID, type, level, exp, location, attack,
+                defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, weapon, abilities,
+                statuses);
         if (this.applyExpRewards) {
             List<LevelReward> rewards = GameEngine.instance().services.heroRepository.getLevelRewards(type, 0, exp);
             rewards.sort((r1, r2) -> Integer.compare(r1.levelApplied, r2.levelApplied));

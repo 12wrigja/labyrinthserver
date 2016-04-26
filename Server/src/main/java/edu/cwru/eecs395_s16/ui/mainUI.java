@@ -17,13 +17,42 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
+ * ---------------------------------------------------------------------------
+ * START HERE
+ * ---------------------------------------------------------------------------
+ * <p>
+ * Alright. Here goes - the semi-guided walkthrough of the Labyrinth server
+ * code.
+ * This is the main UI for the Labyrinth server. This is what is called when
+ * Gradle assembles or runs the project. The basic terminal UI allows the
+ * server administrator to start and stop the engine with various parameters,
+ * seed the connected database, and query the server while it is running for
+ * various information. Each of the commands has a description which can also
+ * be queried at runtime using the help command.
+ * <p>
+ * For information on how the commands work, check the ConsoleCommand class in
+ * this package.
+ * <p>
+ * Most of the time, the server is started using the command 'start
+ * trace=true persist=true', which tells the server that it should print all
+ * tracing information to the console, and that we should use persistent
+ * storage (e.g. the database). For the next part of this walkthrough, jump
+ * down to the start command written below.
+ */
+
+/**
  * Created by james on 2/1/16.
  */
 public class mainUI {
 
+    //Connection strings for the database
     public static final String JDBC_CONN_STRING = "jdbc:postgresql:vagrant";
     public static final String DB_USERNAME = "vagrant";
     public static final String DB_PASSWORD = "vagrant";
+
+    //Default data file - feel free to open and look at it. This file is what
+    // gets parsed and used when the server runs with in memory storage, or
+    // converted to SQL statements if the database is being used.
     private static final String DEFAULT_DATA_FILE_NAME = "new_base_data.data";
     private static GameEngine activeEngine;
     private static Scanner scan;
@@ -35,17 +64,31 @@ public class mainUI {
     public static void main(String[] args) {
 
         System.out.println("Welcome to Labyrinth Server UI");
-        System.out.println("Please enter a command, or type 'help' for a list of all available commands.");
+        System.out.println("Please enter a command, or type 'help' for a " +
+                "list" + " of all available commands.");
         scan = new Scanner(System.in);
 
         List<ConsoleCommand> cmds = new ArrayList<>();
         Map<String, ConsoleCommand> cmdMap = new HashMap<>();
 
         //Create all commands
-        ConsoleCommand startCMD = new ConsoleCommand("start", "Starts the engine if it is stopped. Will report errors if there is something blocking the engine port.", "interface", "port", "persist", "trace") {
+        ConsoleCommand startCMD = new ConsoleCommand("start", "Starts the " +
+                "engine if it is stopped. Will report errors if there is " +
+                "something blocking the engine port.", "interface", "port", "persist", "trace") {
             @Override
             public void run() {
                 if (activeEngine == null) {
+                    /**
+                     * Here we are! This is what starts up a server if there
+                     * isnt one already running. Basically, it creates a
+                     * ServiceContainer and populates it with service
+                     * instances, and then passes it to the constructor for
+                     * the GameEngine. We then start the GameEngine. Jump to
+                     * the ServiceContainer.java file for the next step.
+                     */
+
+                    //Setup a persistent container if we need one, otherwise
+                    // create an in-memory service container.
                     String file = "new_base_data.data";
                     Map<String, CoreDataUtils.CoreDataEntry> data = CoreDataUtils.parse(file);
                     String persistText = getOption("persist");
@@ -56,17 +99,21 @@ public class mainUI {
                         try {
                             dbConnection = getDBConnection();
                         } catch (SQLException e) {
-                            System.err.println("Unable to create connection to Postgres Database.");
+                            System.err.println("Unable to create connection " + "to Postgres Database.");
                             if (enableTrace) {
                                 e.printStackTrace();
                             }
                             return;
                         }
                         JedisPool jedisPool = new JedisPool("localhost");
-                        container = ServiceContainer.buildPersistantContainer(data, dbConnection, jedisPool, new BasicMatchmakingService());
+                        container = ServiceContainer.buildPersistantContainer(data, dbConnection, jedisPool, new
+                                BasicMatchmakingService());
                     } else {
                         container = ServiceContainer.buildInMemoryContainer(data, new BasicMatchmakingService());
                     }
+
+                    //Build a new GameEngine instance and adds a
+                    // ClientConnectionService for Socket.IO.
                     GameEngine engine = new GameEngine(enableTrace, container);
                     SocketIOConnectionService socketIO = new SocketIOConnectionService();
                     String serverInterface = getOption("interface");
@@ -89,12 +136,15 @@ public class mainUI {
                         activeEngine = engine;
                     } catch (BindException e) {
                         engine.stop();
-                        System.err.println("Unable to start engine - something is running on a port used for one of the client services. Try using the linux commands netstat or lsof to determine the offending program and kill it.");
+                        System.err.println("Unable to start engine - something is running on a port used for one of " +
+                                "the client services. Try using the linux commands netstat or lsof to determine the " +
+                                "offending program and kill it.");
                         if (enableTrace) {
                             e.printStackTrace();
                         }
                     } catch (UnknownHostException e) {
-                        System.err.println("Unable to start engine - a provided interface for one of the client services is not valid.");
+                        System.err.println("Unable to start engine - a provided interface for one of the client " +
+                                "services is not valid.");
                         if (enableTrace) {
                             e.printStackTrace();
                         }
@@ -103,7 +153,9 @@ public class mainUI {
                         if (enableTrace) {
                             e.printStackTrace();
                         } else {
-                            System.err.println(" Run this command again with the trace option set to true to print a stacktrace.");
+                            System.err.println(" Run this command again with " +
+                                    "the trace option set to true to print a " +
+                                    "stacktrace.");
                         }
                     }
                 } else {
@@ -112,7 +164,8 @@ public class mainUI {
             }
         };
 
-        ConsoleCommand stopCMD = new ConsoleCommand("stop", "Stops the engine if it is running.") {
+        ConsoleCommand stopCMD = new ConsoleCommand("stop", "Stops the " +
+                "engine" + " if it is running.") {
             @Override
             public void run() {
                 if (activeEngine != null) {
@@ -137,7 +190,9 @@ public class mainUI {
             }
         };
 
-        ConsoleCommand helpCommand = new ConsoleCommand("help", "Gives information about a command. Run this with no arguments to get a full list of commands.", "cmd") {
+        ConsoleCommand helpCommand = new ConsoleCommand("help", "Gives " +
+                "information about a command. Run this with no arguments to " +
+                "get a full list of commands.", "cmd") {
             @Override
             public void run() {
                 String cmd = getOption("cmd");
@@ -165,20 +220,25 @@ public class mainUI {
                             System.out.println("none");
                         }
                     } else {
-                        System.err.println("The specified command '" + cmd + "' could not be found. Run 'help' with no arguments for a full list of commands.");
+                        System.err.println("The specified command '" + cmd +
+                                "' could not be found. Run 'help' with no " +
+                                "arguments for a full list of commands.");
                     }
                 } else {
                     ConsoleTable tbl = new ConsoleTable();
-                    tbl.setRowHeaders("Command", "Description", "Required Parameters", "Optional Parameters");
+                    tbl.setRowHeaders("Command", "Description", "Required " + "Parameters", "Optional Parameters");
                     for (ConsoleCommand c : cmds) {
-                        tbl.addRow(c.phrase, c.description, c.requiredParameters.toString().replaceAll("\\[|\\]", ""), c.optionalParameters.toString().replaceAll("\\[|\\]", ""));
+                        tbl.addRow(c.phrase, c.description, c.requiredParameters.toString().replaceAll("\\[|\\]", "")
+                                , c.optionalParameters.toString().replaceAll("\\[|\\]", ""));
                     }
                     System.out.println(tbl);
                 }
             }
         };
 
-        ConsoleCommand listAllFunctionsCommand = new ConsoleCommand("functions", "Lists all the socket functions that this game engine supports.") {
+        ConsoleCommand listAllFunctionsCommand = new ConsoleCommand("functions", "Lists all the socket functions that" +
+                " this game " +
+                "" + "engine supports.") {
             @Override
             public void run() {
                 if (activeEngine != null) {
@@ -191,12 +251,16 @@ public class mainUI {
                     }
                     System.out.println(t.toString());
                 } else {
-                    System.err.println("Engine not booted. You need to boot the machine in order to know what functions are available to you. This can be done with the start command.");
+                    System.err.println("Engine not booted. You need to boot " +
+                            "the machine in order to know what functions are " +
+                            "available to you. This can be done with the " +
+                            "start command.");
                 }
             }
         };
 
-        ConsoleCommand describeSpecificFunction = new ConsoleCommand("function", "Describes the function given by the fn parameter", "*fn") {
+        ConsoleCommand describeSpecificFunction = new ConsoleCommand("function", "Describes the function given by the" +
+                " fn " + "parameter", "*fn") {
             @Override
             public void run() {
                 String fn = getOption("fn");
@@ -209,7 +273,8 @@ public class mainUI {
         };
 
         //Technically a stand-in for the actual exit command.
-        ConsoleCommand exitCommand = new ConsoleCommand("exit", "Exits the engine. Terminates the engine if it running.") {
+        ConsoleCommand exitCommand = new ConsoleCommand("exit", "Exits the " + "engine. Terminates the engine if it " +
+                "running.") {
             @Override
             public void run() {
                 scan.close();
@@ -219,7 +284,9 @@ public class mainUI {
             }
         };
 
-        ConsoleCommand seedDBCommand = new ConsoleCommand("seed", "Seeds the database with initial data. WILL DROP ALL EXISTING DATA.", "dataFile") {
+        ConsoleCommand seedDBCommand = new ConsoleCommand("seed", "Seeds the " +
+                "" + "database with initial data. WILL DROP ALL EXISTING DATA" +
+                ".", "dataFile") {
             @Override
             public void run() {
                 System.out.println(new File(".").getAbsolutePath());
@@ -234,12 +301,13 @@ public class mainUI {
                 try {
                     dbConnection = getDBConnection();
                 } catch (SQLException e) {
-                    System.err.println("Unable to create connection to Postgres Database.");
+                    System.err.println("Unable to create connection to " + "Postgres Database.");
                     e.printStackTrace();
                     return;
                 }
                 JedisPool jedisPool = new JedisPool("localhost");
-                ServiceContainer c = ServiceContainer.buildPersistantContainer(coreData, dbConnection, jedisPool, new BasicMatchmakingService());
+                ServiceContainer c = ServiceContainer.buildPersistantContainer(coreData, dbConnection, jedisPool, new
+                        BasicMatchmakingService());
                 c.cleanAndInit(coreData);
             }
         };

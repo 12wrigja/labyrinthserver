@@ -11,6 +11,34 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * While developing this project I needed a way to return failure in nested function calls back to the client. I
+ * initially would simply throw a specific kind of exception, but then learned that that is very computationally
+ * expensive (especially when unwrapping the stack to log the issue), and set out to find a different solution. Thus
+ * was born the InternalResponseObject.
+ *
+ * This object is a container object, much like an Optional, except there are two primary ways to create one. One way
+ * is when a function call succeeds, and this contains the object as well as a WebStatusCode (in case the object
+ * needs to be sent to a client). The other way is on "failure" - when something didn't work as expected. This could
+ * be something as simple as not being able to log in a client to something as complicated as a deserialization error
+ * when working with Matches. If the object is constructed this way, the object is then considered to be "not normal"
+ * and signifies that there was an error in a function call. These errors can easily be transmitted back up the call
+ * stack using normal returns (so no unwrapping the stack for a stack trace) while retaining a reason for failure -
+ * the InternalErrorCode. This allows for error reporting that doesn't bring the program to a halt when something
+ * goes wrong.
+ *
+ * These "not normal" returns can be customized with a message at any time - if something fails for a reason x in a
+ * specific layer that could have a different meaning in the code that called it. Changing that is really easy using
+ * the cloneError method that is able to clone the InternalErrorCode while allowing you to change the message if
+ * necessary to provide a better reason for failure.
+ *
+ * Take a quick look here and get familiar - these objects are used EVERYWHERE - every service uses these as their
+ * return type. The NetworkingInterface uses these as their return type, which is awesome because they are easy to
+ * use in tests, and they can automatically convert themselves into JSON to send to clients.
+ *
+ * The next place to go to is Match.java - there I can start to cover the game aspect of this server.
+ */
+
+/**
  * Created by james on 2/28/16.
  */
 public class InternalResponseObject<T> extends Response {
@@ -60,7 +88,8 @@ public class InternalResponseObject<T> extends Response {
     //Path 2: Incorrect returns
 
     /**
-     * Creates a response with the given web status code. No object is included in the response, and the default message for the code is used.
+     * Creates a response with the given web status code. No object is included in the response, and the default
+     * message for the code is used.
      *
      * @param code The status code to use.
      */
@@ -99,7 +128,8 @@ public class InternalResponseObject<T> extends Response {
     }
 
     /**
-     * Creates a Unprocessable data error response with the given internal error code, and uses the default message from the error code as the message
+     * Creates a Unprocessable data error response with the given internal error code, and uses the default message
+     * from the error code as the message
      *
      * @param code
      */
@@ -122,7 +152,8 @@ public class InternalResponseObject<T> extends Response {
     }
 
     public static <T> InternalResponseObject<T> cloneError(InternalResponseObject<?> original) {
-        return new InternalResponseObject<>(original.getStatus(), original.getInternalErrorCode(), original.getMessage());
+        return new InternalResponseObject<>(original.getStatus(), original.getInternalErrorCode(), original
+                .getMessage());
     }
 
     public T get() {
@@ -145,10 +176,6 @@ public class InternalResponseObject<T> extends Response {
         return this.status.equals(WebStatusCode.OK);
     }
 
-    public boolean hasObjectKey() {
-        return this.objectKey != null;
-    }
-
     @Override
     public JSONObject getJSONRepresentation() {
         JSONObject repr = super.getJSONRepresentation();
@@ -169,7 +196,6 @@ public class InternalResponseObject<T> extends Response {
                     repr.put(objectKey, object.get());
                 }
             } catch (JSONException e) {
-                //TODO use logging of sorts.
                 e.printStackTrace();
             }
         }

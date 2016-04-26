@@ -24,17 +24,15 @@ public class PostgresPlayerRepositoryTest extends PlayerRepositoryBaseTest {
         repo = new PostgresPlayerRepository(conn);
     }
 
-
-    @Override
-    public PlayerRepository getRepositoryImplementation() {
-        return repo;
-    }
-
-
     @AfterClass
     public static void teardownDBConnection() throws SQLException {
         if (conn != null) {
             conn.close();
         }
+    }
+
+    @Override
+    public PlayerRepository getRepositoryImplementation() {
+        return repo;
     }
 }

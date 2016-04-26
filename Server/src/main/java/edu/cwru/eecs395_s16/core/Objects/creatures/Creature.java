@@ -42,7 +42,11 @@ public class Creature extends GameObject implements DatabaseObject {
     private List<Ability> abilities = new ArrayList<>();
     private List<CreatureStatus> statuses = new ArrayList<>();
     private Weapon weapon;
-    public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, int databaseId, TYPE objectType, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses, Location location, Weapon weapon) {
+
+    public Creature(UUID objectID, Optional<String> ownerID, Optional<String> controllerID, int databaseId, TYPE
+            objectType, int attack, int defense, int currentHealth, int maxHealth, int movement, int vision, int
+            currentActionPoints, int maxActionPoints, List<Ability> abilities, List<CreatureStatus> statuses,
+                    Location location, Weapon weapon) {
         super(objectID, ownerID, controllerID, objectType, location);
         this.databaseId = databaseId;
         this.attack = attack;
@@ -165,8 +169,8 @@ public class Creature extends GameObject implements DatabaseObject {
 
     public void takeDamage(int damage) {
         this.health = Math.max(0, this.health - damage);
-        if(this.health == 0){
-            setLocation(new Location(-1,-1));
+        if (this.health == 0) {
+            setLocation(new Location(-1, -1));
         }
     }
 

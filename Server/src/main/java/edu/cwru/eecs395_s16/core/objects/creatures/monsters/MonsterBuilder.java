@@ -20,7 +20,8 @@ public class MonsterBuilder extends CreatureBuilder {
 
     protected String name;
 
-    public MonsterBuilder(UUID objectID, MonsterDefinition monsterDefinition, String ownerID, Optional<String> controllerID) {
+    public MonsterBuilder(UUID objectID, MonsterDefinition monsterDefinition, String ownerID, Optional<String>
+            controllerID) {
         super(objectID, monsterDefinition.id, ownerID, controllerID);
         this.attack = monsterDefinition.startAttack;
         this.defense = monsterDefinition.startDefense;
@@ -29,7 +30,8 @@ public class MonsterBuilder extends CreatureBuilder {
         this.health = monsterDefinition.startHealth;
         this.maxHealth = monsterDefinition.startHealth;
         this.databaseIdentifier = monsterDefinition.id;
-        Optional<Weapon> wep = GameEngine.instance().services.heroItemRepository.getWeaponForId(monsterDefinition.defaultWeaponId);
+        Optional<Weapon> wep = GameEngine.instance().services.heroItemRepository.getWeaponForId(monsterDefinition
+                .defaultWeaponId);
         if (wep.isPresent()) {
             this.weapon = wep.get();
         }
@@ -41,7 +43,8 @@ public class MonsterBuilder extends CreatureBuilder {
     }
 
     public MonsterBuilder(UUID newID, Monster template) {
-        super(newID, template.getDatabaseID(), template.getOwnerID().isPresent() ? template.getOwnerID().get() : null, template.getControllerID());
+        super(newID, template.getDatabaseID(), template.getOwnerID().isPresent() ? template.getOwnerID().get() :
+                null, template.getControllerID());
         try {
             JSONObject templateObj = new JSONObject(template.getJSONRepresentation().toString());
             fillFromJSON(templateObj);
@@ -86,10 +89,13 @@ public class MonsterBuilder extends CreatureBuilder {
     }
 
     public MonsterDefinition createMonsterDefinition(int quantity) {
-        return new MonsterDefinition(databaseIdentifier, name, attack, defense, health, movement, vision, weapon.getDatabaseID(), quantity);
+        return new MonsterDefinition(databaseIdentifier, name, attack, defense, health, movement, vision, weapon
+                .getDatabaseID(), quantity);
     }
 
     public Monster createMonster() {
-        return new Monster(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, name, attack, defense, health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location, weapon);
+        return new Monster(objectID, Optional.of(ownerID), controllerID, databaseIdentifier, name, attack, defense,
+                health, maxHealth, movement, vision, actionPoints, maxActionPoints, abilities, statuses, location,
+                weapon);
     }
 }

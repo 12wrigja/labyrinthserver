@@ -21,12 +21,15 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
     public static final String MAPS_TABLE = "maps";
     public static final String TILE_MAP_TABLE = "tile_map";
     public static final String TILES_TABLE = "tiles";
-    private static final String GET_MAP_QUERY = "select maps.*, players.username as username from " + MAPS_TABLE + " inner join players on maps.creator_id = players.id where " + MAPS_TABLE + ".id = ?";
-    private static final String GET_ALL_MAPS_QUERY = "select maps.*, players.username as username from " + MAPS_TABLE + " inner join players on maps.creator_id = players.id";
+    private static final String GET_MAP_QUERY = "select maps.*, players.username as username from " + MAPS_TABLE + " " +
+            "inner join players on maps.creator_id = players.id where " + MAPS_TABLE + ".id = ?";
+    private static final String GET_ALL_MAPS_QUERY = "select maps.*, players.username as username from " + MAPS_TABLE
+            + " inner join players on maps.creator_id = players.id";
     private static final String GET_MAP_TILES_QUERY = "select * from " + TILE_MAP_TABLE + " where map_id = ?";
     private static final String GET_TILE_TYPES = "select * from " + TILES_TABLE;
 
-    private static final String INSERT_MAP_QUERY = "insert into maps (id,map_name,creator_id,width,depth,hero_capacity) VALUES (default,?,?,?,?,?);";
+    private static final String INSERT_MAP_QUERY = "insert into maps (id,map_name,creator_id,width,depth," +
+            "hero_capacity) VALUES (default,?,?,?,?,?);";
     private static final String INSERT_MAP_TILE_QUERY = "insert into tile_map VALUES (?,?,?,?,?,?,?,?)";
 
     final Map<Integer, TileType> tileTypeMap;
@@ -68,17 +71,20 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
                     int rotation = r.getInt("rotation");
                     int tileID = r.getInt("tile_id");
                     TileType tileType = tileTypeMap.get(tileID);
-                    MapTile tile = new MapTile(x, y, tileType, rotation, isHeroSpawnTile, isArchitectSpawnTile, isObjectiveSpawnTile);
+                    MapTile tile = new MapTile(x, y, tileType, rotation, isHeroSpawnTile, isArchitectSpawnTile,
+                            isObjectiveSpawnTile);
                     mp.setTile(x, y, tile);
                 }
                 if (!(count == (mp.getSizeX() * mp.getSizeY()))) {
                     //Throw issue here - map is not fully defined.
-                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode.INVALID_MAP_DEFINITION);
+                    return new InternalResponseObject<>(WebStatusCode.SERVER_ERROR, InternalErrorCode
+                            .INVALID_MAP_DEFINITION);
                 }
                 return new InternalResponseObject<>(mp, "map");
             } else {
                 //Throw error - can't find that map.
-                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode.UNKNOWN_MAP_IDENTIFIER);
+                return new InternalResponseObject<>(WebStatusCode.UNPROCESSABLE_DATA, InternalErrorCode
+                        .UNKNOWN_MAP_IDENTIFIER);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -170,7 +176,8 @@ public class PostgresMapRepository extends DBRepository implements MapRepository
             ResultSet rslts = stmt.executeQuery();
             List<MapMetadata> metadata = new ArrayList<>();
             while (rslts.next()) {
-                metadata.add(new MapMetadata(rslts.getInt("id"), rslts.getString("map_name"), rslts.getString("username"), rslts.getInt("width"), rslts.getInt("depth"), rslts.getInt("hero_capacity")));
+                metadata.add(new MapMetadata(rslts.getInt("id"), rslts.getString("map_name"), rslts.getString
+                        ("username"), rslts.getInt("width"), rslts.getInt("depth"), rslts.getInt("hero_capacity")));
             }
             return new InternalResponseObject<>(metadata, "maps");
         } catch (SQLException e) {
